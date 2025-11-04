@@ -10,7 +10,7 @@
         <!-- GRID CARD -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <!-- CARD: Upload File RPS -->
-            <button data-modal-target="modalRPS"
+            <button data-modal-target="modalUpload"
                 class="flex justify-between items-center bg-white hover:border-2 hover:border-purple-400 
                    transition-all duration-300 shadow-md hover:shadow-lg rounded-2xl px-6 py-6 w-full text-left">
                 <div>
@@ -23,7 +23,7 @@
             </button>
 
             <!-- CARD: Upload File SKP -->
-            <button data-modal-target="modalSKP"
+            <button data-modal-target="modalUpload"
                 class="flex justify-between items-center bg-white hover:border-2 hover:border-purple-400 
                    transition-all duration-300 shadow-md hover:shadow-lg rounded-2xl px-6 py-6 w-full text-left">
                 <div>
@@ -36,7 +36,7 @@
             </button>
 
             <!-- CARD: Upload File BKD -->
-            <button data-modal-target="modalBKD"
+            <button data-modal-target="modalUpload"
                 class="flex justify-between items-center bg-white hover:border-2 hover:border-purple-400 
                    transition-all duration-300 shadow-md hover:shadow-lg rounded-2xl px-6 py-6 w-full text-left">
                 <div>
@@ -49,7 +49,7 @@
             </button>
 
             <!-- CARD: Bukti Pengajaran -->
-            <button data-modal-target="modalBukti"
+            <button data-modal-target="modalUpload"
                 class="flex justify-between items-center bg-white hover:border-2 hover:border-purple-400 
                    transition-all duration-300 shadow-md hover:shadow-lg rounded-2xl px-6 py-6 w-full text-left">
                 <div>

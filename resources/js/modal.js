@@ -24,11 +24,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // === FILE UPLOAD BUTTONS (handle semua modal) ===
     const uploadSets = [
-        ['customFileBtnRPS', 'realFileInputRPS', 'fileNameRPS'],
-        ['customFileBtnSKP', 'realFileInputSKP', 'fileNameSKP'],
-        ['customFileBtnBKD', 'realFileInputBKD', 'fileNameBKD'],
-        ['customFileBtnBukti', 'realFileInputBukti', 'fileNameBukti']
-    ];
+    ['customFileBtnRPS', 'realFileInputRPS', 'fileNameRPS'],
+    ['customFileBtnSKP', 'realFileInputSKP', 'fileNameSKP'],
+    ['customFileBtnBKD', 'realFileInputBKD', 'fileNameBKD'],
+    ['customFileBtnBukti', 'realFileInputBukti', 'fileNameBukti'],
+    ['customFileBtnUpload', 'realFileInputUpload', 'fileNameUpload'] // ← tambahkan ini
+];
+
 
     uploadSets.forEach(([btnId, inputId, labelId]) => {
         const button = document.getElementById(btnId);

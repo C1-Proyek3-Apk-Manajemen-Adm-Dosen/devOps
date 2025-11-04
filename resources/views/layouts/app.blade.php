@@ -13,7 +13,7 @@
 
 </head>
 
-<body class="font-[Poppins] bg-white min-h-screen flex flex-col relative">
+<body class="font-[Poppins] bg-white min-h-screen flex flex-col relative text-sm">
     <!-- Navbar -->
     @include('partials.navbar')
 
