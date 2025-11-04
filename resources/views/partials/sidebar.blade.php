@@ -37,8 +37,8 @@
 
             <a href="{{ url('/dosen/portofolio') }}"
                 class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold transition
-                {{ request()->is('dosen/riwayat') ? 'bg-purple-600 text-white' : 'text-black hover:text-purple-600' }}">
-                <i class="fas fa-history"></i> Portofolio
+                {{ request()->is('dosen/portofolio') ? 'bg-purple-600 text-white' : 'text-black hover:text-purple-600' }}">
+                <i class="fas fa-folder-open"></i> Portofolio
             </a>
 
             <a href="{{ url('/dosen/riwayat') }}"
@@ -46,6 +46,7 @@
                 {{ request()->is('dosen/riwayat') ? 'bg-purple-600 text-white' : 'text-black hover:text-purple-600' }}">
                 <i class="fas fa-history"></i> Riwayat Upload
             </a>
+
 
             {{-- ==================== KAPRODI ==================== --}}
         @elseif ($role === 'kaprodi')

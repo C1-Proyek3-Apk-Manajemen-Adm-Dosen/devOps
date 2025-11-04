@@ -1,4 +1,4 @@
-<nav class="w-full bg-white flex items-center justify-between flex-wrap px-4 md:px-6 py-3">
+<nav class="w-full bg-white mt-4 flex items-center justify-between flex-wrap px-4 md:px-6 py-3">
     <!-- Left Section: Logo + Tombol Sidebar -->
     <div class="flex items-center gap-2 flex-shrink-0">
         <!-- Tombol Toggle Sidebar (muncul hanya di mobile) -->
@@ -6,29 +6,22 @@
             <i class="fas fa-bars text-2xl"></i>
         </button>
 
-
         <!-- Logo -->
-        <div class="flex flex-col">
+        <div class="flex flex-col ml-4">
             <h1 class="text-2xl md:text-4xl font-bold text-purple-600 leading-none">SiDoRa</h1>
             <p class="hidden md:block text-xs text-gray-500 leading-none">Sistem Dokumeen & Arsip Dosen</p>
         </div>
     </div>
 
     <!-- Middle Section: Search + Notification -->
-    <div class="flex items-center gap-3 flex-1 justify-center order-last md:order-none w-full md:w-auto mt-3 md:mt-0">
+    <div
+        class="flex items-center gap-3 flex-1 justify-center order-last md:order-none w-full md:w-auto mt-3 md:mt-0 relative">
+        <!-- Input Search -->
         <input type="text" placeholder="Search"
             class="w-full md:w-80 border border-gray-300 rounded-full px-5 py-2 text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none transition" />
 
-        <!-- Notifikasi bulat -->
-        <button
-            class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition flex-shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                class="w-5 h-5 text-purple-600">
-                <path
-                    d="M22.086 14.672A3.685 3.685 0 0 1 21 12.05V9A9 9 0 0 0 3 9v3.05a3.685 3.685 0 0 1-1.086 2.622A3.121 3.121 0 0 0 4.121 20H7.1a5 5 0 0 0 9.8 0h2.98a3.121 3.121 0 0 0 2.207-5.328ZM12 22a3 3 0 0 1-2.816-2h5.632A3 3 0 0 1 12 22Zm7.879-4H4.121a1.121 1.121 0 0 1-.793-1.914A5.672 5.672 0 0 0 5 12.05V9a7 7 0 0 1 14 0v3.05a5.672 5.672 0 0 0 1.672 4.036A1.121 1.121 0 0 1 19.879 18Z">
-                </path>
-            </svg>
-        </button>
+        <!-- Notifikasi (JANGAN dibungkus <button>, cukup panggil komponennya) -->
+        <x-notification-dropdown />
     </div>
 
     <!-- Right Section: Profile -->
@@ -49,7 +42,6 @@
         <div class="hidden sm:flex flex-col leading-tight">
             <p class="text-xs text-gray-400">Hi,</p>
             <p class="text-sm font-semibold text-purple-700">
-                {{-- sementara statis, nanti bisa ganti ke: {{ Auth::user()->role }} {{ Auth::user()->name }} --}}
                 TU <span class="text-gray-700">Lia Rahmawati</span>
             </p>
         </div>

@@ -62,8 +62,7 @@
         }
     </script>
     @vite(['resources/js/modal.js'])
-
-
+    @vite(['resources/js/notif.js'])
 </body>
 
 </html>
