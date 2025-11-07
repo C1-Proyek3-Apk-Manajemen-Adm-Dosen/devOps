@@ -2,7 +2,7 @@
 <div class="relative inline-block">
     <!-- Tombol Lonceng -->
     <button id="notifBtn" class="relative p-2 rounded-full hover:bg-gray-200 transition">
-        <i class="fas fa-bell text-purple-600 text-2xl"></i>
+        <i class="fas fa-bell text-[#050C9C] text-2xl"></i>
         <span class="absolute top-1 right-1 bg-red-500 w-2.5 h-2.5 rounded-full"></span>
     </button>
 

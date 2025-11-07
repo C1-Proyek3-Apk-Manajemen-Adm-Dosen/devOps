@@ -11,7 +11,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Registrasi middleware global & alias
+        $middleware->alias([
+            'checkRole' => \App\Http\Middleware\CheckRole::class, // ✅ ini middleware kamu
+        ]);
+
+        // Kalau mau dijadikan middleware grup juga (optional)
+        $middleware->web(append: [
+            // middleware yang aktif di semua route web bisa ditaruh sini
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

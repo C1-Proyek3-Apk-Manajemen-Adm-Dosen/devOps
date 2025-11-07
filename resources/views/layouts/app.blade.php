@@ -63,6 +63,9 @@
     </script>
     @vite(['resources/js/modal.js'])
     @vite(['resources/js/notif.js'])
+    @vite(['resources/js/logoutModal.js'])
+    @vite(['resources/js/loginValidation.js'])
+    @include('components.modals.logout-modal')
 </body>
 
 </html>
