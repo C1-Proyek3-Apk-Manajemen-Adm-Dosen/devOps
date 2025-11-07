@@ -13,31 +13,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // contoh akun TU
-        User::create([
-            'nama_lengkap' => 'Lia Rahmawati',
-            'email'        => 'tu@gmail.com',
-            'password'     => Hash::make('123456'), // otomatis bcrypt
-            'role'         => 'tu',
-            'status'       => true,
-        ]);
-
-        // contoh akun Dosen
-        User::create([
-            'nama_lengkap' => 'Dosen A',
-            'email'        => 'dosen@gmail.com',
-            'password'     => Hash::make('123456'),
-            'role'         => 'dosen',
-            'status'       => true,
-        ]);
-
-        // contoh akun Kaprodi
-        User::create([
-            'nama_lengkap' => 'Kaprodi B',
-            'email'        => 'kaprodi@gmail.com',
-            'password'     => Hash::make('123456'),
-            'role'         => 'koordinator',
-            'status'       => true,
+        $this->call([
+            PolbanUsersSeeder::class,
         ]);
     }
+
 }

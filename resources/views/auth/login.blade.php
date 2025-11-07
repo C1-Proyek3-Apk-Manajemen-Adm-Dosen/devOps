@@ -63,6 +63,14 @@
                     class="w-full bg-[#050C9C] hover:bg-[#3572EF] text-white font-semibold py-3 rounded-xl transition duration-200">
                     Log In
                 </button>
+                <div class="text-center">
+                    <a href="{{ route('google.login') }}"
+                        class="block w-full text-center mt-3 border border-gray-300 py-3 rounded-xl hover:bg-gray-100 transition">
+                        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google"
+                            class="inline w-5 mr-2">
+                        Login dengan Google
+                    </a>
+                </div>
             </form>
         </div>
     </div>

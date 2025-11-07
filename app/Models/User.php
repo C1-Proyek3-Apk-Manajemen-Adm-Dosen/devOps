@@ -11,6 +11,8 @@ class User extends Authenticatable
 
     protected $table = 'users';
     protected $primaryKey = 'id_user';
+    public $incrementing = true;
+    protected $keyType = 'int';
 
     protected $fillable = [
         'nama_lengkap',
@@ -26,4 +28,14 @@ class User extends Authenticatable
     ];
 
     public $timestamps = true;
+
+    public function getAuthIdentifierName()
+    {
+        return $this->primaryKey;
+    }
+
+    public function getAuthIdentifier()
+    {
+        return $this->{$this->primaryKey};
+    }
 }

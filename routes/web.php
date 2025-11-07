@@ -13,7 +13,10 @@ Route::get('/', function () {
 // ==================== LOGIN & LOGOUT ====================
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::get('auth/google', [AuthController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
 
 // ==================== TU ====================
 Route::prefix('tu')->middleware(['auth', 'checkRole:tu'])->group(function () {
