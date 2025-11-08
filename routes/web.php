@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\AuthController;
+use Illuminate\Support\Facades\Storage;
 
 // ==================== REDIRECT KE LOGIN ====================
 Route::get('/', function () {
@@ -21,6 +22,9 @@ Route::prefix('tu')->middleware(['auth', 'checkRole:tu'])->group(function () {
     Route::get('/dokumen-saya', fn() => view('tu.dokumen-saya'))->name('tu.dokumen');
     Route::get('/upload-dokumen', fn() => view('tu.upload-dokumen'))->name('tu.upload');
     Route::get('/riwayat-upload', fn() => view('tu.riwayat-upload'))->name('tu.riwayat');
+    
+    // RUTE BARU UNTUK PROSES UPLOAD (TAMBAHAN DI SINI)
+    Route::post('/upload-dokumen', [DokumenController::class, 'store'])->name('tu.upload.post');
 });
 
 // ==================== DOSEN ====================
@@ -30,6 +34,9 @@ Route::prefix('dosen')->middleware(['auth', 'checkRole:dosen'])->group(function 
     Route::get('/upload', fn() => view('dosen.upload'))->name('dosen.upload');
     Route::get('/portofolio', fn() => view('dosen.portofolio'))->name('dosen.portofolio');
     Route::get('/riwayat', fn() => view('dosen.riwayat'))->name('dosen.riwayat');
+
+    // RUTE BARU UNTUK PROSES UPLOAD (TAMBAHAN DI SINI)
+    Route::post('/upload', [DokumenController::class, 'store'])->name('dosen.upload.post');
 });
 
 // ==================== KOORDINATOR ====================
@@ -48,4 +55,20 @@ Route::get('/dokumen/{id}', [DokumenController::class, 'show']);
 Route::get('/db-health', function () {
     $row = DB::selectOne("select current_database() db, current_user u, now() ts");
     return response()->json(['ok'=>true,'db'=>$row->db??null,'user'=>$row->u??null,'time'=>$row->ts??null]);
+});
+
+//
+
+Route::get('/minio-test', function () {
+    /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+    $disk = Storage::disk('minio');
+
+    $disk->put('health/hello.txt', 'Hello from Laravel!', [
+        'visibility' => 'public',
+    ]);
+
+    $publicUrl = $disk->url('health/hello.txt'); // butuh bucket public (sudah 'download')
+    $signedUrl = $disk->temporaryUrl('health/hello.txt', now()->addMinutes(10)); // selalu works
+
+    return compact('publicUrl', 'signedUrl');
 });
