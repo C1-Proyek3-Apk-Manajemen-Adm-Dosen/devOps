@@ -9,7 +9,7 @@
         <!-- Logo -->
         <div class="flex flex-col ml-4">
             <h1 class="text-2xl md:text-4xl font-bold text-[#050C9C] leading-none">SiDoRa</h1>
-            <p class="hidden md:block text-xs text-gray-500 leading-none">Sistem Dokumeen & Arsip Dosen</p>
+            <p class="hidden md:block text-xs text-gray-500 leading-none">Sistem Dokumen & Arsip Dosen</p>
         </div>
     </div>
 
