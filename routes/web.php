@@ -24,6 +24,7 @@ Route::prefix('tu')->middleware(['auth', 'checkRole:tu'])->group(function () {
     Route::get('/dokumen-saya', fn() => view('tu.dokumen-saya'))->name('tu.dokumen');
     Route::get('/upload-dokumen', fn() => view('tu.upload-dokumen'))->name('tu.upload');
     Route::get('/riwayat-upload', fn() => view('tu.riwayat-upload'))->name('tu.riwayat');
+    Route::post('/upload', [UploadController::class, 'store'])->name('tu.upload.store');
 });
 
 // ==================== DOSEN ====================
