@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DokumenController;
 use App\Models\Dokumen;
 use App\Models\Kategori;
+use App\Models\User;
 
 // ==================== ROOT -> LOGIN ====================
 Route::get('/', fn () => redirect()->route('login'));
@@ -25,18 +26,25 @@ Route::prefix('tu')->middleware(['auth', 'checkRole:tu'])->group(function () {
 
     // ✅ GET = tampilkan halaman upload (buka modal dsb)
     Route::get('/upload-dokumen', function () {
+        // Ambil kategori untuk dropdown
         $kategoris = \App\Models\Kategori::select('kategori_id', 'nama_kategori')
             ->orderBy('nama_kategori')
             ->get();
 
+        // Ambil user (pakai id_user & nama_lengkap)
+        $users = \App\Models\User::selectRaw('id_user as id, nama_lengkap as name, email')
+            ->orderBy('nama_lengkap')
+            ->get();
+
+        // Ambil daftar dokumen (kalau diperlukan)
         $dokumens = \App\Models\Dokumen::orderByDesc('dokumen_id')->get();
 
-        return view('tu.upload-dokumen', compact('kategoris', 'dokumens'));
+        return view('tu.upload-dokumen', compact('kategoris', 'users', 'dokumens'));
     })->name('tu.upload');
 
     // ✅ POST = simpan file ke MinIO lewat DokumenController
-    Route::post('/upload-dokumen', [\App\Http\Controllers\DokumenController::class, 'store'])
-        ->name('tu.upload.store');
+    Route::post('/upload-dokumen', [DokumenController::class, 'store'])->name('tu.upload.store');
+    Route::post('/store', [DokumenController::class, 'store'])->name('tu.store');
 
     Route::get('/riwayat-upload', fn() => view('tu.riwayat-upload'))->name('tu.riwayat');
 });
@@ -74,9 +82,9 @@ Route::get('/dokumen/{id}/open', [DokumenController::class, 'open'])->name('doku
 Route::get('/dokumen-data', [DokumenController::class, 'indexJson'])->name('dokumen.data');
 
 Route::prefix('api')->group(function () {
-    Route::get('/dokumen', [DokumenController::class, 'index'])->name('dokumen.index');          // ?q=&status=&kategori_id=&per_page=
-    Route::get('/dokumen/{id}', [DokumenController::class, 'show'])->name('dokumen.show.api');   // detail JSON
-    Route::get('/dokumen/{id}/url', [DokumenController::class, 'url'])->name('dokumen.url');     // URL publik MinIO (JSON)
+    Route::get('/dokumen', [DokumenController::class, 'index'])->name('dokumen.index');
+    Route::get('/dokumen/{id}', [DokumenController::class, 'show'])->name('dokumen.show.api');
+    Route::get('/dokumen/{id}/url', [DokumenController::class, 'url'])->name('dokumen.url');
 });
 
 // ==================== HEALTH CHECK ====================

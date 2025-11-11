@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Dokumen;
 use App\Models\Kategori;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -14,13 +15,11 @@ class DokumenController extends Controller
     // =========================
     // ======= API LIST ========
     // =========================
-    // GET /api/dokumen?q=&status=&kategori_id=&per_page=10
     public function index(Request $r)
     {
-        $q = Dokumen::with(['kategori','creator'])
+        $q = Dokumen::with(['kategori','owner'])
             ->when($r->filled('q'), fn($w) =>
                 $w->where(function($x) use ($r) {
-                    // PostgreSQL: ILIKE
                     $x->where('judul','ilike','%'.$r->q.'%')
                       ->orWhere('nomor_dokumen','ilike','%'.$r->q.'%');
                 })
@@ -32,10 +31,9 @@ class DokumenController extends Controller
         return $q->paginate($r->integer('per_page', 10));
     }
 
-    // GET /api/dokumen/{id}
     public function show($id)
     {
-        $doc = Dokumen::with(['kategori','creator','komentar.user','versi'])
+        $doc = Dokumen::with(['kategori','owner','komentar.user','versi'])
             ->where('dokumen_id', $id)
             ->firstOrFail();
 
@@ -47,7 +45,6 @@ class DokumenController extends Controller
     // =========================
     public function indexPage(Request $r)
     {
-        // sesuaikan nama kolom kategori (di kamu: nama_kategori)
         $kategori = Kategori::select('kategori_id','nama_kategori')
             ->orderBy('nama_kategori')
             ->get();
@@ -55,10 +52,9 @@ class DokumenController extends Controller
         return view('dokumen.index', compact('kategori'));
     }
 
-    // JSON untuk tabel di page (kalau perlu)
     public function indexJson(Request $r)
     {
-        $q = Dokumen::with(['kategori','creator'])
+        $q = Dokumen::with(['kategori','owner'])
             ->when($r->filled('q'), fn($w) =>
                 $w->where(function($x) use ($r) {
                     $x->where('judul','ilike','%'.$r->q.'%')
@@ -75,117 +71,85 @@ class DokumenController extends Controller
     // =========================
     // ====== CRUD FILES =======
     // =========================
-
-    /**
-     * Upload file ke MinIO + simpan meta ke DB.
-     * Expect form fields:
-     * - judul_dokumen (fallback ke 'judul' kalau tidak ada)
-     * - file_upload (fallback ke 'file' kalau tidak ada)
-     * - (opsional) kategori_id, nomor_dokumen, tanggal_terbit, deskripsi, status
-     */
     public function store(Request $request)
     {
         try {
-            // Validasi input
             $request->validate([
-                'judul_dokumen' => 'nullable|string|max:255',
-                'judul'         => 'nullable|string|max:255',
-                'file_upload'   => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
-                'file'          => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
-                'kategori_id'   => 'nullable|integer|exists:kategori,kategori_id',
-                'nomor_dokumen' => 'nullable|string|max:100',
-                'tanggal_terbit'=> 'nullable|date',
-                'deskripsi'     => 'nullable|string',
-                'status'        => 'nullable|string|max:50',
+                'judul'           => 'required|string|max:255',
+                'nomor_dokumen'   => 'nullable|string|max:100',
+                'tanggal_terbit'  => ['required', 'regex:/^\d{2}\/\d{2}\/\d{4}$/'],
+                'kategori_id'     => 'required|exists:kategori,kategori_id',
+                'deskripsi'       => 'required|string',
+                'owner_user_id'   => 'required|exists:users,id_user', // ✅ FIX HERE
+                'file'            => 'required|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:20480',
             ]);
 
-            // Ambil input judul dgn fallback
-            $judul = $request->input('judul_dokumen') ?? $request->input('judul');
-            if (!$judul) {
-                return back()->withErrors(['judul_dokumen' => 'Judul dokumen wajib diisi.']);
-            }
+            // Convert tanggal dd/mm/yyyy -> yyyy-mm-dd
+            $tanggal = \DateTime::createFromFormat('d/m/Y', $request->tanggal_terbit);
+            $tanggalFormatted = $tanggal ? $tanggal->format('Y-m-d') : null;
 
-            // Ambil file dgn fallback
-            $file = $request->file('file_upload') ?? $request->file('file');
-            if (!$file) {
-                return back()->withErrors(['file_upload' => 'File wajib diunggah.']);
-            }
-
-            // Folder tujuan dalam bucket
+            // Upload ke MinIO
             $folderPath = 'dokumen-uploads';
-
-            // Nama file aman + unik
+            $file = $request->file('file');
             $originalName = $file->getClientOriginalName();
             $base = pathinfo($originalName, PATHINFO_FILENAME);
             $ext  = $file->getClientOriginalExtension();
-            $safe = \Illuminate\Support\Str::slug($base, '-');
-            $uniqueFileName = now()->format('YmdHis').'-'.\Illuminate\Support\Str::random(6).'-'.$safe.($ext ? '.'.$ext : '');
+            $safe = Str::slug($base, '-');
+            $uniqueFileName = now()->format('YmdHis').'-'.Str::random(6).'-'.$safe.'.'.$ext;
 
-            // Simpan ke MinIO
-            $path = \Illuminate\Support\Facades\Storage::disk('minio')->putFileAs($folderPath, $file, $uniqueFileName);
+            $path = Storage::disk('minio')->putFileAs($folderPath, $file, $uniqueFileName);
 
-            // Simpan ke database
-            \App\Models\Dokumen::create([
-                'judul'          => $judul,
-                'nomor_dokumen'  => $request->input('nomor_dokumen'),
-                'tanggal_terbit' => $request->input('tanggal_terbit'),
-                'kategori_id'    => $request->input('kategori_id'),
-                'file_path'      => $path, // contoh: dokumen-uploads/20251110-abc123-judul.pdf
-                'deskripsi'      => $request->input('deskripsi'),
-                'created_by'     => \Illuminate\Support\Facades\Auth::id(),
-                'status'         => $request->input('status', 'draft'),
+            Dokumen::create([
+                'judul'          => $request->judul,
+                'nomor_dokumen'  => $request->nomor_dokumen,
+                'tanggal_terbit' => $tanggalFormatted,
+                'kategori_id'    => $request->kategori_id,
+                'deskripsi'      => $request->deskripsi,
+                'owner_user_id'  => $request->owner_user_id,
+                'file_path'      => $path,
+                'created_by'     => Auth::id(),
+                'status'         => 'draft',
             ]);
 
-            // Notifikasi sukses
-            return back()->with('success', 'Dokumen berhasil di-upload ke MinIO dan data tersimpan!');
+            return back()->with('success', 'Dokumen berhasil diupload!');
         } catch (\Throwable $e) {
-            // Kalau error (upload gagal, DB error, dll)
             return back()->with('error', 'Upload gagal: ' . $e->getMessage());
         }
     }
 
-
-    /**
-     * Update metadata dokumen + opsi ganti file.
-     * Expect form fields opsional:
-     * - judul, nomor_dokumen, tanggal_terbit, kategori_id, deskripsi, status
-     * - file_upload/file (opsional) untuk ganti file
-     */
     public function update(Request $request, $id)
     {
         $dokumen = Dokumen::findOrFail($id);
 
         $request->validate([
-            'judul'         => 'nullable|string|max:255',
-            'nomor_dokumen' => 'nullable|string|max:100',
-            'tanggal_terbit'=> 'nullable|date',
-            'kategori_id'   => 'nullable|integer|exists:kategori,kategori_id',
-            'deskripsi'     => 'nullable|string',
-            'status'        => 'nullable|string|max:50',
-            'file_upload'   => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
-            'file'          => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
+            'judul'           => 'nullable|string|max:255',
+            'nomor_dokumen'   => 'nullable|string|max:100',
+            'tanggal_terbit'  => 'nullable|date',
+            'kategori_id'     => 'nullable|integer|exists:kategori,kategori_id',
+            'deskripsi'       => 'nullable|string',
+            'status'          => 'nullable|string|max:50',
+            'file'            => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:20480',
         ]);
 
         $dokumen->fill($request->only([
             'judul','nomor_dokumen','tanggal_terbit','kategori_id','deskripsi','status'
         ]));
 
-        // Kalau ada file baru -> hapus lama, upload baru
-        $newFile = $request->file('file_upload') ?? $request->file('file');
-        if ($newFile) {
-            // hapus lama (ignore kalau ga ada)
+        // Ganti file jika ada
+        if ($request->hasFile('file')) {
             if ($dokumen->file_path && Storage::disk('minio')->exists($dokumen->file_path)) {
                 Storage::disk('minio')->delete($dokumen->file_path);
             }
 
             $folderPath = 'dokumen-uploads';
-            $originalName = $newFile->getClientOriginalName();
+            $file = $request->file('file');
+            $originalName = $file->getClientOriginalName();
             $base = pathinfo($originalName, PATHINFO_FILENAME);
-            $ext  = $newFile->getClientOriginalExtension();
+            $ext  = $file->getClientOriginalExtension();
             $safe = Str::slug($base, '-');
-            $uniqueFileName = now()->format('YmdHis').'-'.Str::random(6).'-'.$safe.($ext ? '.'.$ext : '');
+            $uniqueFileName = now()->format('YmdHis').'-'.Str::random(6).'-'.$safe.'.'.$ext;
 
-            $path = Storage::disk('minio')->putFileAs($folderPath, $newFile, $uniqueFileName);
+            $path = Storage::disk('minio')->putFileAs($folderPath, $file, $uniqueFileName);
             $dokumen->file_path = $path;
         }
 
@@ -194,9 +158,6 @@ class DokumenController extends Controller
         return back()->with('success', 'Dokumen berhasil diperbarui!');
     }
 
-    /**
-     * Hapus record + file di MinIO.
-     */
     public function destroy($id)
     {
         $dokumen = Dokumen::findOrFail($id);
@@ -213,30 +174,43 @@ class DokumenController extends Controller
     // =========================
     // ====== UTILITIES ========
     // =========================
-
-    /**
-     * Redirect langsung ke URL publik MinIO (tanpa login).
-     * Route contoh: GET /dokumen/{id}/open
-     */
     public function open($id)
     {
         $dokumen = Dokumen::findOrFail($id);
         if (!$dokumen->file_path) abort(404, 'File tidak ditemukan.');
 
-        return redirect(Storage::disk('minio')->url($dokumen->file_path));
+        try {
+            $url = Storage::disk('minio')->temporaryUrl(
+                $dokumen->file_path,
+                now()->addMinutes(10)
+            );
+        } catch (\Exception $e) {
+            $endpoint = config('filesystems.disks.minio.endpoint');
+            $bucket = config('filesystems.disks.minio.bucket');
+            $url = rtrim($endpoint, '/') . '/' . $bucket . '/' . ltrim($dokumen->file_path, '/');
+        }
+
+        return redirect($url);
     }
 
-    /**
-     * Ambil URL publik dalam bentuk JSON.
-     * Route contoh: GET /api/dokumen/{id}/url
-     */
     public function url($id)
     {
         $dokumen = Dokumen::findOrFail($id);
-        if (!$dokumen->file_path) abort(404, 'File tidak ditemukan.');
+        if (!$dokumen->file_path) {
+            return response()->json(['error' => 'File tidak ditemukan'], 404);
+        }
 
-        return response()->json([
-            'url' => Storage::disk('minio')->url($dokumen->file_path),
-        ]);
+        try {
+            $url = Storage::disk('minio')->temporaryUrl(
+                $dokumen->file_path,
+                now()->addMinutes(10)
+            );
+        } catch (\Exception $e) {
+            $endpoint = config('filesystems.disks.minio.endpoint');
+            $bucket = config('filesystems.disks.minio.bucket');
+            $url = rtrim($endpoint, '/') . '/' . $bucket . '/' . ltrim($dokumen->file_path, '/');
+        }
+
+        return response()->json(['url' => $url]);
     }
 }

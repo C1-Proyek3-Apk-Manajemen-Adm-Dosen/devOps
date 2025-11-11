@@ -72,7 +72,7 @@
         </div>
 
         <!-- Modal Upload TU -->
-        @include('components.tu.upload-modal')
+        @include('components.tu.upload-modals-tu')
     </div>
 
     {{-- optional: auto-hide success alert --}}

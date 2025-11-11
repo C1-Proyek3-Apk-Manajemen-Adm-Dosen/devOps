@@ -64,5 +64,5 @@
     </div>
 
     <!-- INCLUDE SEMUA MODAL UPLOAD -->
-    @include('components.modals.upload-modals')
+    @include('components.modals.upload-modals-dosen')
 @endsection
