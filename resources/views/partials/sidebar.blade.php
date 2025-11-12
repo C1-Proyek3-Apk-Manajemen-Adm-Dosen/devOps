@@ -75,9 +75,9 @@
                 {{ request()->is('tu/dashboard') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
                 <i class="fas fa-home"></i> Dashboard
             </a>
-            <a href="{{ url('/tu/dokumen-saya') }}"
+            <a href="{{ url('/tu/monitoring') }}"
                 class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition
-                {{ request()->is('tu/dokumen-saya') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
+                {{ request()->is('tu/monitoring') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
                 <i class="fas fa-users-cog"></i> Monitoring Dokumen
             </a>
             <a href="{{ url('/tu/upload-dokumen') }}"
