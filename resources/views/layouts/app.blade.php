@@ -11,6 +11,8 @@
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
+    @stack('styles')
+
 </head>
 
 <body class="font-[Poppins] bg-white min-h-screen flex flex-col relative text-sm">
@@ -66,7 +68,11 @@
     @vite(['resources/js/logoutModal.js'])
     @vite(['resources/js/loginValidation.js'])
     @vite(['resources/js/tu/upload-dokumen.js'])
+    @vite(['resources/js/tu/edit-hak-akses.js'])
+    @vite(['resources/js/tu/monitoring.js'])
     @include('components.modals.logout-modal')
+
+    @stack('scripts')
 
 </body>
 

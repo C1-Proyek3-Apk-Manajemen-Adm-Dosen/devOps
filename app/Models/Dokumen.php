@@ -22,21 +22,26 @@ class Dokumen extends Model
         'deskripsi',
         'created_by',
         'status',
+        'user_id',
     ];
 
     protected $casts = [
         'tanggal_terbit' => 'date',
     ];
 
-    // --- Relations ---
     public function kategori()
     {
         return $this->belongsTo(Kategori::class, 'kategori_id', 'kategori_id');
     }
 
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'user_id', 'id_user');
+    }
+
     public function creator()
     {
-        return $this->belongsTo(\App\Models\User::class, 'created_by');
+        return $this->belongsTo(\App\Models\User::class, 'created_by', 'id_user');
     }
 
     public function komentar()
@@ -49,7 +54,14 @@ class Dokumen extends Model
         return $this->hasMany(VersiDokumen::class, 'dokumen_id', 'dokumen_id');
     }
 
-    // --- Accessor URL publik MinIO ---
+    public function accessControls()
+    {
+        return $this->hasMany(AccessControl::class, 'document_id', 'dokumen_id');
+    }
+
+    // ==========================
+    // ✅ ACCESSOR URL MinIO
+    // ==========================
     public function getUrlAttribute(): ?string
     {
         if (!$this->file_path) return null;
