@@ -7,6 +7,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DokumenController;
 use App\Models\Dokumen;
 use App\Models\Kategori;
+// ⬇️ Tambahan import untuk Riwayat TU
+use App\Http\Controllers\TU\RiwayatController;
 
 // ==================== ROOT -> LOGIN ====================
 Route::get('/', fn () => redirect()->route('login'));
@@ -38,7 +40,10 @@ Route::prefix('tu')->middleware(['auth', 'checkRole:tu'])->group(function () {
     Route::post('/upload-dokumen', [\App\Http\Controllers\DokumenController::class, 'store'])
         ->name('tu.upload.store');
 
-    Route::get('/riwayat-upload', fn() => view('tu.riwayat-upload'))->name('tu.riwayat');
+    // ==================== R I W A Y A T   T U  (diubah) ====================
+    Route::get('/riwayat-upload', [RiwayatController::class, 'index'])->name('tu.riwayat');
+    Route::get('/dokumen/{dokumen_id}', [RiwayatController::class, 'show'])
+        ->whereNumber('dokumen_id')->name('tu.dokumen.show');
 });
 
 // ==================== DOSEN ====================
