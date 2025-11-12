@@ -66,6 +66,8 @@
     @vite(['resources/js/logoutModal.js'])
     @vite(['resources/js/loginValidation.js'])
     @vite(['resources/js/tu/upload-dokumen.js'])
+    @vite(['resources/js/app.js'])
+
     @include('components.modals.logout-modal')
 
 </body>

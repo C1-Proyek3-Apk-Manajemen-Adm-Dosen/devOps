@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DokumenController;
+use App\Http\Controllers\Tu\DashboardController;
+use App\Http\Controllers\Tu\NotificationController;
 use App\Models\Dokumen;
 use App\Models\Kategori;
 
@@ -20,7 +22,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // ==================== TU ====================
 Route::prefix('tu')->middleware(['auth', 'checkRole:tu'])->group(function () {
-    Route::get('/dashboard', fn() => view('tu.dashboard'))->name('tu.dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('tu.dashboard');
     Route::get('/dokumen-saya', fn() => view('tu.dokumen-saya'))->name('tu.dokumen');
 
     // ✅ GET = tampilkan halaman upload (buka modal dsb)
@@ -39,6 +41,7 @@ Route::prefix('tu')->middleware(['auth', 'checkRole:tu'])->group(function () {
         ->name('tu.upload.store');
 
     Route::get('/riwayat-upload', fn() => view('tu.riwayat-upload'))->name('tu.riwayat');
+    Route::get('/notifikasi', [NotificationController::class, 'index'])->name('tu.notifikasi');
 });
 
 // ==================== DOSEN ====================
