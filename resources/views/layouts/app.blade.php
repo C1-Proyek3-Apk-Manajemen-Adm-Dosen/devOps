@@ -63,7 +63,9 @@
     'resources/js/loginValidation.js',
     'resources/js/tu/upload-dokumen.js',
     'resources/js/tu/riwayat.js',
-    'resources/js/app.js'
+    'resources/js/app.js',
+    'resources/js/tu/monitoring.js',
+    'resources/js/tu/edit-hak-akses.js'
   ])
 
   {{-- halaman boleh nambah JS sendiri (mis. riwayat.js) --}}

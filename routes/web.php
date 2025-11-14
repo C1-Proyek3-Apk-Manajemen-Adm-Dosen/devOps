@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\Tu\DashboardController;
 use App\Http\Controllers\Tu\NotificationController;
+use App\Http\Controllers\Tu\MonitoringController;
 use App\Models\Dokumen;
 use App\Models\Kategori;
 // ⬇️ Tambahan import untuk Riwayat TU
@@ -27,6 +28,17 @@ Route::prefix('tu')->middleware(['auth', 'checkRole:tu'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('tu.dashboard');
     Route::get('/dokumen-saya', fn() => view('tu.dokumen-saya'))->name('tu.dokumen');
 
+    Route::get('/monitoring', [MonitoringController::class, 'index'])->name('tu.monitoring');
+
+    Route::get('/dokumen/{id}/detail', [MonitoringController::class, 'detailPage'])->name('tu.detail-dokumen');
+
+    Route::get('/dokumen/{id}/hak-akses', [MonitoringController::class, 'editHakAkses'])->name('tu.edit-hak-akses');
+
+    Route::post('/dokumen/{id}/hak-akses', [MonitoringController::class, 'updateHakAkses'])->name('tu.update-hak-akses');
+
+    Route::delete('/dokumen/{id}/hak-akses', [MonitoringController::class, 'removeHakAkses'])->name('tu.hak-akses.remove');
+
+
     // ✅ GET = tampilkan halaman upload (buka modal dsb)
     Route::get('/upload-dokumen', function () {
         $kategoris = \App\Models\Kategori::select('kategori_id', 'nama_kategori')
@@ -46,6 +58,9 @@ Route::prefix('tu')->middleware(['auth', 'checkRole:tu'])->group(function () {
     Route::get('/riwayat-upload', [RiwayatController::class, 'index'])->name('tu.riwayat');
     Route::get('/dokumen/{dokumen_id}', [RiwayatController::class, 'show'])
         ->whereNumber('dokumen_id')->name('tu.dokumen.show');
+    
+    Route::get('/notifikasi', [NotificationController::class, 'index'])->name('tu.notifikasi');
+
 });
 
 // ==================== DOSEN ====================
