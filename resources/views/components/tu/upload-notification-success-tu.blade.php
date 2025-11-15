@@ -38,5 +38,3 @@
     }
 }
 </style>
-
-<script src="{{ asset('js/tu/upload-notification-success-tu.js') }}"></script>

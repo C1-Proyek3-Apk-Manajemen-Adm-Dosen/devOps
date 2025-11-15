@@ -9,26 +9,12 @@
             <p class="text-gray-600">Lengkapi form di bawah untuk mengupload dokumen baru</p>
         </div>
 
-        {{-- Alert sukses / error --}}
+        {{-- Alert sukses (Hidden untuk trigger modal) --}}
         @if (session('success'))
             <div class="alert-success hidden">{{ session('success') }}</div>
         @endif
-        <!-- @if (session('success'))
-            <div class="alert-success mb-6 p-4 rounded-xl bg-green-100 text-green-700 border border-green-300 flex items-center justify-between">
-                <div class="flex items-center">
-                    <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="font-medium">{{ session('success') }}</span>
-                </div>
-                <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                    </svg>
-                </button>
-            </div>
-        @endif -->
 
+        {{-- Alert error --}}
         @if (session('error'))
             <div class="alert-error mb-6 p-4 rounded-xl bg-red-100 text-red-700 border border-red-300 flex items-center justify-between">
                 <div class="flex items-center">
@@ -91,13 +77,11 @@
                             <label class="block text-sm font-semibold mb-2 text-gray-800">Kategori Dokumen <span class="text-red-500">*</span></label>
                             <select name="kategori_id" class="custom-select input-field w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#050C9C] focus:ring-2 focus:ring-[#050C9C]/20 outline-none transition appearance-none bg-white" required>
                                 <option value="" disabled selected>Pilih kategori dokumen</option>
-                                {{-- PERUBAHAN DI SINI (Filter by ID) --}}
                                 @foreach ($kategoris as $kategori)
                                     @if (in_array($kategori->kategori_id, [1, 2]))
                                         <option value="{{ $kategori->kategori_id }}" {{ old('kategori_id') == $kategori->kategori_id ? 'selected' : '' }}>{{ $kategori->nama_kategori }}</option>
                                     @endif
                                 @endforeach
-                                {{-- AKHIR PERUBAHAN --}}
                             </select>
                         </div>
                     </div>
@@ -181,68 +165,8 @@
         </div>
     </div>
 
+    {{-- Modal Success --}}
     @include('components.tu.upload-notification-success-tu')
-
-    {{-- Inline JS untuk testing --}}
-    <script>
-        // Auto show modal saat ada session success
-        document.addEventListener('DOMContentLoaded', function() {
-            const successMessage = document.querySelector('.alert-success');
-            
-            if (successMessage) {
-                console.log('Success session detected!'); // Debug log
-                showSuccessNotification();
-            }
-        });
-
-        function showSuccessNotification() {
-            const modal = document.getElementById('successNotificationModal');
-            const modalContent = document.getElementById('modalContent');
-            
-            if (modal && modalContent) {
-                console.log('Showing modal...'); // Debug log
-                modal.classList.remove('hidden');
-                
-                setTimeout(() => {
-                    modal.classList.remove('opacity-0');
-                    modalContent.classList.remove('scale-95', 'opacity-0');
-                    modalContent.classList.add('scale-100', 'opacity-100');
-                }, 10);
-            } else {
-                console.error('Modal elements not found!'); // Debug log
-            }
-        }
-
-        function closeSuccessNotification() {
-            const modal = document.getElementById('successNotificationModal');
-            const modalContent = document.getElementById('modalContent');
-            
-            if (modal && modalContent) {
-                modal.classList.add('opacity-0');
-                modalContent.classList.remove('scale-100', 'opacity-100');
-                modalContent.classList.add('scale-95', 'opacity-0');
-                
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                }, 300);
-            }
-        }
-
-        // Close dengan ESC
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closeSuccessNotification();
-            }
-        });
-
-        // Close saat klik overlay
-        document.addEventListener('click', function(event) {
-            const modal = document.getElementById('successNotificationModal');
-            if (modal && event.target === modal) {
-                closeSuccessNotification();
-            }
-        });
-    </script>
 
 @endsection
 
@@ -255,13 +179,11 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="{{ asset('js/tu/upload-dokumen.js') }}"></script>
 
-{{-- Inline JS untuk Modal Success --}}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const successMessage = document.querySelector('.alert-success');
     
     if (successMessage) {
-        console.log('✅ Success session detected!');
         setTimeout(() => showSuccessNotification(), 100);
     }
 });
@@ -271,7 +193,6 @@ function showSuccessNotification() {
     const modalContent = document.getElementById('modalContent');
     
     if (modal && modalContent) {
-        console.log('✅ Showing modal...');
         modal.classList.remove('hidden');
         
         setTimeout(() => {
@@ -279,8 +200,6 @@ function showSuccessNotification() {
             modalContent.classList.remove('scale-95', 'opacity-0');
             modalContent.classList.add('scale-100', 'opacity-100');
         }, 10);
-    } else {
-        console.error('❌ Modal elements not found!');
     }
 }
 

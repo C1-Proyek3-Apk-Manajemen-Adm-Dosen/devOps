@@ -2,8 +2,9 @@
 
 /**
  * Fungsi untuk menampilkan notifikasi sukses upload
+ * Kita tambahkan "window." agar bisa diakses secara global
  */
-function showSuccessNotification() {
+window.showSuccessNotification = function() {
     const modal = document.getElementById('successNotificationModal');
     const modalContent = document.getElementById('modalContent');
     
@@ -22,8 +23,9 @@ function showSuccessNotification() {
 
 /**
  * Fungsi untuk menutup notifikasi sukses
+ * Kita tambahkan "window." agar bisa diakses oleh onclick=""
  */
-function closeSuccessNotification() {
+window.closeSuccessNotification = function() {
     const modal = document.getElementById('successNotificationModal');
     const modalContent = document.getElementById('modalContent');
     
@@ -36,7 +38,7 @@ function closeSuccessNotification() {
         // Sembunyikan modal setelah animasi selesai
         setTimeout(() => {
             modal.classList.add('hidden');
-        }, 300);
+        }, 300); // Sesuaikan dengan durasi transisi (duration-300)
     }
 }
 
@@ -48,11 +50,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const successMessage = document.querySelector('.alert-success');
     
     if (successMessage) {
-        // Sembunyikan alert default
-        successMessage.style.display = 'none';
-        
         // Tampilkan modal notifikasi
-        showSuccessNotification();
+        // Kita panggil fungsi global yang sudah kita buat
+        window.showSuccessNotification();
     }
 });
 
@@ -61,10 +61,10 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 document.addEventListener('click', function(event) {
     const modal = document.getElementById('successNotificationModal');
-    const modalContent = document.getElementById('modalContent');
     
+    // Cek jika user mengklik backdrop (event.target === modal)
     if (modal && event.target === modal) {
-        closeSuccessNotification();
+        window.closeSuccessNotification();
     }
 });
 
@@ -73,6 +73,10 @@ document.addEventListener('click', function(event) {
  */
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
-        closeSuccessNotification();
+        const modal = document.getElementById('successNotificationModal');
+        // Pastikan modal sedang tampil sebelum menutup
+        if (modal && !modal.classList.contains('hidden')) {
+            window.closeSuccessNotification();
+        }
     }
 });
