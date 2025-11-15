@@ -11,6 +11,9 @@
 
         {{-- Alert sukses / error --}}
         @if (session('success'))
+            <div class="alert-success hidden">{{ session('success') }}</div>
+        @endif
+        <!-- @if (session('success'))
             <div class="alert-success mb-6 p-4 rounded-xl bg-green-100 text-green-700 border border-green-300 flex items-center justify-between">
                 <div class="flex items-center">
                     <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
@@ -24,7 +27,7 @@
                     </svg>
                 </button>
             </div>
-        @endif
+        @endif -->
 
         @if (session('error'))
             <div class="alert-error mb-6 p-4 rounded-xl bg-red-100 text-red-700 border border-red-300 flex items-center justify-between">
@@ -177,6 +180,70 @@
             </form>
         </div>
     </div>
+
+    @include('components.tu.upload-notification-success-tu')
+
+    {{-- Inline JS untuk testing --}}
+    <script>
+        // Auto show modal saat ada session success
+        document.addEventListener('DOMContentLoaded', function() {
+            const successMessage = document.querySelector('.alert-success');
+            
+            if (successMessage) {
+                console.log('Success session detected!'); // Debug log
+                showSuccessNotification();
+            }
+        });
+
+        function showSuccessNotification() {
+            const modal = document.getElementById('successNotificationModal');
+            const modalContent = document.getElementById('modalContent');
+            
+            if (modal && modalContent) {
+                console.log('Showing modal...'); // Debug log
+                modal.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    modalContent.classList.remove('scale-95', 'opacity-0');
+                    modalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            } else {
+                console.error('Modal elements not found!'); // Debug log
+            }
+        }
+
+        function closeSuccessNotification() {
+            const modal = document.getElementById('successNotificationModal');
+            const modalContent = document.getElementById('modalContent');
+            
+            if (modal && modalContent) {
+                modal.classList.add('opacity-0');
+                modalContent.classList.remove('scale-100', 'opacity-100');
+                modalContent.classList.add('scale-95', 'opacity-0');
+                
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        // Close dengan ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeSuccessNotification();
+            }
+        });
+
+        // Close saat klik overlay
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('successNotificationModal');
+            if (modal && event.target === modal) {
+                closeSuccessNotification();
+            }
+        });
+    </script>
+
 @endsection
 
 @push('styles')
@@ -187,4 +254,58 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="{{ asset('js/tu/upload-dokumen.js') }}"></script>
+
+{{-- Inline JS untuk Modal Success --}}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const successMessage = document.querySelector('.alert-success');
+    
+    if (successMessage) {
+        console.log('✅ Success session detected!');
+        setTimeout(() => showSuccessNotification(), 100);
+    }
+});
+
+function showSuccessNotification() {
+    const modal = document.getElementById('successNotificationModal');
+    const modalContent = document.getElementById('modalContent');
+    
+    if (modal && modalContent) {
+        console.log('✅ Showing modal...');
+        modal.classList.remove('hidden');
+        
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    } else {
+        console.error('❌ Modal elements not found!');
+    }
+}
+
+function closeSuccessNotification() {
+    const modal = document.getElementById('successNotificationModal');
+    const modalContent = document.getElementById('modalContent');
+    
+    if (modal && modalContent) {
+        modal.classList.add('opacity-0');
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeSuccessNotification();
+});
+
+document.addEventListener('click', (e) => {
+    const modal = document.getElementById('successNotificationModal');
+    if (modal && e.target === modal) closeSuccessNotification();
+});
+</script>
 @endpush

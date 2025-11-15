@@ -5,14 +5,17 @@
  */
 function showSuccessNotification() {
     const modal = document.getElementById('successNotificationModal');
+    const modalContent = document.getElementById('modalContent');
     
-    if (modal) {
+    if (modal && modalContent) {
         // Tampilkan modal
         modal.classList.remove('hidden');
         
         // Trigger animation dengan delay
         setTimeout(() => {
-            modal.classList.add('show');
+            modal.classList.remove('opacity-0');
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
         }, 10);
     }
 }
@@ -22,25 +25,23 @@ function showSuccessNotification() {
  */
 function closeSuccessNotification() {
     const modal = document.getElementById('successNotificationModal');
+    const modalContent = document.getElementById('modalContent');
     
-    if (modal) {
-        // Remove show class untuk trigger fade out
-        modal.classList.remove('show');
+    if (modal && modalContent) {
+        // Trigger fade out animation
+        modal.classList.add('opacity-0');
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
         
         // Sembunyikan modal setelah animasi selesai
         setTimeout(() => {
             modal.classList.add('hidden');
-            
-            // Redirect atau reload halaman (optional)
-            // window.location.reload();
-            // window.location.href = '/upload-dokumen';
         }, 300);
     }
 }
 
 /**
  * Auto show notifikasi jika ada session success
- * Tambahkan ini di blade template yang include komponen ini
  */
 document.addEventListener('DOMContentLoaded', function() {
     // Cek apakah ada session success dari Laravel
@@ -60,9 +61,9 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 document.addEventListener('click', function(event) {
     const modal = document.getElementById('successNotificationModal');
-    const modalContainer = document.querySelector('.success-modal-container');
+    const modalContent = document.getElementById('modalContent');
     
-    if (modal && event.target === modal && !modalContainer.contains(event.target)) {
+    if (modal && event.target === modal) {
         closeSuccessNotification();
     }
 });
