@@ -28,7 +28,7 @@ class Dokumen extends Model
     
     protected $casts = [
         'tanggal_terbit' => 'date',
-        'owner_user_id' => 'array',
+        // 'owner_user_id' => 'array', // <-- DIHAPUS: Baris ini salah karena di DB tipenya integer
     ];
 
     // --- Relations ---
@@ -37,14 +37,22 @@ class Dokumen extends Model
         return $this->belongsTo(Kategori::class, 'kategori_id', 'kategori_id');
     }
 
+    /**
+     * Relasi untuk mendapatkan User yang memiliki dokumen (berdasarkan owner_user_id)
+     */
     public function owner()
     {
-        return $this->belongsTo(User::class, 'created_by', 'id_user');
+        // DIPERBAIKI: Menggunakan foreign key 'owner_user_id' sesuai skema SQL
+        return $this->belongsTo(User::class, 'owner_user_id', 'id_user');
     }
     
+    /**
+     * Relasi untuk mendapatkan User yang membuat dokumen (berdasarkan created_by)
+     */
     public function creator()
     {
-        return $this->belongsTo(\App\Models\User::class, 'created_by');
+        // DIPERBAIKI: Menggunakan foreign key 'created_by' secara eksplisit
+        return $this->belongsTo(\App\Models\User::class, 'created_by', 'id_user');
     }
 
     public function komentar()
