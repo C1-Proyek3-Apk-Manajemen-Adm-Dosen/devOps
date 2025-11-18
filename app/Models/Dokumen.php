@@ -22,25 +22,36 @@ class Dokumen extends Model
         'deskripsi',
         'created_by',
         'status',
-        'user_id',
+        'owner_user_id',
     ];
 
+    
     protected $casts = [
         'tanggal_terbit' => 'date',
+        // 'owner_user_id' => 'array', // <-- DIHAPUS: Baris ini salah karena di DB tipenya integer
     ];
 
+    // --- Relations ---
     public function kategori()
     {
         return $this->belongsTo(Kategori::class, 'kategori_id', 'kategori_id');
     }
 
-    public function user()
+    /**
+     * Relasi untuk mendapatkan User yang memiliki dokumen (berdasarkan owner_user_id)
+     */
+    public function owner()
     {
-        return $this->belongsTo(\App\Models\User::class, 'user_id', 'id_user');
+        // DIPERBAIKI: Menggunakan foreign key 'owner_user_id' sesuai skema SQL
+        return $this->belongsTo(User::class, 'owner_user_id', 'id_user');
     }
-
+    
+    /**
+     * Relasi untuk mendapatkan User yang membuat dokumen (berdasarkan created_by)
+     */
     public function creator()
     {
+        // DIPERBAIKI: Menggunakan foreign key 'created_by' secara eksplisit
         return $this->belongsTo(\App\Models\User::class, 'created_by', 'id_user');
     }
 
@@ -54,14 +65,7 @@ class Dokumen extends Model
         return $this->hasMany(VersiDokumen::class, 'dokumen_id', 'dokumen_id');
     }
 
-    public function accessControls()
-    {
-        return $this->hasMany(AccessControl::class, 'document_id', 'dokumen_id');
-    }
-
-    // ==========================
-    // ✅ ACCESSOR URL MinIO
-    // ==========================
+    // --- Accessor URL publik MinIO ---
     public function getUrlAttribute(): ?string
     {
         if (!$this->file_path) return null;

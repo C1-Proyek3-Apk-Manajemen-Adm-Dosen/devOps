@@ -93,10 +93,14 @@ class AccessControl extends Model
         switch ($this->status) {
             case 'active':
                 return 'Aktif';
+            case 'pending':
+                return 'Pending';
             case 'expired':
                 return 'Kadaluarsa';
+            case 'revoked':
+                return 'Ditarik';
             default:
-                return ucfirst($this->status ?? '-');
+                return $this->status;
         }
     }
 }
