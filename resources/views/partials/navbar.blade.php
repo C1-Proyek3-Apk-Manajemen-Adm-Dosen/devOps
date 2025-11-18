@@ -21,7 +21,16 @@
             class="w-full md:w-80 border border-gray-300 rounded-full px-5 py-2 text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none transition" />
 
         <!-- Notifikasi -->
-        <x-notification-dropdown />
+        @auth
+            @if (Auth::user()->role === 'tu')
+                <x-notification.notification-tu />
+            @elseif (Auth::user()->role === 'dosen')
+                <x-notification.notification-dosen />
+            @elseif (Auth::user()->role === 'koordinator')
+                <x-notification.notification-koordinator />
+            @endif
+        @endauth
+
     </div>
 
     <!-- Right Section: Profile + Logout -->

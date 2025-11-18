@@ -1,20 +1,40 @@
-@props([])
+@php
+use Illuminate\Support\Facades\Auth;
+use App\Models\AccessControl;
+
+// Ambil notifikasi untuk KAPRODI (koordinator)
+$recentNotifikasi = AccessControl::with(['pemberiAkses', 'dokumen'])
+    ->where('grantee_user_id', Auth::user()->id_user)
+    ->orderByDesc('created_at')
+    ->take(5)
+    ->get();
+
+// Route lihat semua
+$routeLihatSemua = route('kaprodi.notifikasi');
+@endphp
 
 <div x-data="{ open: false }" class="relative z-50" x-cloak>
     <button @click="open = !open" class="relative text-[#050C9C] focus:outline-none">
         <i class="fa-solid fa-bell text-xl"></i>
-        @if (($recentNotifikasi ?? collect())->count() > 0)
+
+        @if($recentNotifikasi->count() > 0)
             <span class="absolute -top-1 -right-1 bg-red-500 rounded-full w-3 h-3"></span>
         @endif
     </button>
 
-    <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-200"
-        x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100"
+    <div x-show="open"
+        @click.away="open = false"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 scale-95"
+        x-transition:enter-end="opacity-100 scale-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-95"
-        class="absolute right-0 mt-3 w-80 bg-white shadow-lg rounded-xl overflow-hidden border border-gray-200 z-50">
+        class="absolute right-0 mt-3 w-80 bg-white shadow-lg rounded-xl overflow-hidden border border-gray-200">
 
-        <div class="p-3 border-b font-semibold text-gray-700">Notifikasi</div>
+        <div class="p-3 border-b font-semibold text-gray-700">
+            Notifikasi
+        </div>
 
         <ul class="max-h-72 overflow-y-auto">
             @forelse ($recentNotifikasi as $notif)
@@ -38,12 +58,14 @@
                     </div>
                 </li>
             @empty
-                <li class="px-3 py-3 text-gray-500 text-sm text-center">Belum ada notifikasi</li>
+                <li class="px-3 py-3 text-gray-500 text-sm text-center">
+                    Belum ada notifikasi
+                </li>
             @endforelse
         </ul>
 
-        <a href="{{ route('tu.notifikasi') }}"
-            class="block text-center text-[#050C9C] font-medium text-sm py-2 hover:bg-gray-50 transition">
+        <a href="{{ $routeLihatSemua }}"
+           class="block text-center text-[#050C9C] font-medium text-sm py-2 hover:bg-gray-50 transition">
             Lihat semua
         </a>
     </div>

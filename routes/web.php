@@ -11,7 +11,6 @@ use App\Http\Controllers\Tu\MonitoringController;
 use App\Models\Dokumen;
 use App\Models\Kategori;
 use App\Models\User;
-// ⬇️ Tambahan import untuk Riwayat TU
 use App\Http\Controllers\TU\RiwayatController;
 
 // ==================== ROOT -> LOGIN ====================
@@ -57,13 +56,23 @@ Route::prefix('tu')->middleware(['auth', 'checkRole:tu'])->group(function () {
     Route::get('/notifikasi', [NotificationController::class, 'index'])->name('tu.notifikasi');
 });
 
-// ==================== DOSEN ====================
-Route::prefix('dosen')->middleware(['auth', 'checkRole:dosen'])->group(function () {
-    Route::get('/dashboard', fn() => view('dosen.dashboard'))->name('dosen.dashboard');
-    Route::get('/dokumen', fn() => view('dosen.dokumen'))->name('dosen.dokumen');
-    Route::get('/upload', fn() => view('dosen.upload'))->name('dosen.upload');
-    Route::get('/portofolio', fn() => view('dosen.portofolio'))->name('dosen.portofolio');
-    Route::get('/riwayat', fn() => view('dosen.riwayat'))->name('dosen.riwayat');
+Route::prefix('dosen')
+    ->middleware(['auth', 'checkRole:dosen'])
+    ->name('dosen.')
+    ->group(function () {
+
+        Route::get('/dashboard', [\App\Http\Controllers\Dosen\DashboardController::class, 'index'])
+            ->name('dashboard');  // → hasil: dosen.dashboard
+
+        Route::get('/dokumen', fn() => view('dosen.dokumen'))->name('dokumen');
+        Route::get('/upload', fn() => view('dosen.upload'))->name('upload');
+        Route::get('/portofolio', fn() => view('dosen.portofolio'))->name('portofolio');
+
+        Route::get('/riwayat-upload', [\App\Http\Controllers\Dosen\RiwayatUploadController::class, 'index'])
+            ->name('riwayat-upload');
+
+        Route::get('/notifikasi', [\App\Http\Controllers\Dosen\NotificationController::class, 'index'])
+            ->name('notifikasi'); // → hasil: dosen.notifikasi
 });
 
 // ==================== KOORDINATOR ====================
@@ -71,6 +80,8 @@ Route::prefix('kaprodi')->middleware(['auth', 'checkRole:koordinator'])->group(f
     Route::get('/dashboard', fn() => view('kaprodi.dashboard'))->name('kaprodi.dashboard');
     Route::get('/review', fn() => view('kaprodi.review'))->name('kaprodi.review');
     Route::get('/daftar', fn() => view('kaprodi.daftar'))->name('kaprodi.daftar');
+    Route::get('/notifikasi', [\App\Http\Controllers\Kaprodi\NotificationController::class, 'index'])
+    ->name('kaprodi.notifikasi');
 });
 
 // ==================== DOKUMEN (WEB PAGES) ====================
