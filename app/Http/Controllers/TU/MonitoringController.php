@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\AccessControl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage; 
+use Illuminate\Support\Facades\Log; 
 
 class MonitoringController extends Controller
 {
@@ -185,5 +187,40 @@ class MonitoringController extends Controller
     {
         $dokumen = Dokumen::with(['kategori', 'versi'])->findOrFail($id);
         return view('tu.detail-dokumen', compact('dokumen'));
+    }
+
+    public function download($id)
+    {
+
+        $dokumen = Dokumen::findOrFail($id);
+
+        if (!$dokumen->file_path) {
+            return back()->with('error', 'Path file tidak ditemukan di database.');
+        }
+
+        // 3. Validasi file fisik di MinIO dengan Try-Catch
+        try {
+            // Cek keberadaan file
+            if (!Storage::disk('minio')->exists($dokumen->file_path)) {
+                return back()->with('error', 'File fisik tidak ditemukan di server penyimpanan (MinIO).');
+            }
+
+            // 4. Buat nama file yang rapi
+            $extension = pathinfo($dokumen->file_path, PATHINFO_EXTENSION);
+            $ext = $extension ? '.' . $extension : ''; 
+            
+            $cleanTitle = preg_replace('/[^A-Za-z0-9\- ]/', '', $dokumen->judul);
+            $downloadName = $cleanTitle . $ext;
+
+            // 5. Download
+            return Storage::disk('minio')->download($dokumen->file_path, $downloadName);
+
+        } catch (\Exception $e) {
+            // Log error aslinya biar bisa dicek di storage/logs/laravel.log
+            Log::error("Gagal download file ID {$id}: " . $e->getMessage());
+
+            // Kembalikan user ke halaman sebelumnya dengan pesan error yang aman
+            return back()->with('error', 'Gagal menghubungi server penyimpanan. Pastikan MinIO aktif. Detail: ' . $e->getMessage());
+        }
     }
 }

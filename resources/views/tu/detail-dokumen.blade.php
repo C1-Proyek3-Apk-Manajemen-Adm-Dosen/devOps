@@ -4,6 +4,27 @@
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8 py-2">
 
+    {{-- 1. TAMBAHKAN INI: Alert Error & Success --}}
+    @if (session('error'))
+        <div class="mb-4 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 flex items-center gap-3">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="text-sm font-medium">{{ session('error') }}</span>
+        </div>
+    @endif
+
+    @if (session('success'))
+        <div class="mb-4 p-4 rounded-xl bg-green-50 border border-green-200 text-green-700 flex items-center gap-3">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span class="text-sm font-medium">{{ session('success') }}</span>
+        </div>
+    @endif
+    {{-- Batas Penambahan Code --}}
+
+
     {{-- HEADER with Back Button --}}
     <div class="mb-3 flex items-center gap-2">
         <a href="{{ route('tu.monitoring') }}" 
@@ -86,7 +107,7 @@
                     <label class="block text-xs font-bold text-gray-700 mb-1.5">Deskripsi Dokumen</label>
                     <div class="bg-gray-50 rounded-xl px-3 py-2.5 border border-gray-200 h-[180px] overflow-y-auto">
                         <p class="text-sm text-gray-700 leading-relaxed">
-                            {{ $dokumen->deskripsi ?? 'akowoakokoaokokwkoakowaokowa' }}
+                            {{ $dokumen->deskripsi ?? 'Tidak ada deskripsi' }}
                         </p>
                     </div>
                 </div>
@@ -109,12 +130,13 @@
 
                 {{-- Button Download --}}
                 <div>
-                    <button class="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#050C9C] to-blue-700 text-white rounded-xl font-bold text-sm hover:from-blue-700 hover:to-[#050C9C] transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
+                    <a href="{{ route('tu.dokumen.download', $dokumen->dokumen_id) }}" 
+                       class="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#050C9C] to-blue-700 text-white rounded-xl font-bold text-sm hover:from-blue-700 hover:to-[#050C9C] transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                         </svg>
                         Download Dokumen
-                    </button>
+                    </a>
                 </div>
 
             </div>
