@@ -21,8 +21,8 @@ class MonitoringController extends Controller
             'riwayat-pengajaran' => 'Riwayat Pengajaran',
         ];
 
-        $query = Dokumen::with(['kategori', 'user', 'creator'])
-            ->orderBy('created_at', 'desc');
+        $query = Dokumen::with(['kategori', 'creator']) 
+                ->orderBy('created_at', 'desc');
 
         if ($tab !== 'semua' && isset($filterKategori[$tab])) {
             $kategoriNama = $filterKategori[$tab];

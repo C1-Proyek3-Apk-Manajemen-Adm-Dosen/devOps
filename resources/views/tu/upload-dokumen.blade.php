@@ -51,7 +51,8 @@
         @endif
 
         <div class="form-card bg-white rounded-2xl shadow-xl p-8">
-            <form id="uploadForm" method="POST" action="{{ route('tu.store') }}" enctype="multipart/form-data">
+            {{-- This is the corrected line --}}
+            <form id="uploadForm" method="POST" action="{{ route('tu.upload.store') }}" enctype="multipart/form-data">
                 @csrf
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">

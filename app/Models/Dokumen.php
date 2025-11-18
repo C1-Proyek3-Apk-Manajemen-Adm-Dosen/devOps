@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use App\Models\User; // <-- Diperlukan untuk relasi 'owner'
+use App\Models\AccessControl; // <-- DITAMBAHKAN: Diperlukan untuk relasi 'accessControls'
 
 class Dokumen extends Model
 {
@@ -55,6 +57,17 @@ class Dokumen extends Model
         return $this->belongsTo(\App\Models\User::class, 'created_by', 'id_user');
     }
 
+    /**
+     * Relasi 'user' untuk mengatasi error RelationNotFoundException [user].
+     * Ini mengarah ke 'creator' (user yang mengupload)
+     */
+    public function user()
+    {
+        // Ini adalah relasi yang dicari oleh Controller (with('user'))
+        // Kita arahkan ke relasi creator()
+        return $this->creator();
+    }
+
     public function komentar()
     {
         return $this->hasMany(Komentar::class, 'dokumen_id', 'dokumen_id');
@@ -63,6 +76,18 @@ class Dokumen extends Model
     public function versi()
     {
         return $this->hasMany(VersiDokumen::class, 'dokumen_id', 'dokumen_id');
+    }
+
+    /**
+     * DITAMBAHKAN: Relasi untuk mengatasi error RelationNotFoundException [accessControls].
+     * Dikonfirmasi dari file AccessControl.php:
+     * - Model: App\Models\AccessControl
+     * - Foreign Key: 'document_id'
+     * - Local Key: 'dokumen_id'
+     */
+    public function accessControls()
+    {
+        return $this->hasMany(\App\Models\AccessControl::class, 'document_id', 'dokumen_id');
     }
 
     // --- Accessor URL publik MinIO ---
