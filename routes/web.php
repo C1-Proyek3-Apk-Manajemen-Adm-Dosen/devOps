@@ -10,6 +10,7 @@ use App\Http\Controllers\Tu\NotificationController;
 use App\Http\Controllers\Tu\MonitoringController;
 use App\Models\Dokumen;
 use App\Models\Kategori;
+use App\Models\User;
 // ⬇️ Tambahan import untuk Riwayat TU
 use App\Http\Controllers\TU\RiwayatController;
 
@@ -29,38 +30,30 @@ Route::prefix('tu')->middleware(['auth', 'checkRole:tu'])->group(function () {
     Route::get('/dokumen-saya', fn() => view('tu.dokumen-saya'))->name('tu.dokumen');
 
     Route::get('/monitoring', [MonitoringController::class, 'index'])->name('tu.monitoring');
-
     Route::get('/dokumen/{id}/detail', [MonitoringController::class, 'detailPage'])->name('tu.detail-dokumen');
-
     Route::get('/dokumen/{id}/hak-akses', [MonitoringController::class, 'editHakAkses'])->name('tu.edit-hak-akses');
-
     Route::post('/dokumen/{id}/hak-akses', [MonitoringController::class, 'updateHakAkses'])->name('tu.update-hak-akses');
-
     Route::delete('/dokumen/{id}/hak-akses', [MonitoringController::class, 'removeHakAkses'])->name('tu.hak-akses.remove');
 
-
-    // ✅ GET = tampilkan halaman upload (buka modal dsb)
+    // GET = tampilkan halaman upload (buka modal dsb)
     Route::get('/upload-dokumen', function () {
-        $kategoris = \App\Models\Kategori::select('kategori_id', 'nama_kategori')
-            ->orderBy('nama_kategori')
-            ->get();
+        $kategoris = Kategori::select('kategori_id', 'nama_kategori')->orderBy('nama_kategori')->get();
+        $users = User::selectRaw('id_user as id, nama_lengkap as name, email')->orderBy('nama_lengkap')->get();
+        $dokumens = Dokumen::orderByDesc('dokumen_id')->get();
 
-        $dokumens = \App\Models\Dokumen::orderByDesc('dokumen_id')->get();
-
-        return view('tu.upload-dokumen', compact('kategoris', 'dokumens'));
+        return view('tu.upload-dokumen', compact('kategoris', 'users', 'dokumens'));
     })->name('tu.upload');
 
-    // ✅ POST = simpan file ke MinIO lewat DokumenController
-    Route::post('/upload-dokumen', [\App\Http\Controllers\DokumenController::class, 'store'])
-        ->name('tu.upload.store');
+    // POST = simpan file ke MinIO lewat DokumenController
+    Route::post('/upload-dokumen', [DokumenController::class, 'store'])->name('tu.upload.store');
 
-    // ==================== R I W A Y A T   T U  (diubah) ====================
+    // Riwayat TU
     Route::get('/riwayat-upload', [RiwayatController::class, 'index'])->name('tu.riwayat');
     Route::get('/dokumen/{dokumen_id}', [RiwayatController::class, 'show'])
         ->whereNumber('dokumen_id')->name('tu.dokumen.show');
-    
-    Route::get('/notifikasi', [NotificationController::class, 'index'])->name('tu.notifikasi');
 
+    // Notifikasi TU
+    Route::get('/notifikasi', [NotificationController::class, 'index'])->name('tu.notifikasi');
 });
 
 // ==================== DOSEN ====================

@@ -66,6 +66,7 @@
     'resources/js/app.js',
     'resources/js/tu/monitoring.js',
     'resources/js/tu/edit-hak-akses.js'
+    'resources/js/tu/upload-dokumen.js'
   ])
 
   {{-- halaman boleh nambah JS sendiri (mis. riwayat.js) --}}
