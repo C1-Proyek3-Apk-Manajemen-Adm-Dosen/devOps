@@ -4,6 +4,8 @@
 @section('content')
 <div id="modalHakAkses" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 animate-fadeIn">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden animate-slideUp" onclick="event.stopPropagation()">
+        
+        {{-- Header Modal --}}
         <div class="bg-gradient-to-r from-[#050C9C] to-[#0818d4] px-6 py-4 flex justify-between items-center">
             <h2 class="text-xl font-bold text-white">Edit Hak Akses Dokumen</h2>
             <button type="button" onclick="closeHakAksesModal()" class="text-white/80 hover:text-white transition-colors p-1 hover:bg-white/20 rounded-lg">
@@ -14,6 +16,8 @@
         </div>
 
         <div class="overflow-y-auto max-h-[calc(90vh-180px)] px-6 py-6 space-y-6">
+            
+            {{-- Info Dokumen --}}
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                     Judul Dokumen
@@ -33,6 +37,7 @@
                 </div>
             </div>
 
+            {{-- Form Tambah Hak Akses --}}
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-3">
                     Tambah Hak Akses
@@ -40,68 +45,97 @@
                 
                 <div class="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-dashed border-gray-300 rounded-xl p-4">
                     <form id="addAccessForm" class="space-y-4">
-                        <div>
+                        
+                        {{-- Custom Dropdown Pilih Pengguna (Diperbaiki) --}}
+                        <div class="relative">
                             <label class="block text-xs font-medium text-gray-600 mb-2">
                                 Pilih Pengguna
                             </label>
-                            <div class="relative">
-                                <select id="userSelect" 
-                                        class="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#050C9C] focus:border-transparent transition-all duration-200 text-sm appearance-none cursor-pointer">
-                                    <option value="">-- Pilih Pengguna --</option>
-                                    @foreach($users ?? [] as $user)
-                                        <option value="{{ $user->id_user }}" data-email="{{ $user->email }}" data-role="{{ $user->role }}">
-                                            {{ $user->email }} ({{ ucfirst($user->role) }})
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            
+                            {{-- Trigger Dropdown --}}
+                            <div id="hakAksesDropdownTrigger" class="input-field w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#050C9C] focus:ring-2 focus:ring-[#050C9C]/20 outline-none transition appearance-none bg-white cursor-pointer flex items-center justify-between">
+                                <span id="hakAksesLabel" class="text-gray-500 text-sm truncate">Pilih pengguna...</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-gray-400">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                                 </svg>
-                                <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                </svg>
+                            </div>
+                            
+                            {{-- Dropdown Menu --}}
+                            <div id="hakAksesMenu" class="hidden absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-64 overflow-y-auto">
+                                <div class="p-3">
+                                    {{-- Search Input --}}
+                                    <div class="mb-3 sticky top-0 bg-white z-10 pb-2 border-b border-gray-100">
+                                        <input type="text" id="searchUser" placeholder="Cari nama atau email..." class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#050C9C] focus:ring-1 focus:ring-[#050C9C]">
+                                    </div>
+                                    
+                                    {{-- Select All --}}
+                                    <label class="flex items-center px-3 py-2.5 hover:bg-blue-50 rounded-lg cursor-pointer border-b border-gray-100 mb-2 bg-gray-50">
+                                        <input type="checkbox" id="selectAllUsers" class="w-4 h-4 text-[#050C9C] border-gray-300 rounded focus:ring-[#050C9C] focus:ring-2 transition">
+                                        <span class="ml-3 text-sm font-bold text-gray-700">Pilih Semua Pengguna</span>
+                                    </label>
+                                    
+                                    {{-- User List --}}
+                                    <div id="userListContainer">
+                                        @foreach($users ?? [] as $user)
+                                            <label class="user-checkbox-item flex items-center px-3 py-2.5 hover:bg-gray-50 rounded-lg cursor-pointer transition group" data-search="{{ strtolower($user->nama_lengkap . ' ' . $user->email) }}">
+                                                <input type="checkbox" name="user_ids[]" value="{{ $user->id_user }}" class="hak-akses-checkbox w-4 h-4 text-[#050C9C] border-gray-300 rounded focus:ring-[#050C9C] focus:ring-2">
+                                                <div class="ml-3 flex-1">
+                                                    <div class="text-sm font-medium text-gray-900 group-hover:text-[#050C9C] transition-colors">{{ $user->nama_lengkap ?? 'User' }}</div>
+                                                    <div class="text-xs text-gray-500">{{ $user->email }} ({{ ucfirst($user->role) }})</div>
+                                                </div>
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                    
+                                    {{-- Empty State Search --}}
+                                    <div id="noUserFound" class="hidden py-4 text-center text-sm text-gray-500">
+                                        Pengguna tidak ditemukan.
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
+                        {{-- Pilihan Permission --}}
                         <div>
                             <label class="block text-xs font-medium text-gray-600 mb-2">
                                 Jenis Akses
                             </label>
                             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                <label class="relative cursor-pointer">
+                                <label class="relative cursor-pointer group">
                                     <input type="radio" name="permission" value="READ" class="peer sr-only" checked>
-                                    <div class="px-3 py-2.5 bg-white border-2 border-gray-300 rounded-lg text-center text-xs font-semibold text-gray-600 transition-all duration-200 peer-checked:border-[#050C9C] peer-checked:bg-[#050C9C] peer-checked:text-white peer-checked:shadow-md hover:border-[#050C9C]">
+                                    <div class="px-3 py-2.5 bg-white border-2 border-gray-300 rounded-lg text-center text-xs font-semibold text-gray-600 transition-all duration-200 peer-checked:border-[#050C9C] peer-checked:bg-[#050C9C] peer-checked:text-white peer-checked:shadow-md group-hover:border-[#050C9C]/50">
                                         READ
                                     </div>
                                 </label>
-                                <label class="relative cursor-pointer">
+                                <label class="relative cursor-pointer group">
                                     <input type="radio" name="permission" value="COMMENT" class="peer sr-only">
-                                    <div class="px-3 py-2.5 bg-white border-2 border-gray-300 rounded-lg text-center text-xs font-semibold text-gray-600 transition-all duration-200 peer-checked:border-[#050C9C] peer-checked:bg-[#050C9C] peer-checked:text-white peer-checked:shadow-md hover:border-[#050C9C]">
+                                    <div class="px-3 py-2.5 bg-white border-2 border-gray-300 rounded-lg text-center text-xs font-semibold text-gray-600 transition-all duration-200 peer-checked:border-[#050C9C] peer-checked:bg-[#050C9C] peer-checked:text-white peer-checked:shadow-md group-hover:border-[#050C9C]/50">
                                         COMMENT
                                     </div>
                                 </label>
-                                <label class="relative cursor-pointer">
+                                <label class="relative cursor-pointer group">
                                     <input type="radio" name="permission" value="EDIT" class="peer sr-only">
-                                    <div class="px-3 py-2.5 bg-white border-2 border-gray-300 rounded-lg text-center text-xs font-semibold text-gray-600 transition-all duration-200 peer-checked:border-[#050C9C] peer-checked:bg-[#050C9C] peer-checked:text-white peer-checked:shadow-md hover:border-[#050C9C]">
+                                    <div class="px-3 py-2.5 bg-white border-2 border-gray-300 rounded-lg text-center text-xs font-semibold text-gray-600 transition-all duration-200 peer-checked:border-[#050C9C] peer-checked:bg-[#050C9C] peer-checked:text-white peer-checked:shadow-md group-hover:border-[#050C9C]/50">
                                         EDIT
                                     </div>
                                 </label>
-                                <label class="relative cursor-pointer">
+                                <label class="relative cursor-pointer group">
                                     <input type="radio" name="permission" value="OWNER" class="peer sr-only">
-                                    <div class="px-3 py-2.5 bg-white border-2 border-gray-300 rounded-lg text-center text-xs font-semibold text-gray-600 transition-all duration-200 peer-checked:border-[#050C9C] peer-checked:bg-[#050C9C] peer-checked:text-white peer-checked:shadow-md hover:border-[#050C9C]">
+                                    <div class="px-3 py-2.5 bg-white border-2 border-gray-300 rounded-lg text-center text-xs font-semibold text-gray-600 transition-all duration-200 peer-checked:border-[#050C9C] peer-checked:bg-[#050C9C] peer-checked:text-white peer-checked:shadow-md group-hover:border-[#050C9C]/50">
                                         OWNER
                                     </div>
                                 </label>
                             </div>
                         </div>
 
+                        {{-- Tombol Add --}}
                         <button type="button" 
                                 id="addAccessBtn"
                                 class="w-full py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                             </svg>
-                            Tambah Akses
+                            <span id="addBtnText">Tambah Akses</span>
                         </button>
                     </form>
                 </div>
@@ -116,6 +150,7 @@
                 </div>
             </div>
 
+            {{-- List Akses Existing --}}
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-3">
                     Orang yang memiliki akses
@@ -200,4 +235,5 @@
 
 @push('scripts')
 <script src="{{ asset('js/tu/edit-hak-akses.js') }}"></script>
+
 @endpush

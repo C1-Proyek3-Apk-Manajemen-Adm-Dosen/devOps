@@ -95,6 +95,11 @@ class AccessControl extends Model
         return $query->orderByDesc('created_at');
     }
 
+    public function granteeUser()
+    {
+        return $this->belongsTo(User::class, 'grantee_user_id', 'id_user');
+    }
+
     /**
      * Helper untuk menampilkan status akses dalam format teks
      */
