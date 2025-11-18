@@ -58,7 +58,6 @@
   {{-- JS global --}}
   @vite([
     'resources/js/modal.js',
-    'resources/js/notif.js',
     'resources/js/logoutModal.js',
     'resources/js/loginValidation.js',
     'resources/js/tu/upload-dokumen.js',
