@@ -65,7 +65,7 @@
     'resources/js/tu/riwayat.js',
     'resources/js/app.js',
     'resources/js/tu/monitoring.js',
-    'resources/js/tu/edit-hak-akses.js'
+    'resources/js/tu/edit-hak-akses.js',
     'resources/js/tu/upload-dokumen.js'
   ])
 
