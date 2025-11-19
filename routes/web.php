@@ -11,6 +11,7 @@ use App\Http\Controllers\Tu\MonitoringController;
 use App\Models\Dokumen;
 use App\Models\Kategori;
 use App\Models\User;
+use App\Http\Controllers\Dosen\UploadDokumenDosenController;
 // ⬇️ Tambahan import untuk Riwayat TU
 use App\Http\Controllers\TU\RiwayatController;
 
@@ -58,13 +59,28 @@ Route::prefix('tu')->middleware(['auth', 'checkRole:tu'])->group(function () {
 });
 
 // ==================== DOSEN ====================
+
+// Group pertama: halaman dashboard & menu statis dosen
 Route::prefix('dosen')->middleware(['auth', 'checkRole:dosen'])->group(function () {
     Route::get('/dashboard', fn() => view('dosen.dashboard'))->name('dosen.dashboard');
     Route::get('/dokumen', fn() => view('dosen.dokumen'))->name('dosen.dokumen');
-    Route::get('/upload', fn() => view('dosen.upload'))->name('dosen.upload');
+    
+    Route::get('/upload', [UploadDokumenDosenController::class, 'create'])
+    ->name('dosen.upload');
+    
     Route::get('/portofolio', fn() => view('dosen.portofolio'))->name('dosen.portofolio');
     Route::get('/riwayat', fn() => view('dosen.riwayat'))->name('dosen.riwayat');
 });
+
+// Group kedua: proses upload dokumen dosen (pakai controller)
+Route::middleware(['auth', 'checkRole:dosen'])
+    ->prefix('dosen')
+    ->name('dosen.')
+    ->group(function () {
+        
+        Route::post('/upload', [UploadDokumenDosenController::class, 'store'])
+            ->name('dokumen.upload.store');
+    });
 
 // ==================== KOORDINATOR ====================
 Route::prefix('kaprodi')->middleware(['auth', 'checkRole:koordinator'])->group(function () {

@@ -1,0 +1,285 @@
+/* ========================================
+   Upload Dokumen DOSEN - Custom Styling
+   ======================================== */
+
+/* Custom styling untuk select arrow */
+select.custom-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.25rem;
+    padding-right: 2.5rem;
+}
+
+/* ========================================
+   Flatpickr Calendar Styling
+   ======================================== */
+
+.flatpickr-calendar {
+    border-radius: 1rem !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+    border: none !important;
+    font-family: inherit !important;
+}
+
+.flatpickr-day.selected {
+    background: #050C9C !important;
+    border-color: #050C9C !important;
+}
+
+.flatpickr-day.selected:hover {
+    background: #040a7a !important;
+    border-color: #040a7a !important;
+}
+
+.flatpickr-day:hover {
+    background: #e0e7ff !important;
+    border-color: #e0e7ff !important;
+}
+
+.flatpickr-day.today {
+    border-color: #050C9C !important;
+}
+
+.flatpickr-day.today:hover {
+    background: #e0e7ff !important;
+    border-color: #050C9C !important;
+}
+
+.flatpickr-months .flatpickr-prev-month:hover svg,
+.flatpickr-months .flatpickr-next-month:hover svg {
+    fill: #050C9C !important;
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months {
+    font-weight: 600;
+}
+
+.flatpickr-current-month .numInputWrapper:hover {
+    background: rgba(5, 12, 156, 0.05);
+}
+
+/* ========================================
+   Hak Akses Dropdown Styling
+   ======================================== */
+
+#hakAksesMenu {
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Custom Scrollbar untuk Dropdown */
+#hakAksesMenu::-webkit-scrollbar {
+    width: 6px;
+}
+
+#hakAksesMenu::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+#hakAksesMenu::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+#hakAksesMenu::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* ========================================
+   File Upload Area Styling
+   ======================================== */
+
+.file-upload-area {
+    transition: all 0.3s ease;
+}
+
+.file-upload-area:hover {
+    border-color: #050C9C !important;
+    background-color: #f8f9ff !important;
+}
+
+.file-upload-area.file-selected {
+    border-color: #10b981 !important;
+    background-color: #f0fdf4 !important;
+}
+
+/* ========================================
+   Alert Styling Enhancements
+   ======================================== */
+
+.alert-success {
+    animation: slideInRight 0.4s ease-out;
+}
+
+.alert-error {
+    animation: shake 0.4s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(5px);
+    }
+}
+
+/* ========================================
+   Form Card Styling
+   ======================================== */
+
+.form-card {
+    transition: box-shadow 0.3s ease;
+}
+
+.form-card:hover {
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+}
+
+/* ========================================
+   Button Hover Effects
+   ======================================== */
+
+.btn-primary {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-primary:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* ========================================
+   Input Focus Effects
+   ======================================== */
+
+.input-field:focus {
+    box-shadow: 0 0 0 3px rgba(5, 12, 156, 0.1);
+}
+
+/* ========================================
+   Checkbox Styling
+   ======================================== */
+
+.hak-akses-checkbox:checked {
+    background-color: #050C9C;
+    border-color: #050C9C;
+}
+
+.hak-akses-checkbox:focus {
+    box-shadow: 0 0 0 3px rgba(5, 12, 156, 0.1);
+    border-color: #050C9C;
+}
+
+/* User checkbox hover effect */
+.user-checkbox:hover {
+    background-color: #f8f9ff !important;
+}
+
+.user-checkbox.selected {
+    background-color: #e0e7ff !important;
+}
+
+/* ========================================
+   Loading State (Optional)
+   ======================================== */
+
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.btn-loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ========================================
+   Responsive Adjustments
+   ======================================== */
+
+@media (max-width: 1024px) {
+    .form-card {
+        padding: 1.5rem !important;
+    }
+}
+
+@media (max-width: 768px) {
+    #hakAksesMenu {
+        max-height: 50vh !important;
+    }
+    
+    .file-upload-area {
+        padding: 1rem !important;
+    }
+}
+
+/* ========================================
+   Print Styles (Optional)
+   ======================================== */
+
+@media print {
+    .btn-primary,
+    .btn-secondary,
+    .alert-success,
+    .alert-error {
+        display: none !important;
+    }
+}
