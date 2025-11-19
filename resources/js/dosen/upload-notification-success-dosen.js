@@ -1,5 +1,4 @@
-// Show success modal
-window.showSuccessNotification = function () {
+window.showSuccessNotification = function() {
     const modal = document.getElementById('successNotificationModal');
     const modalContent = document.getElementById('modalContent');
 
@@ -14,8 +13,7 @@ window.showSuccessNotification = function () {
     }
 };
 
-// Close modal
-window.closeSuccessNotification = function () {
+window.closeSuccessNotification = function() {
     const modal = document.getElementById('successNotificationModal');
     const modalContent = document.getElementById('modalContent');
 
@@ -30,22 +28,16 @@ window.closeSuccessNotification = function () {
     }
 };
 
-// Auto show on page load
 document.addEventListener('DOMContentLoaded', () => {
     const successMessage = document.querySelector('.alert-success');
     if (successMessage) window.showSuccessNotification();
-
-    const modal = document.getElementById('successNotificationModal');
-
-    // Click outside modal
-    if (modal) {
-        modal.addEventListener('click', (event) => {
-            if (event.target === modal) window.closeSuccessNotification();
-        });
-    }
 });
 
-// ESC to close
+document.addEventListener('click', (event) => {
+    const modal = document.getElementById('successNotificationModal');
+    if (modal && event.target === modal) window.closeSuccessNotification();
+});
+
 document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
         const modal = document.getElementById('successNotificationModal');

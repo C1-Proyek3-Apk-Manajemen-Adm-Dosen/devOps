@@ -179,8 +179,8 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="{{ asset('js/dosen/upload-dokumen-dosen.js') }}"></script>
-<script src="{{ asset('js/dosen/upload-notification-success-dosen.js') }}"></script>
+    @vite('resources/js/dosen/upload-dokumen-dosen.js')
+    @vite('resources/js/dosen/upload-notification-success-dosen.js')
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeSuccessNotification();
