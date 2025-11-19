@@ -61,7 +61,7 @@
             <div class="bg-white/40 backdrop-blur-lg p-6 rounded-2xl shadow border border-white/30 col-span-2">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-semibold text-[#050C9C]">Aktivitas Unggah Dokumen</h3>
-                    <a href="{{ route('dosen.riwayat-upload') ?? '#' }}"
+                    <a href="{{ route('dosen.riwayat') ?? '#' }}"
                        class="text-sm px-3 py-1 border border-[#050C9C]/40 text-[#050C9C] rounded-full hover:bg-[#050C9C] hover:text-white transition inline-block">
                         Lihat Histori
                     </a>

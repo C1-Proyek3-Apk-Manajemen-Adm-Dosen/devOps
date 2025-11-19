@@ -68,8 +68,13 @@ Route::prefix('dosen')
         Route::get('/upload', fn() => view('dosen.upload'))->name('upload');
         Route::get('/portofolio', fn() => view('dosen.portofolio'))->name('portofolio');
 
-        Route::get('/riwayat-upload', [\App\Http\Controllers\Dosen\RiwayatUploadController::class, 'index'])
-            ->name('riwayat-upload');
+        Route::get('/riwayat', [\App\Http\Controllers\Dosen\RiwayatUploadController::class, 'index'])
+            ->name('riwayat');
+
+        // detail dokumen
+        Route::get('/riwayat/{dokumen_id}', [\App\Http\Controllers\Dosen\RiwayatUploadController::class, 'show'])
+        ->whereNumber('dokumen_id')
+        ->name('riwayat.show');
 
         Route::get('/notifikasi', [\App\Http\Controllers\Dosen\NotificationController::class, 'index'])
             ->name('notifikasi'); // → hasil: dosen.notifikasi
