@@ -9,29 +9,33 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
-// SESUAIKAN NAMESPACE MODEL DENGAN PUNYAMU
+// Model
 use App\Models\Dokumen;
-use App\Models\AccessControl; // Pastikan model ini ada dan table = 'access_control_entries'
+use App\Models\AccessControl;
 use App\Models\User;
 use App\Models\Kategori;
 
 class UploadDokumenDosenController extends Controller
 {
     /**
-     * Tampilkan form upload dokumen untuk dosen.
-     * View: resources/views/dosen/upload.blade.php
+     * Tampilkan halaman upload dokumen untuk DOSEN.
      */
     public function create()
     {
-        // Ambil daftar user yang bisa diberi hak akses
-        // SESUAIKAN: Query sama dengan TU (pakai selectRaw untuk mapping kolom)
+        // Ambil user untuk hak akses
         $users = User::selectRaw('id_user as id, nama_lengkap as name, email')
             ->orderBy('nama_lengkap')
             ->get();
-        
-        // Ambil kategori (gunakan DB::table untuk bypass model)
-        $kategoris = DB::table('kategori') // ✅ Nama tabel: kategori (tanpa 's')
+
+        // Kategori khusus DOSEN
+        $kategoris = DB::table('kategori')
             ->select('kategori_id', 'nama_kategori')
+            ->whereIn('nama_kategori', [
+                'RPS',
+                'BKD',
+                'SKP',
+                'Bukti Pengajaran'
+            ])
             ->orderBy('nama_kategori')
             ->get();
 
@@ -39,74 +43,43 @@ class UploadDokumenDosenController extends Controller
     }
 
     /**
-     * ALTERNATIF: Jika route Anda menggunakan method index() atau upload()
-     * Gunakan salah satu dari method di bawah ini:
+     * Proses penyimpanan dokumen yang di-upload oleh DOSEN.
      */
-    
-    // Jika route menggunakan index()
-    public function index()
+    public function store(Request $request)
     {
-        $users = User::selectRaw('id_user as id, nama_lengkap as name, email')
-            ->orderBy('nama_lengkap')
-            ->get();
-        $kategoris = Kategori::select('kategori_id', 'nama_kategori')
-            ->orderBy('nama_kategori')
-            ->get();
-        return view('dosen.upload', compact('users', 'kategoris'));
-    }
-    
-    // Jika route menggunakan upload() 
-    public function upload()
-    {
-        $users = User::selectRaw('id_user as id, nama_lengkap as name, email')
-            ->orderBy('nama_lengkap')
-            ->get();
-        $kategoris = Kategori::select('kategori_id', 'nama_kategori')
-            ->orderBy('nama_kategori')
-            ->get();
-        return view('dosen.upload', compact('users', 'kategoris'));
-    }
-
-    /**
-     * Proses penyimpanan dokumen yang diupload dosen.
-     */
-    public function store(Request $request) // ✅ Pakai Request biasa, bukan FormRequest
-    {
-        // Validasi input (UPDATED - tambah field baru)
+        // Validasi input
         $validated = $request->validate([
             'judul'            => ['required', 'string', 'max:255'],
             'nomor_dokumen'    => ['nullable', 'string', 'max:100'],
-            'tanggal_terbit'   => ['required', 'string'], // flatpickr kirim d/m/Y
-            'kategori_id'      => ['required', 'integer'], // ✅ Hapus exists:kategoris
+            'tanggal_terbit'   => ['required', 'string'], // flatpickr -> d/m/Y
+            'kategori_id'      => ['required', 'integer'],
             'deskripsi'        => ['required', 'string'],
             'owner_user_id'    => ['required', 'array', 'min:1'],
-            'owner_user_id.*'  => ['integer'], // ✅ Hapus exists:users
+            'owner_user_id.*'  => ['integer'],
             'file'             => ['required', 'file', 'max:20480', 'mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png'],
         ], [
-            'judul.required'           => 'Judul dokumen wajib diisi.',
-            'nomor_dokumen.max'        => 'Nomor dokumen maksimal 100 karakter.',
-            'tanggal_terbit.required'  => 'Tanggal terbit wajib diisi.',
-            'kategori_id.required'     => 'Kategori dokumen wajib dipilih.',
-            'kategori_id.integer'      => 'Kategori yang dipilih tidak valid.',
-            'deskripsi.required'       => 'Deskripsi dokumen wajib diisi.',
-            'owner_user_id.required'   => 'Pilih minimal satu pengguna yang dapat mengakses.',
-            'owner_user_id.array'      => 'Format hak akses tidak sesuai.',
-            'owner_user_id.min'        => 'Pilih minimal satu pengguna yang dapat mengakses.',
-            'file.required'            => 'File dokumen wajib diunggah.',
-            'file.max'                 => 'Ukuran file maksimal 20MB.',
-            'file.mimes'               => 'Format file harus pdf, doc, docx, xls, xlsx, jpg, jpeg, atau png.',
+            'judul.required'          => 'Judul dokumen wajib diisi.',
+            'tanggal_terbit.required' => 'Tanggal terbit wajib diisi.',
+            'kategori_id.required'    => 'Kategori dokumen wajib dipilih.',
+            'owner_user_id.required'  => 'Pilih minimal satu pengguna yang dapat mengakses.',
+            'file.required'           => 'File dokumen wajib diunggah.',
+            'file.max'                => 'Ukuran file maksimal 20MB.',
         ]);
 
-        // Manual validation untuk kategori_id (bypass exists:kategoris)
-        $kategoriExists = DB::table('kategori')->where('kategori_id', $validated['kategori_id'])->exists();
+        // Pastikan kategori valid (khusus kategori dosen)
+        $kategoriExists = DB::table('kategori')
+            ->where('kategori_id', $validated['kategori_id'])
+            ->whereIn('nama_kategori', ['RPS', 'BKD', 'SKP', 'Bukti Pengajaran'])
+            ->exists();
+
         if (!$kategoriExists) {
-            return back()->withErrors(['kategori_id' => 'Kategori yang dipilih tidak valid.'])->withInput();
+            return back()->withErrors(['kategori_id' => 'Kategori tidak valid.'])->withInput();
         }
 
-        // Manual validation untuk owner_user_id (bypass exists:users)
+        // Validasi owner_user_id
         foreach ($validated['owner_user_id'] as $userId) {
-            $userExists = DB::table('users')->where('id_user', $userId)->exists();
-            if (!$userExists) {
+            $exists = DB::table('users')->where('id_user', $userId)->exists();
+            if (!$exists) {
                 return back()->withErrors(['owner_user_id' => 'Data pengguna tidak valid.'])->withInput();
             }
         }
@@ -114,14 +87,14 @@ class UploadDokumenDosenController extends Controller
         try {
             DB::beginTransaction();
 
-            // Ubah format tanggal dari d/m/Y ke Y-m-d
-            $tanggalTerbit = Carbon::createFromFormat('d/m/Y', $validated['tanggal_terbit'])->format('Y-m-d');
+            // Format tanggal
+            $tanggalTerbit = Carbon::createFromFormat('d/m/Y', $validated['tanggal_terbit'])
+                ->format('Y-m-d');
 
-            // Simpan file ke storage (disk: minio, sesuai dengan Model Dokumen)
+            // Upload file ke Minio
             $filePath = $request->file('file')->store('dokumen/dosen', 'minio');
 
-            // === BUAT RECORD DOKUMEN ===
-            // Status tidak di-set, biar pakai default database ('pending')
+            // BUAT RECORD DOKUMEN
             $dokumen = Dokumen::create([
                 'judul'          => $validated['judul'],
                 'nomor_dokumen'  => $validated['nomor_dokumen'],
@@ -133,28 +106,25 @@ class UploadDokumenDosenController extends Controller
                 'owner_user_id'  => Auth::id(),
             ]);
 
-            // === BUAT HAK AKSES ===
-            // Gunakan nilai yang valid sesuai constraint database
-            $hakAksesUserIds = $validated['owner_user_id'];
-
-            foreach ($hakAksesUserIds as $userId) {
+            // BERIKAN HAK AKSES READ
+            foreach ($validated['owner_user_id'] as $userId) {
                 AccessControl::create([
                     'document_id'      => $dokumen->dokumen_id,
                     'grantee_user_id'  => $userId,
-                    'perm'             => 'READ', // ✅ UPPERCASE!
-                    'status'           => 'CONFIRMED', // ✅ UPPERCASE!
+                    'perm'             => 'READ',
+                    'status'           => 'CONFIRMED',
                     'created_by'       => Auth::id(),
                     'created_at'       => now(),
                 ]);
             }
 
-            // Pastikan uploader juga punya hak akses (kalau belum masuk list)
-            if (!in_array(Auth::id(), $hakAksesUserIds)) {
+            // Pastikan uploader punya akses OWNER
+            if (!in_array(Auth::id(), $validated['owner_user_id'])) {
                 AccessControl::create([
                     'document_id'      => $dokumen->dokumen_id,
                     'grantee_user_id'  => Auth::id(),
-                    'perm'             => 'OWNER', // ✅ Uploader adalah OWNER
-                    'status'           => 'CONFIRMED', // ✅ UPPERCASE!
+                    'perm'             => 'OWNER',
+                    'status'           => 'CONFIRMED',
                     'created_by'       => Auth::id(),
                     'created_at'       => now(),
                 ]);
@@ -165,12 +135,14 @@ class UploadDokumenDosenController extends Controller
             return redirect()
                 ->route('dosen.upload')
                 ->with('success', 'Dokumen berhasil diunggah.');
+
         } catch (\Throwable $e) {
-            // Kalau mau log ke file:
+            DB::rollBack();
+
             \Log::error('Gagal upload dokumen dosen', [
                 'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
             ]);
 
             return back()
