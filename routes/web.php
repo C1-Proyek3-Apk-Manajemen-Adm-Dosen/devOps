@@ -8,6 +8,7 @@ use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\Tu\DashboardController;
 use App\Http\Controllers\Tu\NotificationController;
 use App\Http\Controllers\Tu\MonitoringController;
+use App\Http\Controllers\Dosen\DosenController;
 use App\Models\Dokumen;
 use App\Models\Kategori;
 use App\Models\User;
@@ -64,7 +65,24 @@ Route::prefix('dosen')
         Route::get('/dashboard', [\App\Http\Controllers\Dosen\DashboardController::class, 'index'])
             ->name('dashboard');  // → hasil: dosen.dashboard
 
-        Route::get('/dokumen', fn() => view('dosen.dokumen'))->name('dokumen');
+        Route::get('/dokumen', [DosenController::class, 'dokumenSaya'])
+            ->name('dokumen'); 
+
+        Route::get('/dokumen/{id}/hak-akses', [DosenController::class, 'editHakAkses'])
+            ->name('edit-hak-akses');
+        
+        Route::post('/dokumen/{id}/hak-akses', [DosenController::class, 'updateHakAkses'])
+            ->name('update-hak-akses');
+        
+        Route::delete('/dokumen/{id}/hak-akses', [DosenController::class, 'removeHakAkses'])
+            ->name('hak-akses.remove');
+
+        Route::get('/dokumen/{id}/detail', [DosenController::class, 'detailDokumen'])
+            ->name('detail-dokumen'); // Hasil: dosen.detail-dokumen
+
+        Route::get('/dokumen/{id}/download', [DosenController::class, 'download'])
+            ->name('dokumen.download'); // Hasil: dosen.dokumen.download
+
         Route::get('/upload', fn() => view('dosen.upload'))->name('upload');
         Route::get('/portofolio', fn() => view('dosen.portofolio'))->name('portofolio');
 
