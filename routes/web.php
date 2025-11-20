@@ -12,6 +12,7 @@ use App\Models\Dokumen;
 use App\Models\Kategori;
 use App\Models\User;
 use App\Http\Controllers\TU\RiwayatController;
+use App\Http\Controllers\Dosen\UploadDokumenDosenController;
 
 // ==================== ROOT -> LOGIN ====================
 Route::get('/', fn () => redirect()->route('login'));
@@ -78,6 +79,14 @@ Route::prefix('dosen')
 
         Route::get('/notifikasi', [\App\Http\Controllers\Dosen\NotificationController::class, 'index'])
             ->name('notifikasi'); // → hasil: dosen.notifikasi
+
+    // Upload - GET
+    Route::get('/upload', [UploadDokumenDosenController::class, 'create'])
+        ->name('upload');
+
+    // Upload - POST
+    Route::post('/upload', [UploadDokumenDosenController::class, 'store'])
+        ->name('dokumen.upload.store');
 });
 
 // ==================== KOORDINATOR ====================
