@@ -46,8 +46,8 @@
         <div class="p-6 md:p-8">
 
             @php
-                $versiTerbaru = $latest ?? $latestVersi ?? null;
-                $kategoriNama = $dokumen->kategori->nama ?? $dokumen->nama_kategori ?? 'Tidak ada';
+                $versiTerbaru = $latest ?? null;
+                $kategoriNama = $dokumen->nama_kategori ?? ($dokumen->kategori->nama_kategori ?? 'Tidak ada');
             @endphp
 
             {{-- GRID 2 KOLOM (50:50) --}}
@@ -80,7 +80,7 @@
                         </div>
                     </div>
 
-                    {{-- Kategori (SEKARANG DALAM KOTAK BESAR) --}}
+                    {{-- Kategori --}}
                     <div>
                         <p class="text-[13px] font-semibold text-slate-700">Kategori Dokumen</p>
                         <div class="mt-1 px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 flex items-center">
@@ -110,22 +110,27 @@
                         {{-- Label Versi --}}
                         <p class="text-[13px] font-semibold text-slate-700">Versi Dokumen</p>
 
-                        {{-- Box Versi --}}
+                        {{-- Box Versi: selalu ada field --}}
                         @if($versiTerbaru)
-                        <div class="w-full flex items-center px-4 py-2.5 rounded-xl 
-                                    border border-slate-200 bg-slate-50">
+                            {{-- Ada versi -> tampilkan tag biru + v1 --}}
+                            <div class="w-full flex items-center px-4 py-2.5 rounded-xl 
+                                        border border-slate-200 bg-slate-50">
 
-                            {{-- ICON GRADIENT OUTLINE --}}
-                            <span class="flex items-center justify-center w-12 h-12 rounded-xl
-                                         bg-gradient-to-r from-[#050C9C] to-[#1E40FF] shadow-md">
-                                <i class="fa-solid fa-tag icon-tag-outline text-lg"></i>
-                            </span>
+                                <span class="flex items-center justify-center w-12 h-12 rounded-xl
+                                             bg-gradient-to-r from-[#050C9C] to-[#1E40FF] shadow-md">
+                                    <i class="fa-solid fa-tag icon-tag-outline text-lg"></i>
+                                </span>
 
-                            {{-- Text Versi --}}
-                            <span class="ml-4 text-base font-semibold text-slate-800">
-                                v{{ $versiTerbaru->nomor_versi ?? $versiTerbaru->versi ?? '1' }}
-                            </span>
-                        </div>
+                                <span class="ml-4 text-base font-semibold text-slate-800">
+                                    v{{ $versiTerbaru->nomor_versi ?? $versiTerbaru->versi ?? '1' }}
+                                </span>
+                            </div>
+                        @else
+                            {{-- Tidak ada versi -> tetap ada field tapi teks info --}}
+                            <div class="w-full px-4 py-2.5 rounded-xl 
+                                        border border-slate-200 bg-slate-50 text-sm text-slate-500">
+                                Belum ada versi dokumen.
+                            </div>
                         @endif
 
                         {{-- Tombol Download --}}
