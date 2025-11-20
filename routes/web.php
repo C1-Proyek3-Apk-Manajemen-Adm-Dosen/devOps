@@ -8,13 +8,14 @@ use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\Tu\DashboardController;
 use App\Http\Controllers\Tu\NotificationController;
 use App\Http\Controllers\Tu\MonitoringController;
+use App\Http\Controllers\Tu\RiwayatController;
+use App\Http\Controllers\Dosen\UploadDokumenDosenController;
 use App\Models\Dokumen;
 use App\Models\Kategori;
 use App\Models\User;
-use App\Http\Controllers\TU\RiwayatController;
 
 // ==================== ROOT -> LOGIN ====================
-Route::get('/', fn () => redirect()->route('login'));
+Route::get('/', fn() => redirect()->route('login'));
 
 // ==================== AUTH ====================
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -35,7 +36,6 @@ Route::prefix('tu')->middleware(['auth', 'checkRole:tu'])->group(function () {
     Route::post('/dokumen/{id}/hak-akses', [MonitoringController::class, 'updateHakAkses'])->name('tu.update-hak-akses');
     Route::delete('/dokumen/{id}/hak-akses', [MonitoringController::class, 'removeHakAkses'])->name('tu.hak-akses.remove');
 
-    // GET = tampilkan halaman upload (buka modal dsb)
     Route::get('/upload-dokumen', function () {
         $kategoris = Kategori::select('kategori_id', 'nama_kategori')->orderBy('nama_kategori')->get();
         $users = User::selectRaw('id_user as id, nama_lengkap as name, email')->orderBy('nama_lengkap')->get();
@@ -44,41 +44,41 @@ Route::prefix('tu')->middleware(['auth', 'checkRole:tu'])->group(function () {
         return view('tu.upload-dokumen', compact('kategoris', 'users', 'dokumens'));
     })->name('tu.upload');
 
-    // POST = simpan file ke MinIO lewat DokumenController
     Route::post('/upload-dokumen', [DokumenController::class, 'store'])->name('tu.upload.store');
 
-    // Riwayat TU
     Route::get('/riwayat-upload', [RiwayatController::class, 'index'])->name('tu.riwayat');
     Route::get('/dokumen/{dokumen_id}', [RiwayatController::class, 'show'])
         ->whereNumber('dokumen_id')->name('tu.dokumen.show');
 
-    // Notifikasi TU
     Route::get('/notifikasi', [NotificationController::class, 'index'])->name('tu.notifikasi');
 });
 
+// ==================== DOSEN ====================
 Route::prefix('dosen')
     ->middleware(['auth', 'checkRole:dosen'])
     ->name('dosen.')
     ->group(function () {
 
         Route::get('/dashboard', [\App\Http\Controllers\Dosen\DashboardController::class, 'index'])
-            ->name('dashboard');  // → hasil: dosen.dashboard
+            ->name('dashboard');
 
         Route::get('/dokumen', fn() => view('dosen.dokumen'))->name('dokumen');
-        Route::get('/upload', fn() => view('dosen.upload'))->name('upload');
         Route::get('/portofolio', fn() => view('dosen.portofolio'))->name('portofolio');
 
         Route::get('/riwayat', [\App\Http\Controllers\Dosen\RiwayatUploadController::class, 'index'])
             ->name('riwayat');
 
-        // detail dokumen
         Route::get('/riwayat/{dokumen_id}', [\App\Http\Controllers\Dosen\RiwayatUploadController::class, 'show'])
-        ->whereNumber('dokumen_id')
-        ->name('riwayat.show');
+            ->whereNumber('dokumen_id')
+            ->name('riwayat.show');
 
         Route::get('/notifikasi', [\App\Http\Controllers\Dosen\NotificationController::class, 'index'])
-            ->name('notifikasi'); // → hasil: dosen.notifikasi
-});
+            ->name('notifikasi');
+
+        // Upload - gunakan controller (pastikan class ini ada)
+        Route::get('/upload', [UploadDokumenDosenController::class, 'create'])->name('upload');
+        Route::post('/upload', [UploadDokumenDosenController::class, 'store'])->name('dokumen.upload.store');
+    });
 
 // ==================== KOORDINATOR ====================
 Route::prefix('kaprodi')->middleware(['auth', 'checkRole:koordinator'])->group(function () {
