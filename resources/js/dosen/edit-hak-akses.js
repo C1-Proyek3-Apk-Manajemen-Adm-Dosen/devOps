@@ -4,6 +4,9 @@ const dokumenRoute = window.dokumenRoute;
 const removeAccessRoute = window.removeAccessRoute;
 const updateAccessRoute = window.updateAccessRoute;
 
+window.returnUrl = window.returnUrl || '/dosen/dokumen';
+
+
 document.addEventListener('DOMContentLoaded', function() {
     openHakAksesModal();
 });
@@ -16,30 +19,33 @@ window.openHakAksesModal = function() {
     }
 }
 
-function closeHakAksesModal() {
+window.closeHakAksesModal = function() {
     const modal = document.getElementById('modalHakAkses');
     if (modal) {
         modal.classList.add('hidden');
         document.body.style.overflow = 'auto';
     }
     
+    // Redirect back to dokumen page
     if (window.returnUrl) {
         window.location.href = window.returnUrl; 
     } else {
-        console.error("Return URL tidak ditemukan!");
         window.location.href = '/dosen/dokumen'; 
     }
 }
 
 document.getElementById('modalHakAkses')?.addEventListener('click', function(e) {
     if (e.target === this) {
-        closeHakAksesModal();
+        window.closeHakAksesModal();
     }
 });
 
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-        closeHakAksesModal();
+        const modal = document.getElementById('modalHakAkses');
+        if (modal && !modal.classList.contains('hidden')) {
+            window.closeHakAksesModal();
+        }
     }
 });
 
@@ -200,10 +206,17 @@ window.removeAccess = function(userId, userName) {
     });
 }
 
-function saveChanges() {
+window.saveChanges = function() {
+    // Show success message and redirect
+    showAlert('Perubahan berhasil disimpan!', 'success');
+    
     setTimeout(() => {
-        closeHakAksesModal(); 
-    }, 1000);
+        if (window.returnUrl) {
+            window.location.href = window.returnUrl;
+        } else {
+            window.location.href = '/dosen/dokumen';
+        }
+    }, 1500);
 }
 
 function showAlert(message, type) {

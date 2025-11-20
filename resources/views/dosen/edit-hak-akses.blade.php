@@ -7,11 +7,11 @@
         
         <div class="bg-gradient-to-r from-[#050C9C] to-[#0818d4] px-6 py-4 flex justify-between items-center">
             <h2 class="text-xl font-bold text-white">Edit Hak Akses Dokumen</h2>
-            <button type="button" onclick="closeHakAksesModal()" class="text-white/80 hover:text-white transition-colors p-1 hover:bg-white/20 rounded-lg">
+            <a href="{{ route('dosen.dokumen') }}" class="text-white/80 hover:text-white transition-colors p-1 hover:bg-white/20 rounded-lg">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
-            </button>
+            </a>
         </div>
 
         <div class="overflow-y-auto max-h-[calc(90vh-180px)] px-6 py-6 space-y-6">
@@ -190,18 +190,17 @@
         </div>
 
         <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row gap-3 justify-end">
-            <button type="button" onclick="closeHakAksesModal()" 
-                    class="px-6 py-2.5 bg-white border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200">
+            <a href="{{ route('dosen.dokumen') }}" 
+               class="px-6 py-2.5 bg-white border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 text-center">
                 Tutup
-            </button>
-            <button type="button" 
-                    onclick="saveChanges()"
-                    class="px-6 py-2.5 bg-gradient-to-r from-[#050C9C] to-[#0818d4] text-white font-semibold rounded-xl hover:from-[#0818d4] hover:to-[#050C9C] transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+            </a>
+            <a href="{{ route('dosen.dokumen') }}"
+               class="px-6 py-2.5 bg-gradient-to-r from-[#050C9C] to-[#0818d4] text-white font-semibold rounded-xl hover:from-[#0818d4] hover:to-[#050C9C] transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
                 Simpan Perubahan
-            </button>
+            </a>
         </div>
     </div>
 </div>
@@ -211,6 +210,8 @@
     window.csrfToken = '{{ csrf_token() }}';
 
     window.returnUrl = '{{ route('dosen.dokumen') }}';
+    window.dokumenRoute = '{{ route("dosen.dokumen") }}';
+
 
     window.removeAccessRoute = '{{ route("dosen.hak-akses.remove", $dokumen->dokumen_id) }}';
     window.updateAccessRoute = '{{ route("dosen.update-hak-akses", $dokumen->dokumen_id) }}';
