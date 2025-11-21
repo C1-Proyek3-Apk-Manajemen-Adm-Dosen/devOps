@@ -41,7 +41,7 @@
             </ul>
 
             <div class="mt-4">
-                {{ $notifikasi->links() }}
+                @include('components.pagination-chunk', ['paginator' => $notifikasi, 'chunk' => 5])
             </div>
         @endif
     </div>
