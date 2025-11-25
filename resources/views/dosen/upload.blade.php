@@ -184,6 +184,7 @@
     @vite('resources/js/dosen/upload-dokumen-dosen.js')
     @vite('resources/js/dosen/upload-notification-success-dosen.js')
 
+<script>
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeSuccessNotification();
 });

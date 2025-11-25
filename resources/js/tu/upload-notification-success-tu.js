@@ -74,7 +74,6 @@ document.addEventListener('click', function(event) {
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
         const modal = document.getElementById('successNotificationModal');
-        // Pastikan modal sedang tampil sebelum menutup
         if (modal && !modal.classList.contains('hidden')) {
             window.closeSuccessNotification();
         }
