@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Dokumen;
 use App\Models\Kategori;
 use App\Models\User;
-use App\Models\AccessControl; // Import AccessControl
+use App\Models\AccessControl;
+use App\Models\VersiDokumen; // 🔥 TAMBAH INI
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB; // Import DB
+use Illuminate\Support\Facades\DB;
 
 class DokumenController extends Controller
 {
@@ -80,16 +81,30 @@ class DokumenController extends Controller
     // =========================
     public function store(Request $request)
     {
-        // Validasi
+        // 🔥 VALIDASI DENGAN DUPLICATE CHECK 🔥
         $request->validate([
-            'judul'           => 'required|string|max:255',
+            'judul' => [
+                'required',
+                'string',
+                'max:255',
+                // Custom validation untuk cek duplicate judul
+                function ($attribute, $value, $fail) {
+                    $exists = Dokumen::where('judul', $value)
+                        ->where('created_by', Auth::id())
+                        ->exists();
+                    
+                    if ($exists) {
+                        $fail('Dokumen dengan judul "' . $value . '" sudah ada. Silakan gunakan judul yang berbeda.');
+                    }
+                },
+            ],
             'nomor_dokumen'   => 'nullable|string|max:100',
-            'tanggal_terbit'  => ['required', 'regex:/^\d{2}\/\d{2}\/\d{4}$/'], // Format d/m/Y
+            'tanggal_terbit'  => ['required', 'regex:/^\d{2}\/\d{2}\/\d{4}$/'],
             'kategori_id'     => 'required|exists:kategori,kategori_id',
             'deskripsi'       => 'required|string',
-            'owner_user_id'   => 'required|array|min:1', // Ini adalah "Hak Akses" (array)
-            'owner_user_id.*' => 'exists:users,id_user', // Pastikan setiap ID ada
-            'file'            => 'required|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:20480', // max 20MB
+            'owner_user_id'   => 'required|array|min:1',
+            'owner_user_id.*' => 'exists:users,id_user',
+            'file'            => 'required|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:20480',
         ], [
             'owner_user_id.required' => 'Minimal pilih 1 pengguna untuk hak akses.',
             'owner_user_id.min'      => 'Minimal pilih 1 pengguna untuk hak akses.',
@@ -128,26 +143,34 @@ class DokumenController extends Controller
                 'file_path'      => $path,
                 'created_by'     => Auth::id(),
                 'status'         => 'draft', 
-                'owner_user_id'  => Auth::id(), // Diisi ID integer peng-upload
+                'owner_user_id'  => Auth::id(),
             ]);
 
-            // 3. Simpan Hak Akses ke tabel 'access_control' (BARU)
+            // 🔥 3. AUTO SET VERSI 1 UNTUK DOKUMEN BARU 🔥
+            VersiDokumen::create([
+                'dokumen_id' => $dokumen->dokumen_id,
+                'nomor_versi' => 1,
+                'file_path' => $path,
+                'upload_by' => Auth::id(),
+                'tanggal_dokumen' => now(),
+            ]);
+
+            // 4. Simpan Hak Akses ke tabel 'access_control'
             $usersWithAccess = $request->owner_user_id;
             $accessControlData = [];
-            $uploaderId = Auth::id(); // ID si peng-upload
+            $uploaderId = Auth::id();
 
             foreach ($usersWithAccess as $userId) {
                 $accessControlData[] = [
-                    'document_id'     => $dokumen->dokumen_id, // ID dari dokumen yg baru dibuat
+                    'document_id'     => $dokumen->dokumen_id,
                     'grantee_user_id' => $userId,
                     'perm'            => 'READ', 
-                    'status'          => 'PENDING', // <-- INI PERBAIKANNYA
+                    'status'          => 'PENDING',
                     'created_at'      => now(),
                     'created_by'      => $uploaderId,
                 ];
             }
 
-            // Insert semua hak akses sekaligus
             AccessControl::insert($accessControlData); 
 
             // Jika semua sukses, commit
@@ -191,7 +214,7 @@ class DokumenController extends Controller
             'tanggal_terbit'  => ['required', 'regex:/^\d{2}\/\d{2}\/\d{4}$/'],
             'kategori_id'     => 'required|exists:kategori,kategori_id',
             'deskripsi'       => 'required|string',
-            'owner_user_id'   => 'required|array|min:1', // Hak Akses
+            'owner_user_id'   => 'required|array|min:1',
             'owner_user_id.*' => 'exists:users,id_user',
             'file'            => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:20480',
             'status'          => 'required|in:draft,published,archived', 
@@ -222,9 +245,15 @@ class DokumenController extends Controller
 
             // 2. Cek jika ada file baru
             if ($request->hasFile('file')) {
-                if ($dokumen->file_path && Storage::disk('minio')->exists($dokumen->file_path)) {
-                    Storage::disk('minio')->delete($dokumen->file_path);
-                }
+                // 🔥 TAMBAH VERSI BARU JIKA FILE DIGANTI 🔥
+                $latestVersion = VersiDokumen::where('dokumen_id', $dokumen->dokumen_id)
+                    ->max('nomor_versi');
+                $newVersionNumber = ($latestVersion ?? 0) + 1;
+
+                // Hapus file lama dari MinIO (optional, bisa di-keep untuk history)
+                // if ($dokumen->file_path && Storage::disk('minio')->exists($dokumen->file_path)) {
+                //     Storage::disk('minio')->delete($dokumen->file_path);
+                // }
 
                 $folderPath = 'dokumen-uploads';
                 $file = $request->file('file');
@@ -235,7 +264,16 @@ class DokumenController extends Controller
                 $uniqueFileName = now()->format('YmdHis') . '-' . Str::random(6) . '-' . $safe . '.' . $ext;
                 
                 $path = Storage::disk('minio')->putFileAs($folderPath, $file, $uniqueFileName);
-                $dokumen->file_path = $path; 
+                $dokumen->file_path = $path;
+
+                // Simpan versi baru
+                VersiDokumen::create([
+                    'dokumen_id' => $dokumen->dokumen_id,
+                    'nomor_versi' => $newVersionNumber,
+                    'file_path' => $path,
+                    'upload_by' => Auth::id(),
+                    'tanggal_dokumen' => now(),
+                ]);
             }
 
             $dokumen->save();
@@ -255,7 +293,7 @@ class DokumenController extends Controller
                         'document_id'     => $dokumen->dokumen_id,
                         'grantee_user_id' => $userId,
                         'perm'            => 'READ', 
-                        'status'          => 'PENDING', // <-- INI PERBAIKANNYA
+                        'status'          => 'PENDING',
                         'created_at'      => now(),
                         'created_by'      => $updaterId,
                     ];
@@ -286,9 +324,8 @@ class DokumenController extends Controller
 
             AccessControl::where('document_id', $dokumen->dokumen_id)->delete();
             
-            // Hapus relasi lain jika ada
-            // $dokumen->komentar()->delete();
-            // $dokumen->versi()->delete();
+            // Hapus versi dokumen
+            VersiDokumen::where('dokumen_id', $dokumen->dokumen_id)->delete();
 
             $dokumen->delete();
 

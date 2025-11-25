@@ -14,6 +14,7 @@ use App\Models\Dokumen;
 use App\Models\AccessControl;
 use App\Models\User;
 use App\Models\Kategori;
+use App\Models\VersiDokumen;
 
 class UploadDokumenDosenController extends Controller
 {
@@ -44,27 +45,52 @@ class UploadDokumenDosenController extends Controller
 
     /**
      * Proses penyimpanan dokumen yang di-upload oleh DOSEN.
+     * Sekaligus:
+     * - Cek duplikat judul
+     * - Buat versi pertama di versi_dokumen
      */
     public function store(Request $request)
     {
         // Validasi input
         $validated = $request->validate([
-            'judul'            => ['required', 'string', 'max:255'],
-            'nomor_dokumen'    => ['nullable', 'string', 'max:100'],
-            'tanggal_terbit'   => ['required', 'string'], // flatpickr -> d/m/Y
-            'kategori_id'      => ['required', 'integer'],
-            'deskripsi'        => ['required', 'string'],
-            'owner_user_id'    => ['required', 'array', 'min:1'],
-            'owner_user_id.*'  => ['integer'],
-            'file'             => ['required', 'file', 'max:20480', 'mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png'],
-        ], [
-            'judul.required'          => 'Judul dokumen wajib diisi.',
-            'tanggal_terbit.required' => 'Tanggal terbit wajib diisi.',
-            'kategori_id.required'    => 'Kategori dokumen wajib dipilih.',
-            'owner_user_id.required'  => 'Pilih minimal satu pengguna yang dapat mengakses.',
-            'file.required'           => 'File dokumen wajib diunggah.',
-            'file.max'                => 'Ukuran file maksimal 20MB.',
+            'judul' => [
+                'required',
+                'string',
+                'max:255',
+                // Custom validation untuk cek duplicate judul
+                function ($attribute, $value, $fail) {
+                    // Cek duplicate berdasarkan judul DAN user yang upload
+                    $exists = Dokumen::where('judul', $value)
+                        ->where('created_by', auth()->id())
+                        ->exists();
+                    
+                    if ($exists) {
+                        $fail('Dokumen dengan judul "' . $value . '" sudah ada. Silakan gunakan judul yang berbeda.');
+                    }
+                },
+            ],
+            'nomor_dokumen' => 'nullable|string|max:100',
+            'tanggal_terbit' => 'required|date_format:d/m/Y',
+            'kategori_id' => 'required|exists:kategori,kategori_id',
+            'file' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:20480',
+            'deskripsi' => 'required|string',
+            'owner_user_id' => 'required|array|min:1',
+            'owner_user_id.*' => 'exists:users,id_user',
         ]);
+
+        // ============================================================
+        // 1️⃣ CEK DUPLIKAT BERDASARKAN JUDUL
+        // ============================================================
+        $existingDoc = Dokumen::where('judul', $validated['judul'])->first();
+
+        if ($existingDoc) {
+            // TIDAK upload file, TIDAK buat dokumen.
+            // Kita cuma kirim flag ke view supaya JS bisa munculin modal.
+            return back()
+                ->withInput()
+                ->with('duplicate', true)
+                ->with('duplicate_dokumen_id', $existingDoc->dokumen_id);
+        }
 
         // Pastikan kategori valid (khusus kategori dosen)
         $kategoriExists = DB::table('kategori')
@@ -91,10 +117,18 @@ class UploadDokumenDosenController extends Controller
             $tanggalTerbit = Carbon::createFromFormat('d/m/Y', $validated['tanggal_terbit'])
                 ->format('Y-m-d');
 
-            // Upload file ke Minio
-            $filePath = $request->file('file')->store('dokumen/dosen', 'minio');
+            // ============================================================
+            // 2️⃣ UPLOAD FILE KE MINIO (PAKAI NAMA RANDOM)
+            // ============================================================
+            $file       = $request->file('file');
+            $randomName = uniqid() . '_' . $file->getClientOriginalName();
+            $filePath   = 'dokumen/dosen/' . $randomName;
 
-            // BUAT RECORD DOKUMEN
+            Storage::disk('minio')->put($filePath, file_get_contents($file));
+
+            // ============================================================
+            // 3️⃣ BUAT RECORD DOKUMEN (PERSIS SEPERTI KODE AWALMU)
+            // ============================================================
             $dokumen = Dokumen::create([
                 'judul'          => $validated['judul'],
                 'nomor_dokumen'  => $validated['nomor_dokumen'],
@@ -106,7 +140,20 @@ class UploadDokumenDosenController extends Controller
                 'owner_user_id'  => Auth::id(),
             ]);
 
-            // BERIKAN HAK AKSES READ
+            // ============================================================
+            // 4️⃣ BUAT VERSI PERTAMA DI TABEL versi_dokumen
+            // ============================================================
+            VersiDokumen::create([
+                'dokumen_id'      => $dokumen->dokumen_id,
+                'nomor_versi'     => 1,
+                'file_path'       => $filePath,
+                'tanggal_dokumen' => now(),
+                'upload_by'       => Auth::id(),
+            ]);
+
+            // ============================================================
+            // 5️⃣ BERIKAN HAK AKSES READ
+            // ============================================================
             foreach ($validated['owner_user_id'] as $userId) {
                 AccessControl::create([
                     'document_id'      => $dokumen->dokumen_id,
