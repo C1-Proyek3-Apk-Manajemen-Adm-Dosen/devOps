@@ -309,6 +309,11 @@
     box-shadow:none;
   }
   
+  /* Toast copy nomor dokumen (dipakai di halaman detail) */
+  #copyToast{
+    z-index:9999;
+  }
+  
   /* ===== Responsif ===== */
   
   @media (max-width:900px){

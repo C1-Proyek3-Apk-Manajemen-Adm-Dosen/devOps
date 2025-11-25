@@ -310,3 +310,25 @@
     box-shadow:none;
   }
   
+/* ==========================================================
+   📌 Toast Copy — warna abu (sesuai TU)
+   ========================================================== */
+   .toast-copy {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%);
+    background: #4B5563;   /* ABU-ABU TU */
+    color: #fff;
+    padding: 8px 22px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: none;
+    z-index: 9999;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.22);
+    white-space: nowrap;
+}
+
+
+  
