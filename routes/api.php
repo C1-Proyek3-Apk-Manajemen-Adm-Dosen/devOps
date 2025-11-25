@@ -1,3 +1,4 @@
+<?php
 use App\Http\Controllers\DosenPddiktiController;
 use Illuminate\Support\Facades\Route;
 
