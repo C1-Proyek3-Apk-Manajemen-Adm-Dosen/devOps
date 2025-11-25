@@ -53,21 +53,29 @@ class UploadDokumenDosenController extends Controller
     {
         // Validasi input
         $validated = $request->validate([
-            'judul'            => ['required', 'string', 'max:255'],
-            'nomor_dokumen'    => ['nullable', 'string', 'max:100'],
-            'tanggal_terbit'   => ['required', 'string'], // flatpickr -> d/m/Y
-            'kategori_id'      => ['required', 'integer'],
-            'deskripsi'        => ['required', 'string'],
-            'owner_user_id'    => ['required', 'array', 'min:1'],
-            'owner_user_id.*'  => ['integer'],
-            'file'             => ['required', 'file', 'max:20480', 'mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png'],
-        ], [
-            'judul.required'          => 'Judul dokumen wajib diisi.',
-            'tanggal_terbit.required' => 'Tanggal terbit wajib diisi.',
-            'kategori_id.required'    => 'Kategori dokumen wajib dipilih.',
-            'owner_user_id.required'  => 'Pilih minimal satu pengguna yang dapat mengakses.',
-            'file.required'           => 'File dokumen wajib diunggah.',
-            'file.max'                => 'Ukuran file maksimal 20MB.',
+            'judul' => [
+                'required',
+                'string',
+                'max:255',
+                // Custom validation untuk cek duplicate judul
+                function ($attribute, $value, $fail) {
+                    // Cek duplicate berdasarkan judul DAN user yang upload
+                    $exists = Dokumen::where('judul', $value)
+                        ->where('created_by', auth()->id())
+                        ->exists();
+                    
+                    if ($exists) {
+                        $fail('Dokumen dengan judul "' . $value . '" sudah ada. Silakan gunakan judul yang berbeda.');
+                    }
+                },
+            ],
+            'nomor_dokumen' => 'nullable|string|max:100',
+            'tanggal_terbit' => 'required|date_format:d/m/Y',
+            'kategori_id' => 'required|exists:kategori,kategori_id',
+            'file' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:20480',
+            'deskripsi' => 'required|string',
+            'owner_user_id' => 'required|array|min:1',
+            'owner_user_id.*' => 'exists:users,id_user',
         ]);
 
         // ============================================================
