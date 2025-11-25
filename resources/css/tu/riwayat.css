@@ -73,8 +73,6 @@
     background:#f9fafb;
   }
   
-  /* ===== Kolom Per Baris ===== */
-  
   /* Kolom NO */
   .riwayat-row > div:nth-child(1){
     text-align:center;
@@ -109,6 +107,16 @@
     border:1px solid transparent;
   }
   
+  /* Bullet di depan chip */
+  .chip::before{
+    content:"";
+    width:6px;
+    height:6px;
+    border-radius:999px;
+    background:currentColor;
+  }
+  
+  /* warna kategori */
   .chip--st   { color:#1d4ed8; background:#dbeafe; border-color:#bfdbfe; }
   .chip--sk   { color:#7c3aed; background:#ede9fe; border-color:#ddd6fe; }
   .chip--rp   { color:#4338ca; background:#eef2ff; border-color:#e0e7ff; }
@@ -143,7 +151,7 @@
     margin-top:0.15rem;
   }
   
-  /* ===== Pagination Laravel ===== */
+  /* ===== Pagination Laravel default (kalau suatu saat dipakai) ===== */
   
   nav[aria-label="Pagination Navigation"]{
     display:flex;
@@ -164,33 +172,142 @@
     border-color:var(--primary) !important;
   }
   
-/* ===== Dropdown filter kategori (arrow custom) ===== */
-
-.select-cat-wrapper{
-  position:relative;
-  display:inline-block;
-}
-
-.select-cat{
-  padding-right:2.4rem;
-  appearance:none;
-  -webkit-appearance:none;
-  -moz-appearance:none;
-  background-color:#fff;
-}
-
-/* Panah di dalam kotak, center vertikal */
-.select-cat-arrow{
-  position:absolute;
-  top:50%;
-  right:0.7rem;                 /* geser kiri/kanan dari pinggir */
-  transform:translateY(-50%);   /* bener-bener di tengah tinggi select */
-  pointer-events:none;
-  font-size:0.9rem;             /* biar nggak kekecilan */
-  color:#6b7280;
-}
-
+  /* ===== Dropdown filter kategori (arrow custom) ===== */
   
+  .select-cat-wrapper{
+    position:relative;
+    display:inline-block;
+  }
+  
+  .select-cat{
+    padding-right:2.4rem;
+    appearance:none;
+    -webkit-appearance:none;
+    -moz-appearance:none;
+    background-color:#fff;
+  }
+  
+  /* Panah di dalam kotak, center vertikal */
+  .select-cat-arrow{
+    position:absolute;
+    top:50%;
+    right:0.7rem;
+    transform:translateY(-50%);
+    pointer-events:none;
+    font-size:0.9rem;
+    color:#6b7280;
+  }
+  
+  /* ==========================================================
+     ⚙️ Footer: Total Dokumen + Info Halaman + Pagination
+     ========================================================== */
+  
+  .border-top-soft{
+    border-top:1px solid #e5e7eb;
+  }
+  
+  .riwayat-footer{
+    padding:0.75rem 1.5rem;
+    background:#f9fafb;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-size:0.875rem;
+  }
+  
+  /* Total dokumen kiri */
+  .riwayat-footer-total{
+    display:flex;
+    align-items:center;
+    gap:0.4rem;
+  }
+  
+  .doc-total-icon{
+    width:1.75rem;
+    height:1.75rem;
+    border-radius:999px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#eef2ff;
+    color:#1d4ed8;
+    font-size:0.8rem;
+  }
+  
+  .label-total{
+    font-weight:700;
+    color:#374151;
+  }
+  
+  .label-total-number{
+    font-weight:700;
+    color:#050C9C;
+  }
+  
+  /* Info halaman + pagination kanan */
+  
+  .riwayat-footer-right{
+    display:flex;
+    align-items:center;
+    gap:1rem;
+  }
+  
+  .riwayat-footer-pageinfo{
+    font-size:0.82rem;
+    color:#4b5563;
+  }
+  
+  /* Pagination kotak */
+  
+  .pagination{
+    display:flex;
+    align-items:center;
+    gap:0.35rem;
+  }
+  
+  .pagination-page,
+  .pagination-arrow{
+    min-width:2.25rem;
+    height:2.25rem;
+    padding:0 0.55rem;
+    border-radius:0.55rem;
+    border:1px solid #e5e7eb;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#ffffff;
+    font-size:0.8rem;
+    font-weight:500;
+    color:#4b5563;
+    cursor:pointer;
+    transition:
+      background-color .15s ease,
+      border-color .15s ease,
+      color .15s ease,
+      box-shadow .15s ease;
+  }
+  
+  .pagination-page:hover,
+  .pagination-arrow:hover{
+    border-color:#b0b8ff;
+    color:#050C9C;
+  }
+  
+  .pagination-page.is-active{
+    background:var(--primary);
+    color:#ffffff;
+    border-color:var(--primary);
+    box-shadow:0 6px 14px rgba(5,12,156,.35);
+  }
+  
+  .pagination-arrow.disabled,
+  .pagination-arrow.disabled:hover{
+    background:#f3f4f6;
+    border-color:#e5e7eb;
+    color:#9ca3af;
+    cursor:default;
+    box-shadow:none;
+  }
   
   /* ===== Responsif ===== */
   

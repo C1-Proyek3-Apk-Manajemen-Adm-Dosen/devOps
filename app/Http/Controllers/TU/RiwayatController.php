@@ -24,9 +24,22 @@ class RiwayatController extends Controller
             'rp' => ['riwayat pengajaran'],
         ];
 
-        // Build query dasar: join kategori + batasi hanya 3 grup kategori TU
+        // ==== Subquery: gabung nama dosen per dokumen ====
+        $recipientsSub = DB::table('access_control as ac')
+            ->join('users as u', 'u.id_user', '=', 'ac.grantee_user_id')
+            ->where('u.role', 'dosen')
+            ->groupBy('ac.document_id')
+            ->select(
+                'ac.document_id',
+                DB::raw("string_agg(u.nama_lengkap, ', ' ORDER BY u.nama_lengkap) as recipients")
+            );
+
+        // ==== Query dasar riwayat dokumen ====
         $query = Dokumen::query()
             ->leftJoin('kategori', 'kategori.kategori_id', '=', 'dokumen.kategori_id')
+            ->leftJoinSub($recipientsSub, 'rec', function ($join) {
+                $join->on('rec.document_id', '=', 'dokumen.dokumen_id');
+            })
             ->where(function ($q) use ($uid) {
                 $q->where('dokumen.created_by', $uid)
                   ->orWhere('dokumen.owner_user_id', $uid)
@@ -37,17 +50,20 @@ class RiwayatController extends Controller
                 array_merge($groups['st'], $groups['sk'], $groups['rp'])
             );
 
-        // Search ke banyak kolom (judul, nomor, kategori, tanggal)
+        // ============================
+        // 🔍 Search ke banyak kolom
+        // (judul, nomor, kategori, tanggal, nama dosen)
+        // ============================
         $query->when($r->filled('q'), function ($qq) use ($r) {
             $term = strtolower(trim($r->q));
 
             $qq->where(function ($q) use ($term) {
-                // judul & nomor dokumen
                 $q->whereRaw("LOWER(COALESCE(dokumen.judul, '')) LIKE ?", ["%{$term}%"])
                   ->orWhereRaw("LOWER(COALESCE(dokumen.nomor_dokumen, '')) LIKE ?", ["%{$term}%"])
-                  // nama kategori
                   ->orWhereRaw("LOWER(COALESCE(kategori.nama_kategori, '')) LIKE ?", ["%{$term}%"])
-                  // tanggal upload (bulan, tahun, format lengkap, yyyy-mm-dd)
+                  // nama dosen (hasil string_agg)
+                  ->orWhereRaw("LOWER(COALESCE(rec.recipients, '')) LIKE ?", ["%{$term}%"])
+                  // tanggal (bulan, tahun, full, yyyy-mm-dd)
                   ->orWhereRaw("LOWER(to_char(dokumen.created_at, 'FMMonth')) LIKE ?", ["%{$term}%"])
                   ->orWhereRaw("to_char(dokumen.created_at, 'YYYY') LIKE ?", ["%{$term}%"])
                   ->orWhereRaw("to_char(dokumen.created_at, 'YYYY-MM-DD') LIKE ?", ["%{$term}%"])
@@ -55,7 +71,9 @@ class RiwayatController extends Controller
             });
         });
 
-        // Filter dropdown
+        // ============================
+        // 🎯 Filter dropdown kategori
+        // ============================
         if ($r->filled('cat') && isset($groups[$r->cat])) {
             $query->whereIn(
                 DB::raw('LOWER(TRIM(kategori.nama_kategori))'),
@@ -63,6 +81,19 @@ class RiwayatController extends Controller
             );
         }
 
+        // ============================
+        // ⏱ Filter periode (30 / 90 / 365 hari)
+        // ============================
+        if ($r->filled('period') && $r->period !== 'all') {
+            $days = (int) $r->period;
+            if ($days > 0) {
+                $query->where('dokumen.created_at', '>=', now()->subDays($days));
+            }
+        }
+
+        // ============================
+        // 📄 Ambil data + paginasi
+        // ============================
         $docs = $query
             ->orderByDesc('dokumen.created_at')
             ->select([
@@ -71,25 +102,19 @@ class RiwayatController extends Controller
                 'dokumen.nomor_dokumen',
                 'dokumen.created_at',
                 'kategori.nama_kategori',
+                DB::raw('rec.recipients as recipients'),
             ])
             ->paginate(10)
             ->withQueryString();
 
-        // Variabel untuk view
+        // Data kategori kalau mau dipakai di tempat lain
         $kategories = Kategori::orderBy('nama_kategori')->get(['kategori_id', 'nama_kategori']);
 
-        // Dosen penerima 
+        // Map dokumen_id ➜ nama dosen (buat view lama yang masih pakai $recipientsMap)
         $recipientsMap = [];
-        if (Schema::hasTable('access_control') && $docs->total() > 0) {
-            $rows = DB::table('access_control as ac')
-                ->join('users as u', 'u.id_user', '=', 'ac.grantee_user_id')
-                ->whereIn('ac.document_id', $docs->pluck('dokumen_id'))
-                ->where('u.role', 'dosen')
-                ->groupBy('ac.document_id')
-                ->select('ac.document_id', DB::raw("string_agg(u.nama_lengkap, ', ' ORDER BY u.nama_lengkap) as names"))
-                ->get();
-            foreach ($rows as $r2) {
-                $recipientsMap[$r2->document_id] = $r2->names;
+        foreach ($docs as $d) {
+            if (!empty($d->recipients)) {
+                $recipientsMap[$d->dokumen_id] = $d->recipients;
             }
         }
 

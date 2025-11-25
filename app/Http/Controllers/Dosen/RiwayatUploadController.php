@@ -63,21 +63,22 @@ class RiwayatUploadController extends Controller
     }
 
     // ======================
-    // DETAIL
+    // DETAIL DOKUMEN DOSEN
     // ======================
     public function show($dokumen_id)
     {
         $uid = auth()->id();
 
+        // ambil dokumen + relasi kategori & versi
         $dokumen = Dokumen::with(['kategori', 'versi'])
             ->where('dokumen_id', $dokumen_id)
             ->where('created_by', $uid)
             ->firstOrFail();
 
-        $versi = $dokumen->versi->sortByDesc('nomor_versi')->values();
-        $latest = $versi->first();
+        // koleksi versi, urutkan desc
+        $versi  = $dokumen->versi->sortByDesc('nomor_versi')->values();
+        $latest = $versi->first(); // versi terbaru (boleh null)
 
-        // PENTING: gunakan view ('dosen.show')
         return view('dosen.dokumen.show', [
             'dokumen' => $dokumen,
             'latest'  => $latest,
