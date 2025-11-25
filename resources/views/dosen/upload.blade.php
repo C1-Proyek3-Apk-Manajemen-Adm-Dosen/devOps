@@ -171,6 +171,8 @@
 
     {{-- Modal Success --}}
     @include('components.dosen.upload-notification-success')
+    @include('components.modals.upload-notification-duplicate')
+
 
 @endsection
 

@@ -114,8 +114,12 @@ Route::prefix('dosen')
             ->name('dokumen.upload.store');
 });
 
-
-
+Route::post('/dosen/update-versi', function () {
+    return response()->json([
+        'status' => 'dummy',
+        'message' => 'Fitur update versi dalam pengerjaan.',
+    ]);
+});
 
 /*
 |--------------------------------------------------------------------------
