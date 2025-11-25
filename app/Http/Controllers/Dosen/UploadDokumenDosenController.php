@@ -159,7 +159,7 @@ class UploadDokumenDosenController extends Controller
                     'document_id'      => $dokumen->dokumen_id,
                     'grantee_user_id'  => $userId,
                     'perm'             => 'READ',
-                    'status'           => 'CONFIRMED',
+                    'status'           => 'ACC',
                     'created_by'       => Auth::id(),
                     'created_at'       => now(),
                 ]);
@@ -171,7 +171,7 @@ class UploadDokumenDosenController extends Controller
                     'document_id'      => $dokumen->dokumen_id,
                     'grantee_user_id'  => Auth::id(),
                     'perm'             => 'OWNER',
-                    'status'           => 'CONFIRMED',
+                    'status'           => 'ACC',
                     'created_by'       => Auth::id(),
                     'created_at'       => now(),
                 ]);

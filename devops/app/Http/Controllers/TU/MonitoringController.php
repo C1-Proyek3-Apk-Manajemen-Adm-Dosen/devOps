@@ -83,7 +83,7 @@ class MonitoringController extends Controller
         $dokumen = Dokumen::with([
             'kategori',
             'accessControls' => function ($query) {
-                $query->where('status', 'CONFIRMED')
+                $query->where('status', 'ACC')
                       ->orderBy('created_at', 'desc');
             },
             'accessControls.granteeUser'
@@ -117,7 +117,7 @@ class MonitoringController extends Controller
             if ($existingAccess) {
                 $existingAccess->update([
                     'perm' => $request->permission,
-                    'status' => 'CONFIRMED',
+                    'status' => 'ACC',
                     'created_by' => auth()->id(),
                 ]);
 
@@ -127,7 +127,7 @@ class MonitoringController extends Controller
                     'document_id' => $id,
                     'grantee_user_id' => $request->user_id,
                     'perm' => $request->permission,
-                    'status' => 'CONFIRMED',
+                    'status' => 'ACC',
                     'created_at' => now(),
                     'created_by' => auth()->id(),
                 ]);
