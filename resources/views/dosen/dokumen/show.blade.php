@@ -3,8 +3,52 @@
 @section('title', 'Detail Dokumen - SiDoRa')
 
 @push('styles')
-    {{-- pakai css riwayat supaya chip kategori sama seperti di tabel --}}
     @vite('resources/css/dosen/riwayat.css')
+
+    <style>
+        /* Outline putih untuk icon tag (versi dokumen) */
+        .icon-tag-outline {
+            color: transparent !important;
+            -webkit-text-stroke: 1.6px #fff !important;
+            text-stroke: 1.6px #fff !important;
+            font-weight: 900 !important;
+        }
+
+        /* Icon copy di kartu nomor dokumen */
+        .copy-icon-btn {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #ffffff;
+            font-size: 1.3rem;
+            opacity: .9;
+            transition: .15s;
+        }
+
+        .copy-icon-btn:hover {
+            opacity: 1;
+        }
+
+        /* Toast: di bawah tengah layar (warna abu seperti TU) */
+        .toast-copy {
+            position: fixed;
+            left: 50%;
+            bottom: 24px;
+            transform: translateX(-50%);
+            background: #374151;   /* ABU-ABU GELAP */
+            color: white;
+            padding: 8px 20px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: none;
+            z-index: 9999;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+            white-space: nowrap;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -34,21 +78,25 @@
         {{-- Isi --}}
         <div class="px-6 py-6 md:px-8 md:py-8">
 
-            {{-- GRID 2 KOLOM: kiri & kanan persis seperti contoh --}}
+            {{-- GRID 2 KOLOM: kiri & kanan --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                 {{-- ================= KIRI ================= --}}
                 <div class="space-y-4">
 
-                    {{-- Nomor Dokumen besar --}}
-                    <div>
+                    {{-- Nomor Dokumen besar + icon copy --}}
+                    <div class="relative">
                         <div class="bg-gradient-to-r from-[#050C9C] to-[#1554ff] text-white rounded-2xl px-5 py-5 shadow-md">
                             <div class="text-xs font-semibold uppercase tracking-wide opacity-80 mb-1">
                                 Nomor Dokumen
                             </div>
-                            <div class="text-2xl md:text-3xl font-semibold leading-tight">
+                            <div id="nomorDokumenText" class="text-2xl md:text-3xl font-semibold leading-tight">
                                 {{ $dokumen->nomor_dokumen ?: '-' }}
                             </div>
+
+                            {{-- ICON COPY --}}
+                            <i class="fa-regular fa-copy copy-icon-btn"
+                               onclick="copyNomorDokumen()"></i>
                         </div>
                     </div>
 
@@ -127,24 +175,36 @@
                         </div>
                     </div>
 
-                    {{-- Versi Dokumen --}}
+                    {{-- Versi Dokumen (dengan icon tag biru gradasi) --}}
                     <div class="flex flex-col gap-2">
                         <label class="text-sm font-semibold text-gray-700">
                             Versi Dokumen
                         </label>
 
-                        <div class="border border-gray-200 rounded-2xl px-4 py-2.5 bg-gray-50 text-sm text-gray-800 mb-2">
-                            @if($latest)
-                                Versi {{ $latest->nomor_versi }}
-                            @else
+                        @if($latest)
+                            <div class="w-full flex items-center px-4 py-2.5 rounded-xl 
+                                        border border-gray-200 bg-gray-50">
+                                <span class="flex items-center justify-center w-12 h-12 rounded-xl
+                                             bg-gradient-to-r from-[#050C9C] to-[#1E40FF] shadow-md">
+                                    <i class="fa-solid fa-tag icon-tag-outline text-lg"></i>
+                                </span>
+
+                                <span class="ml-4 text-base font-semibold text-slate-800">
+                                    v{{ $latest->nomor_versi }}
+                                </span>
+                            </div>
+                        @else
+                            <div class="border border-gray-200 rounded-2xl px-4 py-2.5 bg-gray-50 text-sm text-gray-800 mb-2">
                                 Belum ada versi dokumen.
-                            @endif
-                        </div>
+                            </div>
+                        @endif
 
                         {{-- Tombol file --}}
                         @if($latest && !empty($latest->file_path))
                             <a href="{{ $latest->file_path }}"
-                               class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium bg-[#050C9C] text-white hover:bg-[#001070] transition">
+                               class="inline-flex items-center justify-center w-full gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium 
+                                      bg-gradient-to-r from-[#050C9C] to-[#1E40FF] text-white 
+                                      shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition">
                                 <i class="fa-solid fa-download text-xs"></i>
                                 Unduh File
                             </a>
@@ -180,4 +240,33 @@
         </div>
     </div>
 </div>
+
+{{-- Toast copy --}}
+<div id="toast-copy" class="toast-copy">
+    Nomor dokumen disalin
+</div>
+
 @endsection
+
+@push('scripts')
+<script>
+    function copyNomorDokumen() {
+        const textEl = document.getElementById('nomorDokumenText');
+        if (!textEl) return;
+
+        const text = textEl.innerText || '';
+        if (!text.trim()) return;
+
+        navigator.clipboard.writeText(text);
+
+        const toast = document.getElementById('toast-copy'); // <-- ID BENAR
+        if (!toast) return;
+
+        toast.style.display = 'block';
+
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 1800);
+    }
+</script>
+@endpush

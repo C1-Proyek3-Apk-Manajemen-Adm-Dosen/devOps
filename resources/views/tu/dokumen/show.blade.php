@@ -56,12 +56,23 @@
                 {{-- ========= KOLOM KIRI ========= --}}
                 <div class="space-y-5">
 
-                    {{-- Nomor Dokumen --}}
-                    <div class="bg-gradient-to-r from-[#050C9C] to-blue-600 text-white rounded-2xl px-6 py-4 shadow-lg">
+                    {{-- Nomor Dokumen (dengan icon copy) --}}
+                    <div class="bg-gradient-to-r from-[#050C9C] to-blue-600 text-white rounded-2xl px-6 py-4 shadow-lg relative">
                         <p class="text-[13px] font-semibold text-blue-100">Nomor Dokumen</p>
-                        <p class="mt-1 text-3xl font-semibold leading-tight">
+
+                        <p class="mt-1 text-3xl font-semibold leading-tight pr-12" id="docNumber">
                             {{ $dokumen->nomor_dokumen ?? '—' }}
                         </p>
+
+                        {{-- ICON COPY TANPA KOTAK --}}
+                        <button
+                            type="button"
+                            onclick="copyDocNumber()"
+                            class="absolute top-1/2 right-4 -translate-y-1/2 text-white hover:text-blue-100 transition"
+                            title="Salin nomor dokumen"
+                        >
+                            <i class="fa-regular fa-copy text-2xl"></i>
+                        </button>
                     </div>
 
                     {{-- Judul --}}
@@ -158,7 +169,35 @@
                 </div>
             </div>
 
+            {{-- TOAST COPY NOMOR DOKUMEN --}}
+            <div id="copyToast"
+                 class="fixed left-1/2 -translate-x-1/2 bottom-10 opacity-0 pointer-events-none
+                        bg-black text-white text-sm px-4 py-2 rounded-xl shadow-lg transition-all duration-300">
+                Nomor dokumen disalin
+            </div>
+
         </div>
     </div>
 </div>
+
+<script>
+    function copyDocNumber() {
+        const num = document.getElementById('docNumber').innerText.trim();
+
+        if (!num || num === '—') {
+            return;
+        }
+
+        navigator.clipboard.writeText(num).then(() => {
+            const toast = document.getElementById('copyToast');
+            toast.classList.remove('opacity-0');
+            toast.classList.add('opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0');
+            }, 1600);
+        });
+    }
+</script>
 @endsection
