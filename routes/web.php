@@ -166,6 +166,9 @@ Route::prefix('kaprodi')
         Route::get('/dashboard', fn() => view('kaprodi.dashboard'))->name('kaprodi.dashboard');
         Route::get('/review', fn() => view('kaprodi.review'))->name('kaprodi.review');
         Route::get('/daftar', fn() => view('kaprodi.daftar'))->name('kaprodi.daftar');
+        Route::get('/notifikasi', function () {
+            return view('kaprodi.notifikasi');
+        })->name('kaprodi.notifikasi');
     });
 
 
