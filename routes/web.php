@@ -19,6 +19,10 @@ use App\Http\Controllers\Dosen\UploadDokumenDosenController;
 use App\Http\Controllers\Dosen\DashboardController as DosenDashboardController;
 use App\Http\Controllers\Dosen\DosenController;
 
+//Kaprodi Controller
+use App\Http\Controllers\Kaprodi\DashboardController as KaprodiDashboardController;
+use App\Http\Controllers\Kaprodi\NotificationController as KaprodiNotificationController;
+
 use App\Models\Dokumen;
 use App\Models\Kategori;
 use App\Models\User;
@@ -161,14 +165,15 @@ Route::post('/dosen/update-versi', function () {
 */
 Route::prefix('kaprodi')
     ->middleware(['auth', 'checkRole:koordinator'])
+    ->name('kaprodi.')
     ->group(function () {
 
-        Route::get('/dashboard', fn() => view('kaprodi.dashboard'))->name('kaprodi.dashboard');
+        Route::get('/dashboard', [KaprodiDashboardController::class, 'index'])
+            ->name('dashboard');
         Route::get('/review', fn() => view('kaprodi.review'))->name('kaprodi.review');
         Route::get('/daftar', fn() => view('kaprodi.daftar'))->name('kaprodi.daftar');
-        Route::get('/notifikasi', function () {
-            return view('kaprodi.notifikasi');
-        })->name('kaprodi.notifikasi');
+        Route::get('/notifikasi', [KaprodiNotificationController::class, 'index'])
+            ->name('notifikasi');
     });
 
 
