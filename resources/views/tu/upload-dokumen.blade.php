@@ -209,6 +209,7 @@
 @endpush
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 @vite('resources/js/tu/upload-dokumen.js')
 @endpush

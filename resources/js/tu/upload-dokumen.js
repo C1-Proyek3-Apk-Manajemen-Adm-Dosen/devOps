@@ -21,42 +21,60 @@ document.addEventListener('DOMContentLoaded', function() {
     // 1. FLATPICKR DATE PICKER
     // =====================================================
     if (document.getElementById('tanggalTerbit') && typeof flatpickr !== 'undefined') {
-        flatpickr("#tanggalTerbit", {
-            dateFormat: "d/m/Y",
-            allowInput: true,
-            locale: {
-                firstDayOfWeek: 1,
-                weekdays: {
-                    shorthand: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
-                    longhand: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
-                },
-                months: {
-                    shorthand: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
-                    longhand: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
-                },
+    flatpickr("#tanggalTerbit", {
+        dateFormat: "d/m/Y",
+        allowInput: true,
+        maxDate: "today",
+        locale: {
+            firstDayOfWeek: 1,
+            weekdays: {
+                shorthand: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
+                longhand: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
             },
-            onReady: function(dateObj, dateStr, instance) {
-                instance.calendarContainer.style.borderRadius = '1rem';
-                instance.calendarContainer.style.boxShadow = '0 10px 25px rgba(0,0,0,0.1)';
-            }
-        });
-    }
+            months: {
+                shorthand: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+                longhand: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+            },
+        },
+        onReady: function(dateObj, dateStr, instance) {
+            instance.calendarContainer.style.borderRadius = '1rem';
+            instance.calendarContainer.style.boxShadow = '0 10px 25px rgba(0,0,0,0.1)';
+        }
+    });
+}
+
 
     // =====================================================
     // 2. FILE UPLOAD HANDLER
     // =====================================================
     if (fileInput && fileUploadArea) {
-        fileInput.addEventListener('change', function(e) {
-            if (e.target.files.length > 0) {
-                const file = e.target.files[0];
-                const fileSize = (file.size / 1024 / 1024).toFixed(2);
-                fileLabel.innerHTML = `<span class="font-medium text-gray-900">${file.name}</span><br><span class="text-xs text-gray-500">${fileSize} MB</span>`;
-                fileUploadArea.classList.add('file-selected', 'border-[#050C9C]', 'bg-blue-50');
+        fileInput?.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            const maxSize = 20 * 1024 * 1024; // 20MB
+
+            if (file) {
+                if (file.size > maxSize) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Ukuran File Terlalu Besar!',
+                        text: 'Maksimal ukuran file adalah 20MB.',
+                        confirmButtonColor: '#d33'
+                    });
+
+                    fileInput.value = "";
+                    fileLabel.textContent = "Klik untuk pilih file";
+                    fileUploadArea.classList.remove('border-[#050C9C]', 'bg-blue-50');
+                    return;
+                }
+
+                fileLabel.textContent = file.name;
+                fileUploadArea.classList.add('border-[#050C9C]', 'bg-blue-50');
             } else {
-                fileLabel.innerHTML = 'Klik untuk pilih file';
-                fileUploadArea.classList.remove('file-selected', 'border-[#050C9C]', 'bg-blue-50');
+                fileLabel.textContent = 'Klik untuk pilih file';
+                fileUploadArea.classList.remove('border-[#050C9C]', 'bg-blue-50');
             }
         });
+
 
         // Trigger file input saat klik area (tapi bukan tombol)
         fileUploadArea.addEventListener('click', function(e) {
