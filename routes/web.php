@@ -19,6 +19,10 @@ use App\Http\Controllers\Dosen\UploadDokumenDosenController;
 use App\Http\Controllers\Dosen\DashboardController as DosenDashboardController;
 use App\Http\Controllers\Dosen\DosenController;
 
+// Kaprodi Controller
+use App\Http\Controllers\Kaprodi\DaftarDokumenController;
+
+
 use App\Models\Dokumen;
 use App\Models\Kategori;
 use App\Models\User;
@@ -165,7 +169,16 @@ Route::prefix('kaprodi')
 
         Route::get('/dashboard', fn() => view('kaprodi.dashboard'))->name('kaprodi.dashboard');
         Route::get('/review', fn() => view('kaprodi.review'))->name('kaprodi.review');
-        Route::get('/daftar', fn() => view('kaprodi.daftar'))->name('kaprodi.daftar');
+
+        // daftar dokumen kaprodi (LIST)
+        Route::get('/daftar', [DaftarDokumenController::class, 'index'])
+            ->name('kaprodi.daftar');
+
+        // ✅ DETAIL DOKUMEN KAPRODI (baru)
+        Route::get('/dokumen/{dokumen_id}', [DaftarDokumenController::class, 'show'])
+            ->whereNumber('dokumen_id')
+            ->name('kaprodi.dokumen.show');
+
         Route::get('/notifikasi', function () {
             return view('kaprodi.notifikasi');
         })->name('kaprodi.notifikasi');
