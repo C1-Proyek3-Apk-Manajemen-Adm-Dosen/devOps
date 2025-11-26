@@ -39,9 +39,12 @@
                     @endforeach
                 </ul>
 
-                <div class="mt-4">
+                {{-- <div class="mt-4">
                     {{ $notifikasi->withQueryString()->links() }}
-                </div>
+                </div> --}}
+            <div class="mt-4">
+                @include('components.pagination-chunk', ['paginator' => $notifikasi, 'chunk' => 5])
+            </div>
             @endif
         </div>
     </div>

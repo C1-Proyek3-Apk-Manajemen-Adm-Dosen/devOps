@@ -13,8 +13,11 @@ use App\Http\Controllers\Tu\NotificationController;
 use App\Http\Controllers\Tu\MonitoringController;
 use App\Http\Controllers\TU\RiwayatController;
 
+
 // Dosen Controller
 use App\Http\Controllers\Dosen\UploadDokumenDosenController;
+use App\Http\Controllers\Dosen\DashboardController as DosenDashboardController;
+use App\Http\Controllers\Dosen\DosenController;
 
 use App\Models\Dokumen;
 use App\Models\Kategori;
@@ -100,8 +103,27 @@ Route::prefix('dosen')
     ->group(function () {
 
         // Menu statis
-        Route::get('/dashboard', fn() => view('dosen.dashboard'))->name('dashboard');
+        Route::get('/dashboard', [DosenDashboardController::class, 'index'])
+            ->name('dashboard');
         Route::get('/dokumen', fn() => view('dosen.dokumen'))->name('dokumen');
+        Route::get('/dokumen', [DosenController::class, 'dokumenSaya'])
+            ->name('dokumen'); 
+
+        Route::get('/dokumen/{id}/hak-akses', [DosenController::class, 'editHakAkses'])
+            ->name('edit-hak-akses');
+        
+        Route::post('/dokumen/{id}/hak-akses', [DosenController::class, 'updateHakAkses'])
+            ->name('update-hak-akses');
+        
+        Route::delete('/dokumen/{id}/hak-akses', [DosenController::class, 'removeHakAkses'])
+            ->name('hak-akses.remove');
+
+        Route::get('/dokumen/{id}/detail', [DosenController::class, 'detailDokumen'])
+            ->name('detail-dokumen'); // Hasil: dosen.detail-dokumen
+
+        Route::get('/dokumen/{id}/download', [DosenController::class, 'download'])
+            ->name('dokumen.download'); // Hasil: dosen.dokumen.download
+
         Route::get('/portofolio', fn() => view('dosen.portofolio'))->name('portofolio');
         Route::get('/riwayat', fn() => view('dosen.riwayat'))->name('riwayat');
 
@@ -112,6 +134,17 @@ Route::prefix('dosen')
         // Upload - POST
         Route::post('/upload', [UploadDokumenDosenController::class, 'store'])
             ->name('dokumen.upload.store');
+        
+        Route::get('/notifikasi', [\App\Http\Controllers\Dosen\NotificationController::class, 'index'])
+            ->name('notifikasi'); // → hasil: dosen.notifikasi
+        
+        Route::get('/riwayat', [\App\Http\Controllers\Dosen\RiwayatUploadController::class, 'index'])
+            ->name('riwayat');
+
+        // detail dokumen
+        Route::get('/riwayat/{dokumen_id}', [\App\Http\Controllers\Dosen\RiwayatUploadController::class, 'show'])
+        ->whereNumber('dokumen_id')
+        ->name('riwayat.show');
 });
 
 Route::post('/dosen/update-versi', function () {
