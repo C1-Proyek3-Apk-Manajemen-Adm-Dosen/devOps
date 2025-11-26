@@ -126,6 +126,39 @@ Route::prefix('api')->group(function () {
     Route::get('/dokumen/{id}/url', [DokumenController::class, 'url'])->name('dokumen.url');     // URL publik MinIO (JSON)
 });
 
+Route::get('/debug-pddikti-raw', function() {
+    try {
+        $client = new \GuzzleHttp\Client([
+            'timeout' => 30,
+            'verify' => false,
+            'headers' => [
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            ]
+        ]);
+
+        $nama = 'ADE CHANDRA NUGRAHA';
+        $url = 'https://pddikti.kemdikbud.go.id/search?q=' . urlencode($nama) . '&jenis=dosen';
+        
+        $response = $client->request('GET', $url);
+        $html = $response->getBody()->getContents();
+        
+        return response()->json([
+            'url' => $url,
+            'status_code' => $response->getStatusCode(),
+            'html_length' => strlen($html),
+            'html_preview' => substr($html, 0, 1000),
+            'contains_detail_dosen' => strpos($html, 'detail-dosen') !== false ? 'YES' : 'NO',
+            'contains_tidak_ditemukan' => strpos($html, 'tidak ditemukan') !== false ? 'YES' : 'NO',
+        ], 200, [], JSON_PRETTY_PRINT);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ], 500);
+    }
+});
+
 // ==================== HEALTH CHECK ====================
 Route::get('/db-health', function () {
     $row = DB::selectOne("select current_database() db, current_user u, now() ts");
