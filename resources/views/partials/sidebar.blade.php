@@ -56,12 +56,6 @@
                 <i class="fas fa-home"></i> Dashboard
             </a>
 
-            <a href="{{ url('/kaprodi/review') }}"
-                class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition
-                {{ request()->is('kaprodi/review') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
-                <i class="fas fa-search"></i> Review Dokumen
-            </a>
-
             <a href="{{ url('/kaprodi/daftar') }}"
                 class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition
                 {{ request()->is('kaprodi/daftar') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
