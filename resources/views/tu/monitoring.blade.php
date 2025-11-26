@@ -12,15 +12,27 @@
             <p class="text-gray-500 text-sm">Kelola dan pantau semua dokumen administrasi</p>
         </div>
 
-        <div class="relative w-full lg:w-80">
+        <form method="GET" action="{{ route('tu.monitoring') }}" class="relative w-full lg:w-80">
+            <input type="hidden" name="tab" value="{{ $tab }}">
             <input type="text" 
                    id="searchInput"
-                   placeholder="Search" 
-                   class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#050C9C] focus:border-transparent transition-all duration-200 shadow-sm text-sm">
+                   name="search"
+                   placeholder="Cari nama dokumen..." 
+                   value="{{ request()->get('search') }}"
+                   class="w-full pl-10 pr-10 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#050C9C] focus:border-transparent transition-all duration-200 shadow-sm text-sm">
             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
-        </div>
+            @if(request()->get('search'))
+            <button type="button" 
+                    onclick="document.getElementById('searchInput').value=''; this.closest('form').submit();"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            @endif
+        </form>
     </div>
 
     <div class="w-full mb-6">
@@ -173,18 +185,48 @@
                         @endif
 
                         <div class="hidden sm:flex items-center gap-1.5">
-                            @foreach ($dokumens->getUrlRange(1, $dokumens->lastPage()) as $page => $url)
-                                @if ($page == $dokumens->currentPage())
+                            @php
+                                $currentPage = $dokumens->currentPage();
+                                $lastPage = $dokumens->lastPage();
+                                
+                                $start = max(1, $currentPage - 1);
+                                $end = min($lastPage, $currentPage + 1);
+                            @endphp
+
+                            @if ($start > 1)
+                                <a href="{{ $dokumens->url(1) }}" 
+                                class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-[#050C9C] hover:text-white hover:border-[#050C9C] transition-all duration-200 shadow-sm">
+                                    1
+                                </a>
+                                
+                                @if ($start > 2)
+                                    <span class="px-2 text-gray-400">...</span>
+                                @endif
+                            @endif
+
+                            @for ($page = $start; $page <= $end; $page++)
+                                @if ($page == $currentPage)
                                     <span class="px-3 py-1.5 text-xs font-bold text-white bg-[#050C9C] rounded-lg shadow-md">
                                         {{ $page }}
                                     </span>
                                 @else
-                                    <a href="{{ $url }}" 
-                                       class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-[#050C9C] hover:text-white hover:border-[#050C9C] transition-all duration-200 shadow-sm">
+                                    <a href="{{ $dokumens->url($page) }}" 
+                                    class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-[#050C9C] hover:text-white hover:border-[#050C9C] transition-all duration-200 shadow-sm">
                                         {{ $page }}
                                     </a>
                                 @endif
-                            @endforeach
+                            @endfor
+
+                            @if ($end < $lastPage)
+                                @if ($end < $lastPage - 1)
+                                    <span class="px-2 text-gray-400">...</span>
+                                @endif
+                                
+                                <a href="{{ $dokumens->url($lastPage) }}" 
+                                class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-[#050C9C] hover:text-white hover:border-[#050C9C] transition-all duration-200 shadow-sm">
+                                    {{ $lastPage }}
+                                </a>
+                            @endif
                         </div>
 
                         @if ($dokumens->hasMorePages())
