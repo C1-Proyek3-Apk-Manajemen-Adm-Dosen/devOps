@@ -15,35 +15,41 @@ class MonitoringController extends Controller
 {
     public function index(Request $request)
     {
-        $tab = $request->get('tab', 'semua');
+        $tab    = $request->get('tab', 'semua');
+        $search = $request->get('search');
 
-        $filterKategori = [
+        $query = Dokumen::with(['kategori', 'creator'])->forTU();
+
+        if ($search) {
+            $query->whereRaw('LOWER(judul) LIKE ?', ['%' . strtolower($search) . '%']);
+        }
+
+        if ($tab !== 'semua') {
+            $map = [
+                'surat-tugas'        => 'Surat Tugas',
+                'surat-keputusan'    => 'Surat Keputusan',
+                'riwayat-pengajaran' => 'Riwayat Pengajaran',
+            ];
+
+            if (isset($map[$tab])) {
+                $query->whereHas('kategori', fn($q) => $q->where('nama_kategori', $map[$tab]));
+            }
+        }
+
+        $dokumens = $query->orderByDesc('created_at')
+                        ->paginate(5)
+                        ->withQueryString();
+
+        $tabs = [
+            'semua'              => 'Semua',
             'surat-tugas'        => 'Surat Tugas',
             'surat-keputusan'    => 'Surat Keputusan',
             'riwayat-pengajaran' => 'Riwayat Pengajaran',
         ];
 
-        $query = Dokumen::with(['kategori', 'creator']) 
-                ->orderBy('created_at', 'desc');
+        $total = $dokumens->total();
 
-        if ($tab !== 'semua' && isset($filterKategori[$tab])) {
-            $kategoriNama = $filterKategori[$tab];
-            $query->whereHas('kategori', function ($q) use ($kategoriNama) {
-                $q->where('nama_kategori', $kategoriNama);
-            });
-        }
-
-        $total = (clone $query)->count();
-        $dokumens = $query->paginate(5)->withQueryString();
-
-        $tabs = [
-            'semua' => 'Semua',
-            'surat-tugas' => 'Surat Tugas',
-            'surat-keputusan' => 'Surat Keputusan',
-            'riwayat-pengajaran' => 'Riwayat Pengajaran',
-        ];
-
-        return view('tu.monitoring', compact('dokumens', 'tab', 'total', 'tabs'));
+        return view('tu.monitoring', compact('dokumens', 'tab', 'tabs', 'total'));
     }
 
     public function detail($id)
@@ -186,7 +192,17 @@ class MonitoringController extends Controller
     public function detailPage($id)
     {
         $dokumen = Dokumen::with(['kategori', 'versi'])->findOrFail($id);
-        return view('tu.detail-dokumen', compact('dokumen'));
+        $fileExists = false;
+        if ($dokumen->file_path) {
+            try {
+                $fileExists = Storage::disk('minio')->exists($dokumen->file_path);
+            } catch (\Exception $e) {
+                Log::warning("File check failed for dokumen ID {$id}: " . $e->getMessage());
+                $fileExists = false;
+            }
+        }
+
+        return view('tu.detail-dokumen', compact('dokumen', 'fileExists'));
     }
 
     public function download($id)
@@ -198,28 +214,24 @@ class MonitoringController extends Controller
             return back()->with('error', 'Path file tidak ditemukan di database.');
         }
 
-        // 3. Validasi file fisik di MinIO dengan Try-Catch
         try {
             // Cek keberadaan file
             if (!Storage::disk('minio')->exists($dokumen->file_path)) {
                 return back()->with('error', 'File fisik tidak ditemukan di server penyimpanan (MinIO).');
             }
 
-            // 4. Buat nama file yang rapi
             $extension = pathinfo($dokumen->file_path, PATHINFO_EXTENSION);
             $ext = $extension ? '.' . $extension : ''; 
             
             $cleanTitle = preg_replace('/[^A-Za-z0-9\- ]/', '', $dokumen->judul);
             $downloadName = $cleanTitle . $ext;
 
-            // 5. Download
             return Storage::disk('minio')->download($dokumen->file_path, $downloadName);
 
         } catch (\Exception $e) {
             // Log error aslinya biar bisa dicek di storage/logs/laravel.log
             Log::error("Gagal download file ID {$id}: " . $e->getMessage());
 
-            // Kembalikan user ke halaman sebelumnya dengan pesan error yang aman
             return back()->with('error', 'Gagal menghubungi server penyimpanan. Pastikan MinIO aktif. Detail: ' . $e->getMessage());
         }
     }

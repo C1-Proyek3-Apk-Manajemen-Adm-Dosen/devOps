@@ -1,3 +1,73 @@
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ monitoring.js loaded');
+    
+    // ====== SERVER-SIDE SEARCH dengan Auto Submit ======
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        let searchTimeout;
+        
+        searchInput.addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            const form = this.closest('form');
+            
+            // Tambah visual feedback
+            this.classList.add('ring-2', 'ring-blue-200');
+            
+            // Delay 500ms sebelum submit (debounce)
+            searchTimeout = setTimeout(() => {
+                this.classList.remove('ring-2', 'ring-blue-200');
+                form.submit(); // Submit form ke server
+            }, 500);
+        });
+        
+        // Submit langsung saat Enter
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                clearTimeout(searchTimeout);
+                this.closest('form').submit();
+            }
+        });
+    }
+    
+    // ====== SMOOTH SCROLL untuk Pagination ======
+    const paginationLinks = document.querySelectorAll('a[href*="page="]');
+    paginationLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+    
+    // ====== MODAL FUNCTIONS ======
+    const modal = document.getElementById('detailDokumenModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDetailModal();
+            }
+        });
+    }
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeDetailModal();
+        }
+    });
+    
+    // ====== HOVER EFFECTS untuk Table Rows ======
+    const tableRows = document.querySelectorAll('tbody tr');
+    tableRows.forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(0px)';
+        });
+        
+        row.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0)';
+        });
+    });
+});
+
+// ====== GLOBAL MODAL FUNCTIONS ======
 window.openDetailModal = function(dokumenId) {
     console.log('🔍 Opening modal for dokumen ID:', dokumenId);
     
@@ -53,66 +123,3 @@ window.closeDetailModal = function() {
         modal.classList.add('hidden');
     }, 300);
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('✅ monitoring.js loaded');
-    
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        let searchTimeout;
-        
-        searchInput.addEventListener('input', function(e) {
-            clearTimeout(searchTimeout);
-            this.classList.add('animate-pulse');
-            
-            searchTimeout = setTimeout(() => {
-                this.classList.remove('animate-pulse');
-                const searchTerm = e.target.value.toLowerCase();
-                const rows = document.querySelectorAll('tbody tr');
-                
-                rows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    if (text.includes(searchTerm)) {
-                        row.style.display = '';
-                        row.classList.add('animate-fadeIn');
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            }, 300);
-        });
-    }
-    
-    const tableRows = document.querySelectorAll('tbody tr');
-    tableRows.forEach(row => {
-        row.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateX(0px)';
-        });
-        
-        row.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateX(0)';
-        });
-    });
-    
-    const paginationLinks = document.querySelectorAll('a[href*="page="]');
-    paginationLinks.forEach(link => {
-        link.addEventListener('click', function() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-    });
-    
-    const modal = document.getElementById('detailDokumenModal');
-    if (modal) {
-        modal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeDetailModal();
-            }
-        });
-    }
-    
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeDetailModal();
-        }
-    });
-});

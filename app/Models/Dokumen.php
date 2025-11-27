@@ -43,7 +43,6 @@ class Dokumen extends Model
      */
     public function owner()
     {
-        // DIPERBAIKI: Menggunakan foreign key 'owner_user_id' sesuai skema SQL
         return $this->belongsTo(User::class, 'owner_user_id', 'id_user');
     }
     
