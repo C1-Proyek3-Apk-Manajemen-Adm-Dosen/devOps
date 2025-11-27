@@ -124,7 +124,10 @@ Route::prefix('dosen')
             ->name('hak-akses.remove');
 
         Route::get('/dokumen/{id}/detail', [DosenController::class, 'detailDokumen'])
-            ->name('detail-dokumen'); // Hasil: dosen.detail-dokumen
+            ->name('detail-dokumen');
+        
+        Route::post('/dokumen/{id}/upload-versi', [DosenController::class, 'uploadVersi'])
+            ->name('upload-versi');
 
         Route::get('/dokumen/{id}/download', [DosenController::class, 'download'])
             ->name('dokumen.download'); // Hasil: dosen.dokumen.download
