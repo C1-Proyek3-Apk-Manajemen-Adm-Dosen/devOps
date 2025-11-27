@@ -1,6 +1,8 @@
 // =====================================================
-// FILE UPLOAD HANDLER + SWEETALERT2
+// FILE UPLOAD HANDLER (UI Only - No Validation)
+// Path: resources/js/dosen/upload-dokumen-dosen.js
 // =====================================================
+
 const fileInput = document.getElementById('fileInput');
 const fileLabel = document.getElementById('fileLabel');
 const fileUploadArea = document.getElementById('fileUploadArea');
@@ -14,34 +16,18 @@ if (fileUploadArea && fileInput) {
         }
     });
 
-    // File Change
+    // File Change - Update UI Only
     fileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
-        const maxSize = 20 * 1024 * 1024; // 20MB
 
         if (file) {
-            // VALIDASI UKURAN
-            if (file.size > maxSize) {
-
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Ukuran File Terlalu Besar!',
-                    text: 'Maksimal ukuran file adalah 20MB.',
-                    confirmButtonColor: '#d33'
-                });
-
-                fileInput.value = "";
-                fileLabel.textContent = "Klik untuk pilih file";
-                fileUploadArea.classList.remove('border-[#050C9C]', 'bg-blue-50');
-                return;
-            }
-
-            // Jika valid
+            // Update label dengan nama file
             fileLabel.textContent = file.name;
-            fileUploadArea.classList.add('border-[#050C9C]', 'bg-blue-50');
+            fileUploadArea.classList.add('file-selected', 'border-[#050C9C]', 'bg-blue-50');
         } else {
+            // Reset label
             fileLabel.textContent = 'Klik untuk pilih file';
-            fileUploadArea.classList.remove('border-[#050C9C]', 'bg-blue-50');
+            fileUploadArea.classList.remove('file-selected', 'border-[#050C9C]', 'bg-blue-50');
         }
     });
 }
@@ -77,7 +63,6 @@ const hakAksesLabel = document.getElementById('hakAksesLabel');
 const searchUser = document.getElementById('searchUser');
 const selectAllUsers = document.getElementById('selectAllUsers');
 const hakAksesCheckboxes = document.querySelectorAll('.hak-akses-checkbox');
-const hakAksesValidation = document.getElementById('hakAksesValidation');
 
 // Toggle dropdown
 hakAksesDropdown?.addEventListener('click', () => {
@@ -134,12 +119,10 @@ function updateHakAksesLabel() {
         hakAksesLabel.textContent = `${checkedCount} pengguna dipilih`;
         hakAksesLabel.classList.remove('text-gray-500');
         hakAksesLabel.classList.add('text-gray-900');
-        hakAksesValidation.value = "valid";
     } else {
         hakAksesLabel.textContent = 'Pilih pengguna yang dapat mengakses';
         hakAksesLabel.classList.add('text-gray-500');
         hakAksesLabel.classList.remove('text-gray-900');
-        hakAksesValidation.value = "";
     }
 }
 

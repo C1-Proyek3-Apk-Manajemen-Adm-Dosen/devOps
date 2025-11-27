@@ -11,60 +11,14 @@
             <p class="text-gray-600">Lengkapi form di bawah untuk mengupload dokumen baru</p>
         </div>
 
-        {{-- Alert sukses --}}
+        {{-- Hidden div untuk trigger duplicate error modal --}}
+        @if ($errors->has('judul') && str_contains($errors->first('judul'), 'sudah ada'))
+            <div data-duplicate-error data-judul-dokumen="{{ old('judul') }}" class="hidden"></div>
+        @endif
+
+        {{-- Alert sukses (tetap di sini karena success notification berbeda) --}}
         @if (session('success'))
             <div class="alert-success hidden">{{ session('success') }}</div>
-        @endif
-
-        {{-- Alert error --}}
-        @if (session('error'))
-            <div class="alert-error mb-6 p-4 rounded-xl bg-red-100 text-red-700 border border-red-300 flex items-center justify-between">
-                <div class="flex items-center">
-                    <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="font-medium">{{ session('error') }}</span>
-                </div>
-                <button onclick="this.parentElement.remove()" class="text-red-700 hover:text-red-900">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                    </svg>
-                </button>
-            </div>
-        @endif
-
-        {{-- 🔥 ALERT DUPLICATE (MUNCUL HANYA KALAU ADA ERROR DUPLICATE) 🔥 --}}
-        @if ($errors->has('judul') && str_contains($errors->first('judul'), 'sudah ada'))
-            <div class="mb-6 p-4 rounded-xl bg-amber-50 border-2 border-amber-300 flex items-start gap-3">
-                <svg class="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                </svg>
-                <div class="flex-1">
-                    <p class="text-sm font-bold text-amber-900 mb-1">⚠️ Judul Dokumen Sudah Ada!</p>
-                    <p class="text-sm text-amber-800">Dokumen dengan judul <strong>"{{ old('judul') }}"</strong> sudah pernah diupload sebelumnya. Silakan gunakan judul yang berbeda atau edit dokumen yang sudah ada.</p>
-                </div>
-            </div>
-        @endif
-
-        {{-- Validasi error lainnya --}}
-        @if ($errors->any() && !($errors->count() == 1 && $errors->has('judul')))
-            <div class="mb-6 p-4 rounded-xl bg-red-100 text-red-700 border border-red-300">
-                <div class="flex items-start">
-                    <svg class="w-5 h-5 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                    </svg>
-                    <div class="flex-1">
-                        <p class="font-medium mb-2">Terdapat beberapa kesalahan:</p>
-                        <ul class="list-disc pl-5 space-y-1">
-                            @foreach ($errors->all() as $error)
-                                @if (!str_contains($error, 'sudah ada'))
-                                    <li>{{ $error }}</li>
-                                @endif
-                            @endforeach
-                        </ul>
-                    </div>
-                </div>
-            </div>
         @endif
 
         <div class="form-card bg-white rounded-2xl shadow-xl p-8">
@@ -80,16 +34,8 @@
                                 Judul Dokumen <span class="text-red-500">*</span>
                             </label>
                             <input type="text" name="judul" value="{{ old('judul') }}" 
-                                class="input-field w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#050C9C] focus:ring-2 focus:ring-[#050C9C]/20 outline-none transition @error('judul') border-red-500 @enderror" 
-                                placeholder="Masukkan judul dokumen" required>
-                            @error('judul')
-                                <p class="mt-1.5 text-xs text-red-600 flex items-center gap-1">
-                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                    </svg>
-                                    {{ $message }}
-                                </p>
-                            @enderror
+                                class="input-field w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#050C9C] focus:ring-2 focus:ring-[#050C9C]/20 outline-none transition" 
+                                placeholder="Masukkan judul dokumen">
                         </div>
 
                         <div>
@@ -103,12 +49,12 @@
                             <label class="block text-sm font-semibold mb-2 text-gray-800">Tanggal Terbit <span class="text-red-500">*</span></label>
                             <input type="text" name="tanggal_terbit" id="tanggalTerbit" value="{{ old('tanggal_terbit') }}" 
                                 placeholder="Pilih atau ketik tanggal (dd/mm/yyyy)" 
-                                class="input-field w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#050C9C] focus:ring-2 focus:ring-[#050C9C]/20 outline-none transition" required>
+                                class="input-field w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#050C9C] focus:ring-2 focus:ring-[#050C9C]/20 outline-none transition">
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold mb-2 text-gray-800">Kategori Dokumen <span class="text-red-500">*</span></label>
-                            <select name="kategori_id" class="custom-select input-field w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#050C9C] focus:ring-2 focus:ring-[#050C9C]/20 outline-none transition appearance-none bg-white" required>
+                            <select name="kategori_id" class="custom-select input-field w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#050C9C] focus:ring-2 focus:ring-[#050C9C]/20 outline-none transition appearance-none bg-white">
                                 <option value="" disabled selected>Pilih kategori dokumen</option>
                                 @foreach ($kategoris as $kategori)
                                     @if (in_array($kategori->nama_kategori, ['RPS','BKD','SKP','Bukti Pengajaran']))
@@ -126,7 +72,7 @@
                         <div>
                             <label class="block text-sm font-semibold mb-2 text-gray-800">Upload File <span class="text-red-500">*</span></label>
                             <div class="relative">
-                                <input type="file" name="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" id="fileInput" class="hidden" required>
+                                <input type="file" name="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" id="fileInput" class="hidden">
                                 <div id="fileUploadArea" class="file-upload-area w-full px-4 py-3 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 transition cursor-pointer">
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center flex-1">
@@ -146,7 +92,7 @@
 
                         <div>
                             <label class="block text-sm font-semibold mb-2 text-gray-800">Deskripsi <span class="text-red-500">*</span></label>
-                            <textarea name="deskripsi" rows="5" class="input-field w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#050C9C] focus:ring-2 focus:ring-[#050C9C]/20 outline-none transition resize-none" placeholder="Tulis deskripsi singkat dokumen..." required>{{ old('deskripsi') }}</textarea>
+                            <textarea name="deskripsi" rows="5" class="input-field w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#050C9C] focus:ring-2 focus:ring-[#050C9C]/20 outline-none transition resize-none" placeholder="Tulis deskripsi singkat dokumen...">{{ old('deskripsi') }}</textarea>
                         </div>
 
                         <div>
@@ -182,7 +128,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <input type="hidden" id="hakAksesValidation" required>
                             <p class="mt-2 text-xs text-gray-500">Pilih minimal 1 pengguna yang dapat mengakses dokumen ini</p>
                         </div>
                     </div>
@@ -214,5 +159,6 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 @vite('resources/js/dosen/upload-dokumen-dosen.js')
+@vite('resources/js/dosen/upload-validation-dosen.js')
 @vite('resources/js/dosen/upload-notification-success-dosen.js')
 @endpush
