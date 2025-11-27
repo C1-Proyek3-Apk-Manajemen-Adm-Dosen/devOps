@@ -1,10 +1,10 @@
 // =====================================================
-// UPLOAD DOKUMEN TU - CLEAN VERSION
+// UPLOAD DOKUMEN TU - UI HANDLER ONLY
+// Path: resources/js/tu/upload-dokumen.js
 // =====================================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Upload dokumen TU JS loaded');
-
+    
     const fileInput = document.getElementById('fileInput');
     const fileLabel = document.getElementById('fileLabel');
     const fileUploadArea = document.getElementById('fileUploadArea');
@@ -13,68 +13,46 @@ document.addEventListener('DOMContentLoaded', function() {
     const hakAksesLabel = document.getElementById('hakAksesLabel');
     const searchUser = document.getElementById('searchUser');
     const selectAllUsers = document.getElementById('selectAllUsers');
-    const uploadForm = document.getElementById('uploadForm');
     const hakAksesCheckboxes = document.querySelectorAll('.hak-akses-checkbox');
-    const hakAksesValidation = document.getElementById('hakAksesValidation');
 
     // =====================================================
     // 1. FLATPICKR DATE PICKER
     // =====================================================
     if (document.getElementById('tanggalTerbit') && typeof flatpickr !== 'undefined') {
-    flatpickr("#tanggalTerbit", {
-        dateFormat: "d/m/Y",
-        allowInput: true,
-        maxDate: "today",
-        locale: {
-            firstDayOfWeek: 1,
-            weekdays: {
-                shorthand: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
-                longhand: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
+        flatpickr("#tanggalTerbit", {
+            dateFormat: "d/m/Y",
+            allowInput: true,
+            maxDate: "today",
+            locale: {
+                firstDayOfWeek: 1,
+                weekdays: {
+                    shorthand: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
+                    longhand: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
+                },
+                months: {
+                    shorthand: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+                    longhand: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                },
             },
-            months: {
-                shorthand: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
-                longhand: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
-            },
-        },
-        onReady: function(dateObj, dateStr, instance) {
-            instance.calendarContainer.style.borderRadius = '1rem';
-            instance.calendarContainer.style.boxShadow = '0 10px 25px rgba(0,0,0,0.1)';
-        }
-    });
-}
-
+        });
+    }
 
     // =====================================================
-    // 2. FILE UPLOAD HANDLER
+    // 2. FILE UPLOAD HANDLER (UI ONLY)
     // =====================================================
     if (fileInput && fileUploadArea) {
-        fileInput?.addEventListener('change', (e) => {
+        // Update UI when file selected
+        fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
-            const maxSize = 20 * 1024 * 1024; // 20MB
 
             if (file) {
-                if (file.size > maxSize) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Ukuran File Terlalu Besar!',
-                        text: 'Maksimal ukuran file adalah 20MB.',
-                        confirmButtonColor: '#d33'
-                    });
-
-                    fileInput.value = "";
-                    fileLabel.textContent = "Klik untuk pilih file";
-                    fileUploadArea.classList.remove('border-[#050C9C]', 'bg-blue-50');
-                    return;
-                }
-
                 fileLabel.textContent = file.name;
-                fileUploadArea.classList.add('border-[#050C9C]', 'bg-blue-50');
+                fileUploadArea.classList.add('file-selected', 'border-[#050C9C]', 'bg-blue-50');
             } else {
                 fileLabel.textContent = 'Klik untuk pilih file';
-                fileUploadArea.classList.remove('border-[#050C9C]', 'bg-blue-50');
+                fileUploadArea.classList.remove('file-selected', 'border-[#050C9C]', 'bg-blue-50');
             }
         });
-
 
         // Trigger file input saat klik area (tapi bukan tombol)
         fileUploadArea.addEventListener('click', function(e) {
@@ -109,25 +87,22 @@ document.addEventListener('DOMContentLoaded', function() {
         const allCheckboxes = document.querySelectorAll('.hak-akses-checkbox');
         const checkboxes = document.querySelectorAll('.hak-akses-checkbox:checked');
         
-        if (!hakAksesLabel || !hakAksesValidation) return;
+        if (!hakAksesLabel) return;
 
         if (checkboxes.length === 0) {
             hakAksesLabel.textContent = 'Pilih pengguna yang dapat mengakses';
             hakAksesLabel.classList.add('text-gray-500');
             hakAksesLabel.classList.remove('text-gray-900', 'font-medium');
-            hakAksesValidation.value = '';
             if (selectAllUsers) selectAllUsers.checked = false;
         } else if (checkboxes.length === allCheckboxes.length) {
             hakAksesLabel.textContent = `✓ Semua pengguna dipilih (${checkboxes.length})`;
             hakAksesLabel.classList.remove('text-gray-500');
             hakAksesLabel.classList.add('text-gray-900', 'font-medium');
-            hakAksesValidation.value = 'valid';
             if (selectAllUsers) selectAllUsers.checked = true;
         } else {
             hakAksesLabel.textContent = `✓ ${checkboxes.length} pengguna dipilih`;
             hakAksesLabel.classList.remove('text-gray-500');
             hakAksesLabel.classList.add('text-gray-900', 'font-medium');
-            hakAksesValidation.value = 'valid';
             if (selectAllUsers) selectAllUsers.checked = false;
         }
     }
@@ -189,30 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // =====================================================
-    // 7. FORM VALIDATION
-    // =====================================================
-    if (uploadForm) {
-        uploadForm.addEventListener('submit', function(e) {
-            const checkboxes = document.querySelectorAll('.hak-akses-checkbox:checked');
-            
-            if (checkboxes.length === 0) {
-                e.preventDefault();
-                alert('⚠️ Pilih minimal 1 pengguna untuk hak akses!');
-                
-                if (hakAksesDropdown) {
-                    hakAksesDropdown.classList.add('border-red-500', 'ring-2', 'ring-red-200');
-                    hakAksesMenu.classList.remove('hidden');
-                    
-                    setTimeout(() => {
-                        hakAksesDropdown.classList.remove('border-red-500', 'ring-2', 'ring-red-200');
-                    }, 2000);
-                }
-            }
-        });
-    }
-
-    // =====================================================
-    // 8. INITIAL SETUP
+    // 7. INITIAL SETUP
     // =====================================================
     updateHakAksesLabel();
 });

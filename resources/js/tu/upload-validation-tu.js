@@ -1,12 +1,12 @@
 // =====================================================
-// UPLOAD VALIDATION HANDLER - DOSEN
-// Path: resources/js/dosen/upload-validation-dosen.js
+// UPLOAD VALIDATION HANDLER - TU
+// Path: resources/js/tu/upload-validation-tu.js
 // =====================================================
 
 // Note: Swal sudah ter-load dari CDN di blade template
 // Tidak perlu import
 
-class UploadValidator {
+class UploadValidatorTU {
     constructor() {
         this.form = document.getElementById('uploadForm');
         this.fileInput = document.getElementById('fileInput');
@@ -345,7 +345,7 @@ class UploadValidator {
 
 // Initialize validator when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    new UploadValidator();
+    new UploadValidatorTU();
 });
 
-export default UploadValidator;
+export default UploadValidatorTU;
