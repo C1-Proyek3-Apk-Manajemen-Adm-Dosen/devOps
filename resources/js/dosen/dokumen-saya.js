@@ -1,50 +1,52 @@
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('✅ dokumen-saya.js loaded');
-    
+    console.log('dokumen-saya.js loaded');
+
     const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        let searchTimeout;
-        
-        searchInput.addEventListener('input', function(e) {
-            clearTimeout(searchTimeout);
-            this.classList.add('animate-pulse');
-            
-            searchTimeout = setTimeout(() => {
-                this.classList.remove('animate-pulse');
-                const searchTerm = e.target.value.toLowerCase();
-                const rows = document.querySelectorAll('tbody tr');
-                
-                rows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    if (text.includes(searchTerm)) {
-                        row.style.display = '';
-                        row.classList.add('animate-fadeIn');
-                        } else {
-                        row.style.display = 'none';
-                    }
-                });
-            }, 300);
+    const searchForm = document.getElementById('searchForm');
+
+    if (searchInput && searchForm) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchForm.submit();
+            }
+        });
+
+        document.querySelectorAll('tbody tr').forEach(row => {
+            row.addEventListener('mouseenter', () => row.style.transform = 'translateX(4px)');
+            row.addEventListener('mouseleave', () => row.style.transform = 'translateX(0)');
+        });
+
+        document.querySelectorAll('a[href*="page="]').forEach(link => {
+            link.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        });
+
+        searchInput.addEventListener('input', function() {
+            this.classList.add('ring-2', 'ring-[#050C9C]/20');
+        });
+
+        searchInput.addEventListener('blur', function() {
+            this.classList.remove('ring-2', 'ring-[#050C9C]/20');
         });
     }
-    
+
     const tableRows = document.querySelectorAll('tbody tr');
     tableRows.forEach(row => {
         row.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateX(0px)';
+            this.style.transform = 'translateX(4px)';
         });
-        
         row.addEventListener('mouseleave', function() {
             this.style.transform = 'translateX(0)';
         });
     });
-    
+
     const paginationLinks = document.querySelectorAll('a[href*="page="]');
     paginationLinks.forEach(link => {
         link.addEventListener('click', function() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     });
-    
+
     const tabLinks = document.querySelectorAll('a[href*="tab="]');
     tabLinks.forEach(link => {
         link.addEventListener('click', function() {
@@ -79,4 +81,4 @@ function getBadgeClass(kategori) {
     return badges[kategori] || 'bg-gray-100 text-gray-700 border border-gray-200';
 }
 
-console.log('✅ Dokumen Saya Dosen - All features loaded successfully');
+console.log('Dokumen Saya Dosen - Search sekarang manual (Enter / klik tombol)');
