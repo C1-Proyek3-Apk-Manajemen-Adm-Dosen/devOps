@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use App\Models\User; // <-- Diperlukan untuk relasi 'owner'
-use App\Models\AccessControl; // <-- DITAMBAHKAN: Diperlukan untuk relasi 'accessControls'
+use App\Models\User; 
+use App\Models\AccessControl; 
 
 class Dokumen extends Model
 {
@@ -30,7 +30,6 @@ class Dokumen extends Model
     
     protected $casts = [
         'tanggal_terbit' => 'date',
-        // 'owner_user_id' => 'array', // <-- DIHAPUS: Baris ini salah karena di DB tipenya integer
     ];
 
     // --- Relations ---
@@ -44,7 +43,6 @@ class Dokumen extends Model
      */
     public function owner()
     {
-        // DIPERBAIKI: Menggunakan foreign key 'owner_user_id' sesuai skema SQL
         return $this->belongsTo(User::class, 'owner_user_id', 'id_user');
     }
     
@@ -53,7 +51,6 @@ class Dokumen extends Model
      */
     public function creator()
     {
-        // DIPERBAIKI: Menggunakan foreign key 'created_by' secara eksplisit
         return $this->belongsTo(\App\Models\User::class, 'created_by', 'id_user');
     }
 
@@ -95,5 +92,11 @@ class Dokumen extends Model
     {
         if (!$this->file_path) return null;
         return Storage::disk('minio')->url($this->file_path);
+    }
+
+    public function scopeForTU($query)
+    {
+        $allowed = ['Surat Tugas', 'Surat Keputusan', 'Riwayat Pengajaran'];
+        return $query->whereHas('kategori', fn($q) => $q->whereIn('nama_kategori', $allowed));
     }
 }
