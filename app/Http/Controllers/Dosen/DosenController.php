@@ -7,6 +7,7 @@ use App\Models\Dokumen;
 use App\Models\Kategori;
 use App\Models\User;
 use App\Models\AccessControl;
+use App\Models\VersiDokumen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -21,6 +22,7 @@ class DosenController extends Controller
     public function dokumenSaya(Request $request)
     {
         $tab = $request->get('tab', 'semua');
+        $search = $request->get('search');
         
         $filterKategori = [
             'bukti-pengajaran' => 'Bukti Pengajaran',
@@ -29,9 +31,19 @@ class DosenController extends Controller
             'skp' => 'SKP',
         ];
 
-        $query = Dokumen::with(['kategori', 'creator'])
+        $query = Dokumen::with(['kategori', 'creator', 'versi' => function($q) {
+                $q->latest('nomor_versi'); 
+            }])
             ->where('created_by', Auth::id())
             ->orderBy('created_at', 'desc');
+
+        $query->whereHas('kategori', function ($q) {
+            $q->whereIn('nama_kategori', ['Bukti Pengajaran', 'BKD', 'RPS', 'SKP']);
+        });
+
+        if ($search) {
+            $query->whereRaw('LOWER(judul) LIKE ?', ['%' . strtolower($search) . '%']);
+        }
 
         if ($tab !== 'semua' && isset($filterKategori[$tab])) {
             $kategoriNama = $filterKategori[$tab];
@@ -63,35 +75,76 @@ class DosenController extends Controller
             ->where('created_by', Auth::id())
             ->findOrFail($id);
         
-        return view('dosen.detail-dokumen', compact('dokumen'));
+        // Cek file exists
+        $fileExists = false;
+        if ($dokumen->file_path) {
+            try {
+                $fileExists = Storage::disk('minio')->exists($dokumen->file_path);
+            } catch (\Exception $e) {
+                Log::warning("File check failed for dokumen ID {$id}: " . $e->getMessage());
+                $fileExists = false;
+            }
+        }
+        
+
+        $latestAccess = AccessControl::where('document_id', $id)
+            ->whereHas('granteeUser', function($q) {
+                $q->where('role', 'koordinator'); 
+            })
+            ->latest('created_at')
+            ->first();
+        
+        $statusDokumen = $latestAccess ? $latestAccess->status : 'PENDING';
+
+        return view('dosen.detail-dokumen', compact('dokumen', 'fileExists', 'statusDokumen'));
     }
 
     /**
      * Download dokumen
      */
-    public function download($id)
+    public function download($id, Request $request)
     {
         $dokumen = Dokumen::where('created_by', Auth::id())->findOrFail($id);
+        
+        $versiNomor = $request->get('versi');
+        
+        if ($versiNomor) {
+            $versi = VersiDokumen::where('dokumen_id', $id)
+                ->where('nomor_versi', $versiNomor)
+                ->firstOrFail();
+            
+            $filePath = $versi->file_path;
+            $version = '_v' . $versiNomor;
+        } else {
+            // Download versi terakhir
+            $versiTerakhir = $dokumen->versi()->latest('nomor_versi')->first();
+            if ($versiTerakhir) {
+                $filePath = $versiTerakhir->file_path;
+                $version = '_v' . $versiTerakhir->nomor_versi;
+            } else {
+                $filePath = $dokumen->file_path;
+                $version = '';
+            }
+        }
 
-        if (!$dokumen->file_path) {
-            return back()->with('error', 'Path file tidak ditemukan di database.');
+        if (!$filePath) {
+            return back()->with('error', 'Path file tidak ditemukan.');
         }
 
         try {
-            if (!Storage::disk('minio')->exists($dokumen->file_path)) {
-                return back()->with('error', 'File fisik tidak ditemukan di server penyimpanan (MinIO).');
+            if (!Storage::disk('minio')->exists($filePath)) {
+                return back()->with('error', 'File tidak ditemukan di server.');
             }
 
-            $extension = pathinfo($dokumen->file_path, PATHINFO_EXTENSION);
-            $ext = $extension ? '.' . $extension : ''; 
+            $extension = pathinfo($filePath, PATHINFO_EXTENSION);
             $cleanTitle = preg_replace('/[^A-Za-z0-9\- ]/', '', $dokumen->judul);
-            $downloadName = $cleanTitle . $ext;
+            $downloadName = $cleanTitle . $version . '.' . $extension;
 
-            return Storage::disk('minio')->download($dokumen->file_path, $downloadName);
+            return Storage::disk('minio')->download($filePath, $downloadName);
 
         } catch (\Exception $e) {
-            Log::error("Gagal download file ID {$id}: " . $e->getMessage());
-            return back()->with('error', 'Gagal menghubungi server penyimpanan. Detail: ' . $e->getMessage());
+            Log::error("Download gagal: " . $e->getMessage());
+            return back()->with('error', 'Gagal download file.');
         }
     }
 
@@ -206,6 +259,53 @@ class DosenController extends Controller
                 'success' => false,
                 'message' => 'Gagal menghapus hak akses: ' . $e->getMessage()
             ], 500);
+        }
+    }
+    
+    public function uploadVersi(Request $request, $id)
+    {
+        $request->validate([
+            'file' => 'required|file|max:20480', // 20MB
+            'catatan_perubahan' => 'nullable|string|max:500',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Cek dokumen milik user
+            $dokumen = Dokumen::where('created_by', Auth::id())->findOrFail($id);
+
+            // Dapatkan versi terakhir
+            $versiTerakhir = $dokumen->versi()->latest('nomor_versi')->first();
+            $nomorVersiBaru = $versiTerakhir ? $versiTerakhir->nomor_versi + 1 : 1;
+
+            // Upload file baru ke MinIO
+            $file = $request->file('file');
+            $extension = $file->getClientOriginalExtension();
+            $filename = 'dokumen_' . $id . '_v' . $nomorVersiBaru . '_' . time() . '.' . $extension;
+            $filePath = $file->storeAs('dokumen', $filename, 'minio');
+
+            // Simpan ke versi_dokumen dengan catatan
+            VersiDokumen::create([
+                'dokumen_id' => $id,
+                'nomor_versi' => $nomorVersiBaru,
+                'file_path' => $filePath,
+                'catatan_perubahan' => $request->catatan_perubahan, 
+                'tanggal_dokumen' => now(),
+                'upload_by' => Auth::id(),
+            ]);
+
+            DB::commit();
+
+            return redirect()
+                ->route('dosen.detail-dokumen', $id)
+                ->with('success', 'Versi baru (v' . $nomorVersiBaru . ') berhasil diupload!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Upload versi gagal: " . $e->getMessage());
+            
+            return back()->with('error', 'Gagal upload versi baru: ' . $e->getMessage());
         }
     }
 }

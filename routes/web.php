@@ -63,7 +63,7 @@ Route::prefix('dosen')
     ->group(function () {
 
         Route::get('/dashboard', [\App\Http\Controllers\Dosen\DashboardController::class, 'index'])
-            ->name('dashboard');  // → hasil: dosen.dashboard
+            ->name('dashboard');  // â†’ hasil: dosen.dashboard
 
         Route::get('/dokumen', [DosenController::class, 'dokumenSaya'])
             ->name('dokumen'); 
@@ -78,10 +78,13 @@ Route::prefix('dosen')
             ->name('hak-akses.remove');
 
         Route::get('/dokumen/{id}/detail', [DosenController::class, 'detailDokumen'])
-            ->name('detail-dokumen'); // Hasil: dosen.detail-dokumen
+            ->name('detail-dokumen'); 
+
+        Route::post('/dokumen/{id}/upload-versi', [DosenController::class, 'uploadVersi'])
+            ->name('upload-versi');
 
         Route::get('/dokumen/{id}/download', [DosenController::class, 'download'])
-            ->name('dokumen.download'); // Hasil: dosen.dokumen.download
+            ->name('dokumen.download'); 
 
         Route::get('/upload', fn() => view('dosen.upload'))->name('upload');
         Route::get('/portofolio', fn() => view('dosen.portofolio'))->name('portofolio');
@@ -90,7 +93,7 @@ Route::prefix('dosen')
             ->name('riwayat-upload');
 
         Route::get('/notifikasi', [\App\Http\Controllers\Dosen\NotificationController::class, 'index'])
-            ->name('notifikasi'); // → hasil: dosen.notifikasi
+            ->name('notifikasi'); // â†’ hasil: dosen.notifikasi
 });
 
 // ==================== KOORDINATOR ====================

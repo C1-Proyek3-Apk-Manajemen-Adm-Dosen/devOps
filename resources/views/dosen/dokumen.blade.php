@@ -7,27 +7,50 @@
     <div class="mb-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
             <h1 class="text-2xl lg:text-3xl font-bold text-gray-800 mb-1">
-                📄 Dokumen Saya
+                Dokumen Saya
             </h1>
             <p class="text-gray-500 text-sm">Kelola dan pantau dokumen Anda</p>
         </div>
 
-        <div class="relative w-full lg:w-80">
-            <input type="text" 
+        <form method="GET" action="{{ route('dosen.dokumen') }}" id="searchForm" class="relative w-full lg:w-80">
+            <input type="hidden" name="tab" value="{{ $tab }}">
+
+            <input type="text"
                    id="searchInput"
-                   placeholder="Search" 
-                   class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#050C9C] focus:border-transparent transition-all duration-200 shadow-sm text-sm">
-            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   name="search"
+                   placeholder="Cari nama dokumen..."
+                   value="{{ request()->get('search') }}"
+                   autocomplete="off"
+                   class="w-full pl-10 pr-12 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#050C9C] focus:border-transparent transition-all duration-200 shadow-sm text-sm">
+
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
-        </div>
+
+            @if(request()->get('search'))
+                <button type="button"
+                        onclick="document.getElementById('searchInput').value=''; document.getElementById('searchForm').submit();"
+                        class="absolute right-10 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors z-10">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            @endif
+
+            <button type="submit"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#050C9C] transition-colors z-10">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </button>
+        </form>
     </div>
 
     <div class="w-full mb-6">
         <div class="bg-white shadow-md rounded-2xl p-2 flex flex-col sm:flex-row gap-2 overflow-x-auto">
             @foreach ($tabs as $key => $label)
                 <a href="{{ route('dosen.dokumen', ['tab' => $key]) }}"
-                class="flex-1 text-center py-3 px-4 rounded-xl font-semibold transition-all duration-300 text-sm whitespace-nowrap
+                   class="flex-1 text-center py-3 px-4 rounded-xl font-semibold transition-all duration-300 text-sm whitespace-nowrap
                         {{ $tab == $key 
                             ? 'bg-[#050C9C] text-white shadow-lg' 
                             : 'text-gray-600 hover:bg-gray-50 hover:text-[#050C9C]' }}">
@@ -66,9 +89,19 @@
                                         </svg>
                                     </div>
                                     <div>
-                                        <p class="font-semibold text-sm text-gray-800 group-hover:text-[#050C9C] transition-colors">
-                                            {{ $d->judul ?? '-' }}
-                                        </p>
+                                        <div class="flex items-center gap-2">
+                                            <p class="font-semibold text-sm text-gray-800 group-hover:text-[#050C9C] transition-colors">
+                                                {{ $d->judul ?? '-' }}
+                                            </p>
+                                            @php
+                                                $versiTerbaru = $d->versi->first(); 
+                                            @endphp
+                                            @if($versiTerbaru)
+                                                <span class="px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[9px] font-bold">
+                                                    v{{ $versiTerbaru->nomor_versi }}
+                                                </span>
+                                            @endif
+                                        </div>
                                         <p class="text-[10px] text-gray-500">{{ $d->nomor_dokumen ?? 'No. Dokumen' }}</p>
                                     </div>
                                 </div>
@@ -174,23 +207,34 @@
                         @endif
 
                         <div class="hidden sm:flex items-center gap-1.5">
-                            @foreach ($dokumens->getUrlRange(1, $dokumens->lastPage()) as $page => $url)
-                                @if ($page == $dokumens->currentPage())
-                                    <span class="px-3 py-1.5 text-xs font-bold text-white bg-[#050C9C] rounded-lg shadow-md">
-                                        {{ $page }}
-                                    </span>
+                            @php
+                                $currentPage = $dokumens->currentPage();
+                                $lastPage = $dokumens->lastPage();
+                                $start = max(1, $currentPage - 1);
+                                $end = min($lastPage, $currentPage + 1);
+                            @endphp
+
+                            @if ($start > 1)
+                                <a href="{{ $dokumens->url(1) }}" class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-[#050C9C] hover:text-white hover:border-[#050C9C] transition-all duration-200 shadow-sm">1</a>
+                                @if ($start > 2)<span class="px-2 text-gray-400">...</span>@endif
+                            @endif
+
+                            @for ($page = $start; $page <= $end; $page++)
+                                @if ($page == $currentPage)
+                                    <span class="px-3 py-1.5 text-xs font-bold text-white bg-[#050C9C] rounded-lg shadow-md">{{ $page }}</span>
                                 @else
-                                    <a href="{{ $url }}" 
-                                       class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-[#050C9C] hover:text-white hover:border-[#050C9C] transition-all duration-200 shadow-sm">
-                                        {{ $page }}
-                                    </a>
+                                    <a href="{{ $dokumens->url($page) }}" class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-[#050C9C] hover:text-white hover:border-[#050C9C] transition-all duration-200 shadow-sm">{{ $page }}</a>
                                 @endif
-                            @endforeach
+                            @endfor
+
+                            @if ($end < $lastPage)
+                                @if ($end < $lastPage - 1)<span class="px-2 text-gray-400">...</span>@endif
+                                <a href="{{ $dokumens->url($lastPage) }}" class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-[#050C9C] hover:text-white hover:border-[#050C9C] transition-all duration-200 shadow-sm">{{ $lastPage }}</a>
+                            @endif
                         </div>
 
                         @if ($dokumens->hasMorePages())
-                            <a href="{{ $dokumens->nextPageUrl() }}" 
-                               class="px-2.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-[#050C9C] hover:text-white hover:border-[#050C9C] transition-all duration-200 shadow-sm">
+                            <a href="{{ $dokumens->nextPageUrl() }}" class="px-2.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-[#050C9C] hover:text-white hover:border-[#050C9C] transition-all duration-200 shadow-sm">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                 </svg>

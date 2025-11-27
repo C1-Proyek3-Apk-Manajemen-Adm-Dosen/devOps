@@ -118,4 +118,35 @@ class AccessControl extends Model
                 return $this->status;
         }
     }
+
+    public static function getStatusBadge($status)
+    {
+        return match($status) {
+            'ACC' => [
+                'class' => 'bg-green-100 text-green-700 border-2 border-green-300',
+                'text' => 'Acc',
+                'dot' => 'bg-green-700'
+            ],
+            'PENDING' => [
+                'class' => 'bg-yellow-100 text-yellow-700 border-2 border-yellow-300',
+                'text' => 'Pending',
+                'dot' => 'bg-yellow-700'
+            ],
+            'REVISI' => [
+                'class' => 'bg-orange-100 text-orange-700 border-2 border-orange-300',
+                'text' => 'Revisi',
+                'dot' => 'bg-orange-700'
+            ],
+            'TOLAK' => [
+                'class' => 'bg-red-100 text-red-700 border-2 border-red-300',
+                'text' => 'Ditolak',
+                'dot' => 'bg-red-700'
+            ],
+            default => [
+                'class' => 'bg-gray-100 text-gray-700 border-2 border-gray-300',
+                'text' => '-',
+                'dot' => 'bg-gray-700'
+            ]
+        };
+    }
 }

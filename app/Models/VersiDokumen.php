@@ -9,7 +9,7 @@ class VersiDokumen extends Model
     protected $table = 'versi_dokumen';
     protected $primaryKey = 'versi_id';
     public $timestamps = false;
-    protected $fillable = ['dokumen_id','nomor_versi','file_path','tanggal_dokumen','upload_by'];
+    protected $fillable = ['dokumen_id','nomor_versi','file_path', 'catatan_perubahan', 'tanggal_dokumen','upload_by'];
     protected $casts = ['tanggal_dokumen' => 'date'];
 
     public function dokumen()
