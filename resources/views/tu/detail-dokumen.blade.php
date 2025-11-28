@@ -138,13 +138,10 @@
                 {{-- Button Download --}}
                 @php
                     $latestVersion = $dokumen->versi->sortByDesc('nomor_versi')->first();
-                    $activeVersion = $dokumen->versi
-                        ->sortByDesc('nomor_versi')
-                        ->firstWhere(fn($v) => $v->file_path && Storage::disk('minio')->exists($v->file_path));
                 @endphp
 
                 <div>
-                    @if($activeVersion)
+                    @if($fileExists) 
                         <a href="{{ route('tu.dokumen.download', $dokumen->dokumen_id) }}"
                         class="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#050C9C] to-blue-700 text-white rounded-xl font-bold text-sm hover:from-blue-700 hover:to-[#050C9C] transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
