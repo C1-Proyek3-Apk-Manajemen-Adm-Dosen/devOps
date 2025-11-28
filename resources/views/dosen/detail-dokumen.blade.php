@@ -35,9 +35,17 @@
     </div>
 
     <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-        <div class="bg-gradient-to-r from-[#050C9C] to-blue-700 px-5 py-2.5">
+        <div class="bg-gradient-to-r from-[#050C9C] to-blue-700 px-5 py-2.5 flex items-center justify-between">
             <h2 class="text-base font-bold text-white">Detail Dokumen</h2>
+
+            {{-- Tombol titik tiga / share --}}
+            <button type="button"
+                    onclick="openShareModal({{ $dokumen->dokumen_id }}, '{{ $dokumen->judul }}')"
+                    class="text-white/90 hover:text-white p-1.5 rounded-lg hover:bg-white/20 transition">
+                <i class="fa-solid fa-ellipsis-vertical text-lg"></i>
+            </button>
         </div>
+
 
         <div class="p-5 grid grid-cols-1 lg:grid-cols-2 gap-5">
             <div class="space-y-3.5">
@@ -212,6 +220,8 @@
 </div>
 
 @include('dosen.modal-upload-versi', ['dokumen' => $dokumen])
+@include('components.share-modal')
+
 
 @endsection
 
@@ -222,4 +232,5 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @vite('resources/js/dosen/detail-dokumen.js')
+@vite('resources/js/share-link.js')
 @endpush
