@@ -157,6 +157,27 @@ Route::prefix('dosen')
         Route::get('/dokumen/{dokumen_id}/modal-data', [DosenController::class, 'getModalData'])
             ->whereNumber('dokumen_id')
             ->name('dokumen.modal.data');
+            
+        Route::get('/portofolio', [\App\Http\Controllers\Dosen\PortofolioController::class, 'index'])
+            ->name('portofolio');
+
+        Route::get('/portofolio/search', [\App\Http\Controllers\Dosen\PortofolioController::class, 'searchForm'])
+            ->name('portofolio.search');
+
+        Route::post('/portofolio/search-pddikti', [\App\Http\Controllers\Dosen\PortofolioController::class, 'searchPddikti'])
+            ->name('portofolio.search-pddikti');
+
+        Route::post('/portofolio/import', [\App\Http\Controllers\Dosen\PortofolioController::class, 'importFromPddikti'])
+            ->name('portofolio.import');
+
+        Route::put('/portofolio/update', [\App\Http\Controllers\Dosen\PortofolioController::class, 'updateManual'])
+            ->name('portofolio.update');
+
+        Route::post('/portofolio/verify', [\App\Http\Controllers\Dosen\PortofolioController::class, 'verifyProfile'])
+            ->name('portofolio.verify');
+
+        Route::post('/portofolio/refresh', [\App\Http\Controllers\Dosen\PortofolioController::class, 'refreshFromPddikti'])
+            ->name('portofolio.refresh');
     });
 
 /*
