@@ -16,7 +16,7 @@ class NotificationController extends Controller
         $notifikasi = AccessControl::with(['pemberiAkses:id_user,nama_lengkap', 'dokumen:dokumen_id,judul'])
             ->where('grantee_user_id', $userId)
             ->orderByDesc('created_at')
-            ->paginate(12);
+            ->paginate(5);
 
         return view('tu.notifikasi', compact('notifikasi'));
     }
