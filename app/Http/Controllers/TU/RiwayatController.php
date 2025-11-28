@@ -104,8 +104,9 @@ class RiwayatController extends Controller
                 'kategori.nama_kategori',
                 DB::raw('rec.recipients as recipients'),
             ])
-            ->paginate(10)
+            ->paginate(5)   // <= dari 10 jadi 5
             ->withQueryString();
+        
 
         // Data kategori kalau mau dipakai di tempat lain
         $kategories = Kategori::orderBy('nama_kategori')->get(['kategori_id', 'nama_kategori']);

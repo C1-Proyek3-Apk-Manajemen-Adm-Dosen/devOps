@@ -3,78 +3,75 @@
 @section('title', 'Detail Dokumen - SiDoRa')
 
 @push('styles')
-    <style>
-        /* Icon versi dokumen (tag) outline putih */
-        .kp-icon-tag-outline {
-            color: transparent !important;
-            -webkit-text-stroke: 1.6px #fff !important;
-            text-stroke: 1.6px #fff !important;
-            font-weight: 900 !important;
-        }
+<style>
+    /* Icon versi dokumen (tag) outline putih */
+    .kp-icon-tag-outline {
+        color: transparent !important;
+        -webkit-text-stroke: 1.6px #fff !important;
+        font-weight: 900 !important;
+    }
 
-        /* Icon copy di kartu nomor dokumen */
-        .kp-copy-icon {
-            position: absolute;
-            right: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #ffffff;
-            font-size: 1.3rem;
-            opacity: .9;
-            transition: .15s;
-        }
+    /* Icon copy di kartu nomor dokumen */
+    .kp-copy-icon {
+        position: absolute;
+        right: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #ffffff;
+        font-size: 1.3rem;
+        opacity: .9;
+        transition: .15s;
+    }
 
-        .kp-copy-icon:hover {
-            opacity: 1;
-        }
+    .kp-copy-icon:hover {
+        opacity: 1;
+    }
 
-        /* Toast abu-abu di bawah tengah layar */
-        .toast-copy {
-            position: fixed;
-            left: 50%;
-            bottom: 24px;
-            transform: translateX(-50%);
-            background: #374151;      /* abu-abu gelap */
-            color: #ffffff;
-            padding: 8px 20px;
-            border-radius: 999px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            display: none;
-            z-index: 9999;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.18);
-            white-space: nowrap;
-        }
+    /* Toast abu-abu di bawah tengah layar */
+    .toast-copy {
+        position: fixed;
+        left: 50%;
+        bottom: 24px;
+        transform: translateX(-50%);
+        background: #374151;
+        color: #ffffff;
+        padding: 8px 20px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: none;
+        z-index: 9999;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+        white-space: nowrap;
+    }
 
-        /* ===== Chip kategori (sama dengan daftar Kaprodi) ===== */
+    /* ===== Chip kategori ===== */
+    .kp-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: .375rem;
+        padding: .30rem .9rem;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: .75rem;
+        border: 1px solid transparent;
+        line-height: 1;
+    }
+    .kp-chip::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: currentColor;
+    }
 
-        .kp-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: .375rem;
-            padding: .30rem .9rem;
-            border-radius: 999px;
-            font-weight: 600;
-            font-size: .75rem;
-            border: 1px solid transparent;
-            line-height: 1;
-        }
-
-        .kp-chip::before {
-            content: "";
-            width: 6px;
-            height: 6px;
-            border-radius: 999px;
-            background: currentColor;
-        }
-
-        .kp-chip-default { color:#4338ca; background:#eef2ff; border-color:#e0e7ff; }
-        .kp-chip-bkd     { color:#6d28d9; background:#ede9fe; border-color:#ddd6fe; }
-        .kp-chip-rps     { color:#ea580c; background:#ffedd5; border-color:#fed7aa; }
-        .kp-chip-st      { color:#2563eb; background:#e0f2ff; border-color:#bfdbfe; }
-        .kp-chip-sk      { color:#c026d3; background:#fce7ff; border-color:#f9c5ff; }
-    </style>
+    .kp-chip-default { color:#4338ca; background:#eef2ff; border-color:#e0e7ff; }
+    .kp-chip-bkd     { color:#6d28d9; background:#ede9fe; border-color:#ddd6fe; }
+    .kp-chip-rps     { color:#ea580c; background:#ffedd5; border-color:#fed7aa; }
+    .kp-chip-st      { color:#2563eb; background:#e0f2ff; border-color:#bfdbfe; }
+    .kp-chip-sk      { color:#c026d3; background:#fce7ff; border-color:#f9c5ff; }
+</style>
 @endpush
 
 @section('content')
@@ -100,8 +97,10 @@
 
             {{-- Tombol titik tiga / share --}}
             <button type="button"
-                    onclick="openShareModal({{ $dokumen->dokumen_id }}, '{{ $dokumen->judul }}')"
-                    class="text-white/90 hover:text-white p-1.5 rounded-lg hover:bg-white/20 transition">
+                id="btn-share-kaprodi"
+                data-id="{{ $dokumen->dokumen_id }}"
+                data-title="{{ $dokumen->judul ?? '' }}"
+                class="text-white/90 hover:text-white p-1.5 rounded-lg hover:bg-white/20 transition">
                 <i class="fa-solid fa-ellipsis-vertical text-lg"></i>
             </button>
         </div>
@@ -160,7 +159,7 @@
                         </div>
                     </div>
 
-                    {{-- Kategori (pakai chip warna-warni di dalam field) --}}
+                    {{-- Kategori --}}
                     @php
                         $katName   = $dokumen->nama_kategori ?? null;
                         $lowerKat  = $katName ? strtolower(trim($katName)) : null;
@@ -168,7 +167,6 @@
 
                         if ($lowerKat === 'bkd')                 $chipClass = 'kp-chip-bkd';
                         elseif ($lowerKat === 'rps')            $chipClass = 'kp-chip-rps';
-                        elseif ($lowerKat === 'skp')            $chipClass = 'kp-chip-sk';
                         elseif ($lowerKat === 'surat tugas')    $chipClass = 'kp-chip-st';
                         elseif ($lowerKat === 'surat keputusan')$chipClass = 'kp-chip-sk';
                     @endphp
@@ -210,7 +208,7 @@
                         </label>
 
                         @if($latest)
-                            <div class="w-full flex items-center px-4 py-2.5 rounded-xl 
+                            <div class="w-full flex items-center px-4 py-2.5 rounded-xl
                                         border border-gray-200 bg-gray-50">
                                 <span class="flex items-center justify-center w-12 h-12 rounded-xl
                                              bg-gradient-to-r from-[#050C9C] to-[#1E40FF] shadow-md">
@@ -227,14 +225,12 @@
                             </div>
                         @endif
 
-                        {{-- Status Dihapus --}}
-
                         {{-- Tombol Download --}}
                         <div class="pt-1">
                             @if($latest && !empty($latest->file_path))
                                 <a href="{{ $latest->file_path }}"
-                                   class="inline-flex items-center justify-center w-full gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium 
-                                          bg-gradient-to-r from-[#050C9C] to-[#1E40FF] text-white 
+                                   class="inline-flex items-center justify-center w-full gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium
+                                          bg-gradient-to-r from-[#050C9C] to-[#1E40FF] text-white
                                           shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition">
                                     <i class="fa-solid fa-download text-xs"></i>
                                     Unduh File
@@ -251,7 +247,7 @@
                 </div>
             </div>
 
-            {{-- (opsional) daftar semua versi --}}
+            {{-- riwayat versi --}}
             @if($versi->count() > 1)
                 <div class="mt-6">
                     <h3 class="text-sm font-semibold text-gray-700 mb-2">
@@ -282,35 +278,48 @@
 
 @push('scripts')
 <script>
-    function copyNomorDokumen() {
-        const el = document.getElementById('nomorDokumenText');
-        if (!el) return;
+function copyNomorDokumen() {
+    const el = document.getElementById('nomorDokumenText');
+    if (!el) return;
 
-        const text = (el.innerText || el.textContent || '').trim();
-        if (!text) return;
+    const text = (el.innerText || el.textContent || '').trim();
+    if (!text) return;
 
-        // Copy ke clipboard
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text);
-        } else {
-            // fallback sederhana
-            const temp = document.createElement('textarea');
-            temp.value = text;
-            document.body.appendChild(temp);
-            temp.select();
-            document.execCommand('copy');
-            document.body.removeChild(temp);
-        }
-
-        // Tampilkan toast
-        const toast = document.getElementById('toast-copy');
-        if (!toast) return;
-
-        toast.style.display = 'block';
-
-        setTimeout(() => {
-            toast.style.display = 'none';
-        }, 1800);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text);
+    } else {
+        const temp = document.createElement('textarea');
+        temp.value = text;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
     }
+
+    const toast = document.getElementById('toast-copy');
+    if (!toast) return;
+
+    toast.style.display = 'block';
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, 1800);
+}
+
+function openShareModal(id, title) {
+    console.log('openShareModal', id, title);
+    // nanti diisi modal share beneran
+}
+
+// pas DOM siap, pasang event listener ke tombol share
+document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.getElementById('btn-share-kaprodi');
+    if (!btn) return;
+
+    btn.addEventListener('click', function () {
+        const id = this.getAttribute('data-id');
+        const title = this.getAttribute('data-title');
+        openShareModal(id, title);
+    });
+});
 </script>
 @endpush

@@ -8,7 +8,6 @@
     .icon-tag-outline {
         color: transparent !important;
         -webkit-text-stroke: 1.6px #fff !important;
-        text-stroke: 1.6px #fff !important;
         font-weight: 900 !important;
     }
 </style>
@@ -96,7 +95,7 @@
                         <p class="text-[13px] font-semibold text-slate-700">Kategori Dokumen</p>
                         <div class="mt-1 px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 flex items-center">
                             <span
-                                class="inline-flex items-center px-4 py-1.5 rounded-full border border-blue-200 bg-blue-50 
+                                class="inline-flex items-center px-4 py-1.5 rounded-full border border-blue-200 bg-blue-50
                                        font-semibold text-blue-700 text-sm">
                                 {{ $kategoriNama }}
                             </span>
@@ -124,7 +123,7 @@
                         {{-- Box Versi: selalu ada field --}}
                         @if($versiTerbaru)
                             {{-- Ada versi -> tampilkan tag biru + v1 --}}
-                            <div class="w-full flex items-center px-4 py-2.5 rounded-xl 
+                            <div class="w-full flex items-center px-4 py-2.5 rounded-xl
                                         border border-slate-200 bg-slate-50">
 
                                 <span class="flex items-center justify-center w-12 h-12 rounded-xl
@@ -138,7 +137,7 @@
                             </div>
                         @else
                             {{-- Tidak ada versi -> tetap ada field tapi teks info --}}
-                            <div class="w-full px-4 py-2.5 rounded-xl 
+                            <div class="w-full px-4 py-2.5 rounded-xl
                                         border border-slate-200 bg-slate-50 text-sm text-slate-500">
                                 Belum ada versi dokumen.
                             </div>

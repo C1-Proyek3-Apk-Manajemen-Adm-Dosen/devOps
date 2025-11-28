@@ -196,6 +196,37 @@
         </div>
 
         {{-- Footer pagination --}}
+        @php
+            $currentPage = $docs->currentPage();
+            $lastPage    = $docs->lastPage();
+
+            // susun daftar halaman untuk ditampilkan (< 1 2 … last >)
+            $pages = [];
+            if ($lastPage <= 5) {
+                for ($p = 1; $p <= $lastPage; $p++) {
+                    $pages[] = $p;
+                }
+            } else {
+                $pages[] = 1;
+                $start = max(2, $currentPage - 1);
+                $end   = min($lastPage - 1, $currentPage + 1);
+
+                if ($start > 2) {
+                    $pages[] = '...';
+                }
+
+                for ($p = $start; $p <= $end; $p++) {
+                    $pages[] = $p;
+                }
+
+                if ($end < $lastPage - 1) {
+                    $pages[] = '...';
+                }
+
+                $pages[] = $lastPage;
+            }
+        @endphp
+
         <div class="kp-border-top-soft kp-footer">
             <div class="kp-footer-total">
                 <div class="kp-footer-total-icon">
@@ -211,41 +242,37 @@
 
             <div class="kp-footer-right">
                 <div class="kp-footer-pageinfo">
-                    Halaman {{ $docs->currentPage() }} dari {{ $docs->lastPage() }}
+                    Halaman {{ $currentPage }} dari {{ $lastPage }}
                 </div>
 
-                {{-- Custom pagination 5 item per halaman --}}
+                {{-- Custom pagination: < 1 2 ... last > --}}
                 <div class="kp-pagination">
                     {{-- Prev --}}
-                    @php
-                        $prevUrl = $docs->currentPage() > 1
-                            ? $docs->previousPageUrl()
-                            : null;
-                    @endphp
-                    <a class="kp-arrow {{ $prevUrl ? '' : 'disabled' }}"
-                       @if($prevUrl) href="{{ $prevUrl }}" @endif>
-                        ‹
-                    </a>
+                    @if ($docs->onFirstPage())
+                        <span class="kp-arrow disabled">‹</span>
+                    @else
+                        <a class="kp-arrow" href="{{ $docs->previousPageUrl() }}">‹</a>
+                    @endif
 
                     {{-- pages --}}
-                    @foreach ($docs->getUrlRange(1, $docs->lastPage()) as $page => $url)
-                        @if ($page == $docs->currentPage())
-                            <span class="kp-page is-active">{{ $page }}</span>
+                    @foreach ($pages as $p)
+                        @if ($p === '...')
+                            <span class="kp-page" style="cursor: default;">…</span>
                         @else
-                            <a class="kp-page" href="{{ $url }}">{{ $page }}</a>
+                            @if ($p == $currentPage)
+                                <span class="kp-page is-active">{{ $p }}</span>
+                            @else
+                                <a class="kp-page" href="{{ $docs->url($p) }}">{{ $p }}</a>
+                            @endif
                         @endif
                     @endforeach
 
                     {{-- Next --}}
-                    @php
-                        $nextUrl = $docs->currentPage() < $docs->lastPage()
-                            ? $docs->nextPageUrl()
-                            : null;
-                    @endphp
-                    <a class="kp-arrow {{ $nextUrl ? '' : 'disabled' }}"
-                       @if($nextUrl) href="{{ $nextUrl }}" @endif>
-                        ›
-                    </a>
+                    @if ($docs->hasMorePages())
+                        <a class="kp-arrow" href="{{ $docs->nextPageUrl() }}">›</a>
+                    @else
+                        <span class="kp-arrow disabled">›</span>
+                    @endif
                 </div>
             </div>
         </div>

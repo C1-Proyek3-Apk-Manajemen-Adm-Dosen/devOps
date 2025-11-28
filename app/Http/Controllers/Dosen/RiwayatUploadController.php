@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Dokumen;
 use App\Models\Kategori;
 use App\Models\VersiDokumen;
+use Illuminate\Support\Facades\Auth;
 
 class RiwayatUploadController extends Controller
 {
@@ -15,7 +16,7 @@ class RiwayatUploadController extends Controller
     // ======================
     public function index(Request $request)
     {
-        $uid = auth()->id();
+        $uid = Auth::id();
 
         $query = Dokumen::query()
             ->leftJoin('kategori', 'kategori.kategori_id', '=', 'dokumen.kategori_id')
@@ -67,7 +68,7 @@ class RiwayatUploadController extends Controller
     // ======================
     public function show($dokumen_id)
     {
-        $uid = auth()->id();
+        $uid = Auth::id();
 
         // ambil dokumen + relasi kategori & versi
         $dokumen = Dokumen::with(['kategori', 'versi'])

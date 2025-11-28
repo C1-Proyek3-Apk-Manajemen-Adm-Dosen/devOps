@@ -10,7 +10,6 @@
         .icon-tag-outline {
             color: transparent !important;
             -webkit-text-stroke: 1.6px #fff !important;
-            text-stroke: 1.6px #fff !important;
             font-weight: 900 !important;
         }
 
@@ -182,7 +181,7 @@
                         </label>
 
                         @if($latest)
-                            <div class="w-full flex items-center px-4 py-2.5 rounded-xl 
+                            <div class="w-full flex items-center px-4 py-2.5 rounded-xl
                                         border border-gray-200 bg-gray-50">
                                 <span class="flex items-center justify-center w-12 h-12 rounded-xl
                                              bg-gradient-to-r from-[#050C9C] to-[#1E40FF] shadow-md">
@@ -202,8 +201,8 @@
                         {{-- Tombol file --}}
                         @if($latest && !empty($latest->file_path))
                             <a href="{{ $latest->file_path }}"
-                               class="inline-flex items-center justify-center w-full gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium 
-                                      bg-gradient-to-r from-[#050C9C] to-[#1E40FF] text-white 
+                               class="inline-flex items-center justify-center w-full gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium
+                                      bg-gradient-to-r from-[#050C9C] to-[#1E40FF] text-white
                                       shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition">
                                 <i class="fa-solid fa-download text-xs"></i>
                                 Unduh File

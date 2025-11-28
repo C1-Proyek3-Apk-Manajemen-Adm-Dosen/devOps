@@ -268,6 +268,32 @@
             @php
                 $currentPage = $docs->currentPage();
                 $lastPage    = $docs->lastPage();
+
+                // susun daftar halaman untuk ditampilkan (< 1 2 … last >)
+                $pages = [];
+                if ($lastPage <= 5) {
+                    for ($p = 1; $p <= $lastPage; $p++) {
+                        $pages[] = $p;
+                    }
+                } else {
+                    $pages[] = 1;
+                    $start = max(2, $currentPage - 1);
+                    $end   = min($lastPage - 1, $currentPage + 1);
+
+                    if ($start > 2) {
+                        $pages[] = '...';
+                    }
+
+                    for ($p = $start; $p <= $end; $p++) {
+                        $pages[] = $p;
+                    }
+
+                    if ($end < $lastPage - 1) {
+                        $pages[] = '...';
+                    }
+
+                    $pages[] = $lastPage;
+                }
             @endphp
 
             <div class="riwayat-footer border-top-soft">
@@ -296,14 +322,18 @@
                             <a href="{{ $docs->previousPageUrl() }}" class="pagination-arrow">&lt;</a>
                         @endif
 
-                        {{-- tombol nomor halaman --}}
-                        @for ($page = 1; $page <= $lastPage; $page++)
-                            @if ($page == $currentPage)
-                                <span class="pagination-page is-active">{{ $page }}</span>
+                        {{-- tombol nomor halaman dengan "..." --}}
+                        @foreach ($pages as $p)
+                            @if ($p === '...')
+                                <span class="pagination-page" style="cursor: default;">…</span>
                             @else
-                                <a href="{{ $docs->url($page) }}" class="pagination-page">{{ $page }}</a>
+                                @if ($p == $currentPage)
+                                    <span class="pagination-page is-active">{{ $p }}</span>
+                                @else
+                                    <a href="{{ $docs->url($p) }}" class="pagination-page">{{ $p }}</a>
+                                @endif
                             @endif
-                        @endfor
+                        @endforeach
 
                         {{-- tombol next --}}
                         @if ($docs->hasMorePages())
