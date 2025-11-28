@@ -12,11 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        document.querySelectorAll('tbody tr').forEach(row => {
-            row.addEventListener('mouseenter', () => row.style.transform = 'translateX(4px)');
-            row.addEventListener('mouseleave', () => row.style.transform = 'translateX(0)');
-        });
-
         document.querySelectorAll('a[href*="page="]').forEach(link => {
             link.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
         });
@@ -29,16 +24,6 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.remove('ring-2', 'ring-[#050C9C]/20');
         });
     }
-
-    const tableRows = document.querySelectorAll('tbody tr');
-    tableRows.forEach(row => {
-        row.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateX(4px)';
-        });
-        row.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateX(0)';
-        });
-    });
 
     const paginationLinks = document.querySelectorAll('a[href*="page="]');
     paginationLinks.forEach(link => {

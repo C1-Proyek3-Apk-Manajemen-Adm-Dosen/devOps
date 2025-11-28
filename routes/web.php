@@ -95,8 +95,6 @@ Route::prefix('tu')
         Route::get('/notifikasi', [NotificationController::class, 'index'])->name('tu.notifikasi');
     });
 
-
-
 /*
 |--------------------------------------------------------------------------
 | DOSEN
@@ -107,16 +105,12 @@ Route::prefix('dosen')
     ->name('dosen.')
     ->group(function () {
 
-        // Menu statis
         Route::get('/dashboard', [DosenDashboardController::class, 'index'])
             ->name('dashboard');
-        Route::get('/dokumen', fn() => view('dosen.dokumen'))->name('dokumen');
-        Route::get('/dokumen', [DosenController::class, 'dokumenSaya'])
-            ->name('dokumen'); 
 
-        Route::get('/dokumen/{id}/hak-akses', [DosenController::class, 'editHakAkses'])
-            ->name('edit-hak-akses');
-        
+        Route::get('/dokumen', [DosenController::class, 'dokumenSaya'])
+            ->name('dokumen');
+
         Route::post('/dokumen/{id}/hak-akses', [DosenController::class, 'updateHakAkses'])
             ->name('update-hak-akses');
         
@@ -130,37 +124,31 @@ Route::prefix('dosen')
             ->name('upload-versi');
 
         Route::get('/dokumen/{id}/download', [DosenController::class, 'download'])
-            ->name('dokumen.download'); // Hasil: dosen.dokumen.download
+            ->name('dokumen.download');
 
-        Route::get('/portofolio', fn() => view('dosen.portofolio'))->name('portofolio');
-        Route::get('/riwayat', fn() => view('dosen.riwayat'))->name('riwayat');
-
-        // Upload - GET
-        Route::get('/upload', [UploadDokumenDosenController::class, 'create'])
-            ->name('upload');
-
-        // Upload - POST
-        Route::post('/upload', [UploadDokumenDosenController::class, 'store'])
-            ->name('dokumen.upload.store');
-        
-        Route::get('/notifikasi', [\App\Http\Controllers\Dosen\NotificationController::class, 'index'])
-            ->name('notifikasi'); // → hasil: dosen.notifikasi
+        Route::get('/portofolio', fn() => view('dosen.portofolio'))
+            ->name('portofolio');
         
         Route::get('/riwayat', [\App\Http\Controllers\Dosen\RiwayatUploadController::class, 'index'])
             ->name('riwayat');
 
-        // detail dokumen
-        Route::get('/riwayat/{dokumen_id}', [\App\Http\Controllers\Dosen\RiwayatUploadController::class, 'show'])
-        ->whereNumber('dokumen_id')
-        ->name('riwayat.show');
-});
+        Route::get('/upload', [UploadDokumenDosenController::class, 'create'])
+            ->name('upload');
 
-Route::post('/dosen/update-versi', function () {
-    return response()->json([
-        'status' => 'dummy',
-        'message' => 'Fitur update versi dalam pengerjaan.',
-    ]);
-});
+        Route::post('/upload', [UploadDokumenDosenController::class, 'store'])
+            ->name('dokumen.upload.store');
+        
+        Route::get('/notifikasi', [\App\Http\Controllers\Dosen\NotificationController::class, 'index'])
+            ->name('notifikasi');
+
+        Route::get('/riwayat/{dokumen_id}', [\App\Http\Controllers\Dosen\RiwayatUploadController::class, 'show'])
+            ->whereNumber('dokumen_id')
+            ->name('riwayat.show');
+
+        Route::get('/dokumen/{dokumen_id}/modal-data', [DosenController::class, 'getModalData'])
+            ->whereNumber('dokumen_id')
+            ->name('dokumen.modal.data');
+    });
 
 /*
 |--------------------------------------------------------------------------

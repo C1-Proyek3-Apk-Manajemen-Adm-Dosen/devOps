@@ -18,8 +18,8 @@ export default defineConfig({
                 'resources/js/tu/edit-hak-akses.js',
                 
                 'resources/js/dosen/dokumen-saya.js',
-                'resources/js/dosen/edit-hak-akses.js',
                 'resources/js/dosen/detail-dokumen.js',
+                'resources/js/dosen/edit-hak-akses-modal.js',
                 
                 'resources/css/dosen/dokumen-saya.css',
                 'resources/css/dosen/edit-hak-akses.css',

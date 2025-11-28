@@ -156,14 +156,13 @@ class DosenController extends Controller
         $dokumen = Dokumen::with([
             'kategori',
             'accessControls' => function ($query) {
-                $query->where('status', 'ACC')
-                      ->orderBy('created_at', 'desc');
+                    $query->whereIn('status', ['PENDING', 'ACC', 'TOLAK', 'REVISI'])
+                       ->orderBy('created_at', 'desc');
             },
             'accessControls.granteeUser'
         ])->where('created_by', Auth::id())->findOrFail($id);
 
         $users = User::where('id_user', '!=', Auth::id())
-            ->where('status', true)
             ->select('id_user', 'nama_lengkap', 'email', 'role')
             ->orderBy('nama_lengkap')
             ->get();
@@ -172,7 +171,76 @@ class DosenController extends Controller
     }
 
     /**
+     * API: Get semua data untuk modal (users + existing access)
+     * Endpoint ini mengembalikan:
+     * - allUsers: semua pengguna
+     * - existingAccess: pengguna yang sudah punya akses untuk dokumen ini
+     */
+
+    public function getModalData($dokumenId)
+    {
+        try {
+            // Verifikasi dokumen milik user
+            $dokumen = Dokumen::where('created_by', Auth::id())
+                ->findOrFail($dokumenId);
+
+            // Ambil semua user
+            $allUsers = User::where('id_user', '!=', Auth::id())
+                ->select('id_user', 'nama_lengkap', 'email', 'role')
+                ->orderBy('nama_lengkap')
+                ->get()
+                ->map(function($user) {
+                    return [
+                        'id_user' => $user->id_user,
+                        'nama_lengkap' => $user->nama_lengkap,
+                        'email' => $user->email,
+                        'role' => $user->role,
+                    ];
+                });
+
+
+            $existingAccess = AccessControl::where('document_id', $dokumenId)
+                ->whereIn('status', ['PENDING', 'ACC', 'TOLAK', 'REVISI'])
+                ->with(['granteeUser' => function($q) {
+                    $q->select('id_user', 'nama_lengkap', 'email', 'role');
+                }])
+                ->orderBy('created_at', 'desc') 
+                ->get()
+                ->map(function($access) {
+                    return [
+                        'id' => $access->id,
+                        'grantee_user_id' => $access->grantee_user_id,
+                        'document_id' => $access->document_id,
+                        'perm' => $access->perm,
+                        'status' => $access->status, 
+                        'grantee_user' => [
+                            'id_user' => $access->granteeUser->id_user ?? null,
+                            'nama_lengkap' => $access->granteeUser->nama_lengkap ?? null,
+                            'email' => $access->granteeUser->email ?? null,
+                            'role' => $access->granteeUser->role ?? null,
+                        ]
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'allUsers' => $allUsers,
+                'existingAccess' => $existingAccess,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error("Get modal data error: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Update hak akses dokumen
+     * - Jika belum ada, create baru
+     * - Jika sudah ada, update permission
      */
     public function updateHakAkses(Request $request, $id)
     {
@@ -184,10 +252,11 @@ class DosenController extends Controller
         try {
             DB::beginTransaction();
 
-            $dokumen = Dokumen::where('created_by', Auth::id())->findOrFail($id);
+            $dokumen = Dokumen::where('created_by', Auth::id())
+                ->findOrFail($id);
 
             $existingAccess = AccessControl::where('document_id', $id)
-                ->where('grantee_user_id', $request->user_id)
+                ->where('grantee_user_id', $request->user_id) 
                 ->first();
 
             if ($existingAccess) {
@@ -195,8 +264,8 @@ class DosenController extends Controller
                     'perm' => $request->permission,
                     'status' => 'ACC',
                     'created_by' => Auth::id(),
+                    'updated_at' => now(),
                 ]);
-
                 $message = 'Hak akses berhasil diperbarui!';
             } else {
                 AccessControl::create([
@@ -207,7 +276,6 @@ class DosenController extends Controller
                     'created_at' => now(),
                     'created_by' => Auth::id(),
                 ]);
-
                 $message = 'Hak akses berhasil ditambahkan!';
             }
 
@@ -220,6 +288,7 @@ class DosenController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error("Update hak akses error: " . $e->getMessage());
 
             return response()->json([
                 'success' => false,
@@ -234,12 +303,15 @@ class DosenController extends Controller
     public function removeHakAkses(Request $request, $id)
     {
         $request->validate([
-            'user_id' => 'required|exists:users,id_user',
+            'user_id' => 'required|exists:users,id_user', 
         ]);
 
         try {
+            $dokumen = Dokumen::where('created_by', Auth::id())
+                ->findOrFail($id);
+
             $deleted = AccessControl::where('document_id', $id)
-                ->where('grantee_user_id', $request->user_id)
+                ->where('grantee_user_id', $request->user_id) 
                 ->delete();
 
             if ($deleted) {
@@ -255,13 +327,15 @@ class DosenController extends Controller
             ], 404);
 
         } catch (\Exception $e) {
+            Log::error("Remove hak akses error: " . $e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menghapus hak akses: ' . $e->getMessage()
             ], 500);
         }
     }
-    
+
     public function uploadVersi(Request $request, $id)
     {
         $request->validate([
