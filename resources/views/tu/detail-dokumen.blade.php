@@ -136,14 +136,30 @@
                 </div>
 
                 {{-- Button Download --}}
+                @php
+                    $latestVersion = $dokumen->versi->sortByDesc('nomor_versi')->first();
+                    $activeVersion = $dokumen->versi
+                        ->sortByDesc('nomor_versi')
+                        ->firstWhere(fn($v) => $v->file_path && Storage::disk('minio')->exists($v->file_path));
+                @endphp
+
                 <div>
-                    <a href="{{ route('tu.dokumen.download', $dokumen->dokumen_id) }}" 
-                       class="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#050C9C] to-blue-700 text-white rounded-xl font-bold text-sm hover:from-blue-700 hover:to-[#050C9C] transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                        </svg>
-                        Download Dokumen
-                    </a>
+                    @if($activeVersion)
+                        <a href="{{ route('tu.dokumen.download', $dokumen->dokumen_id) }}"
+                        class="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#050C9C] to-blue-700 text-white rounded-xl font-bold text-sm hover:from-blue-700 hover:to-[#050C9C] transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            </svg>
+                            Download Dokumen
+                        </a>
+                    @else
+                        <button disabled class="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gray-300 text-gray-500 rounded-xl font-bold text-sm cursor-not-allowed opacity-70">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            </svg>
+                            File Belum Tersedia
+                        </button>
+                    @endif
                 </div>
 
             </div>

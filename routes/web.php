@@ -74,8 +74,13 @@ Route::prefix('tu')
         // Monitoring
         Route::get('/monitoring', [MonitoringController::class, 'index'])->name('tu.monitoring');
         Route::get('/dokumen/{id}/detail', [MonitoringController::class, 'detailPage'])->name('tu.detail-dokumen');
-        Route::get('/dokumen/{id}/download', [MonitoringController::class, 'download'])->name('tu.dokumen.download');
-        Route::get('/dokumen/{id}/hak-akses', [MonitoringController::class, 'editHakAkses'])->name('tu.edit-hak-akses');
+        Route::get('/tu/dokumen/{id}/download', [MonitoringController::class, 'download'])
+            ->name('tu.dokumen.download');
+            
+        Route::get('/dokumen/{dokumen_id}/modal-data', [MonitoringController::class, 'getModalData'])
+            ->whereNumber('dokumen_id')
+            ->name('tu.dokumen.modal.data');
+
         Route::post('/dokumen/{id}/hak-akses', [MonitoringController::class, 'updateHakAkses'])->name('tu.update-hak-akses');
         Route::delete('/dokumen/{id}/hak-akses', [MonitoringController::class, 'removeHakAkses'])->name('tu.hak-akses.remove');
 

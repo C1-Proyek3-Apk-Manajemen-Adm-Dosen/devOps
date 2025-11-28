@@ -84,26 +84,6 @@ class MonitoringController extends Controller
         ]);
     }
 
-    public function editHakAkses($id)
-    {
-        $dokumen = Dokumen::with([
-            'kategori',
-            'accessControls' => function ($query) {
-                $query->where('status', 'ACC')
-                      ->orderBy('created_at', 'desc');
-            },
-            'accessControls.granteeUser'
-        ])->findOrFail($id);
-
-        $users = User::where('id_user', '!=', auth()->id())
-            ->where('status', true)
-            ->select('id_user', 'nama_lengkap', 'email', 'role')
-            ->orderBy('nama_lengkap')
-            ->get();
-
-        return view('tu.edit-hak-akses', compact('dokumen', 'users'));
-    }
-
     public function updateHakAkses(Request $request, $id)
     {
         $request->validate([
@@ -189,6 +169,71 @@ class MonitoringController extends Controller
         }
     }
 
+    /**
+     * API: Get semua data untuk modal (users + existing access)
+     * Endpoint ini mengembalikan:
+     * - allUsers: semua pengguna
+     * - existingAccess: pengguna yang sudah punya akses untuk dokumen ini
+     */
+    public function getModalData($dokumenId)
+    {
+        try {
+            // Verifikasi dokumen
+            $dokumen = Dokumen::findOrFail($dokumenId);
+
+            $allUsers = User::where('id_user', '!=', auth()->id())
+                ->where('status', true)
+                ->select('id_user', 'nama_lengkap', 'email', 'role')
+                ->orderBy('nama_lengkap')
+                ->get()
+                ->map(function($user) {
+                    return [
+                        'id_user' => $user->id_user,
+                        'nama_lengkap' => $user->nama_lengkap,
+                        'email' => $user->email,
+                        'role' => $user->role,
+                    ];
+                });
+
+            // Ambil existing access dengan status ACC, PENDING, TOLAK, REVISI
+            $existingAccess = AccessControl::where('document_id', $dokumenId)
+                ->whereIn('status', ['PENDING', 'ACC', 'TOLAK', 'REVISI'])
+                ->with(['granteeUser' => function($q) {
+                    $q->select('id_user', 'nama_lengkap', 'email', 'role');
+                }])
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function($access) {
+                    return [
+                        'id' => $access->id,
+                        'grantee_user_id' => $access->grantee_user_id,
+                        'document_id' => $access->document_id,
+                        'perm' => $access->perm,
+                        'status' => $access->status,
+                        'grantee_user' => [
+                            'id_user' => $access->granteeUser->id_user ?? null,
+                            'nama_lengkap' => $access->granteeUser->nama_lengkap ?? null,
+                            'email' => $access->granteeUser->email ?? null,
+                            'role' => $access->granteeUser->role ?? null,
+                        ]
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'allUsers' => $allUsers,
+                'existingAccess' => $existingAccess,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error("Get modal data error: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function detailPage($id)
     {
         $dokumen = Dokumen::with(['kategori', 'versi'])->findOrFail($id);
@@ -207,32 +252,22 @@ class MonitoringController extends Controller
 
     public function download($id)
     {
+        $dokumen = Dokumen::with(['versi'])->findOrFail($id);
 
-        $dokumen = Dokumen::findOrFail($id);
+        // Cari versi terbaru yang file-nya ada di minio
+        $latestVersion = $dokumen->versi
+            ->sortByDesc('nomor_versi')
+            ->firstWhere(fn($v) => $v->file_path && Storage::disk('minio')->exists($v->file_path));
 
-        if (!$dokumen->file_path) {
-            return back()->with('error', 'Path file tidak ditemukan di database.');
+        if (!$latestVersion) {
+            return back()->with('error', 'File dokumen tidak tersedia atau rusak di server.');
         }
 
-        try {
-            // Cek keberadaan file
-            if (!Storage::disk('minio')->exists($dokumen->file_path)) {
-                return back()->with('error', 'File fisik tidak ditemukan di server penyimpanan (MinIO).');
-            }
+        $extension = pathinfo($latestVersion->file_path, PATHINFO_EXTENSION);
+        $ext = $extension ? '.' . $extension : '';
+        $cleanTitle = preg_replace('/[^A-Za-z0-9\- ]/', '', $dokumen->judul);
+        $filename = "{$cleanTitle}_v{$latestVersion->nomor_versi}" . $ext;
 
-            $extension = pathinfo($dokumen->file_path, PATHINFO_EXTENSION);
-            $ext = $extension ? '.' . $extension : ''; 
-            
-            $cleanTitle = preg_replace('/[^A-Za-z0-9\- ]/', '', $dokumen->judul);
-            $downloadName = $cleanTitle . $ext;
-
-            return Storage::disk('minio')->download($dokumen->file_path, $downloadName);
-
-        } catch (\Exception $e) {
-            // Log error aslinya biar bisa dicek di storage/logs/laravel.log
-            Log::error("Gagal download file ID {$id}: " . $e->getMessage());
-
-            return back()->with('error', 'Gagal menghubungi server penyimpanan. Pastikan MinIO aktif. Detail: ' . $e->getMessage());
-        }
+        return Storage::disk('minio')->download($latestVersion->file_path, $filename);
     }
 }
