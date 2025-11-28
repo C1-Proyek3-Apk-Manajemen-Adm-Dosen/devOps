@@ -95,10 +95,15 @@
     <div class="bg-white rounded-3xl shadow-md overflow-hidden">
 
         {{-- Header biru --}}
-        <div class="px-6 py-4 md:px-8 md:py-5 bg-gradient-to-r from-[#050C9C] to-[#1554ff]">
-            <h2 class="text-white font-semibold text-lg">
-                Detail Dokumen
-            </h2>
+        <div class="bg-gradient-to-r from-[#050C9C] to-blue-700 px-5 py-2.5 flex items-center justify-between">
+            <h2 class="text-base font-bold text-white">Detail Dokumen</h2>
+
+            {{-- Tombol titik tiga / share --}}
+            <button type="button"
+                    onclick="openShareModal({{ $dokumen->dokumen_id }}, '{{ $dokumen->judul }}')"
+                    class="text-white/90 hover:text-white p-1.5 rounded-lg hover:bg-white/20 transition">
+                <i class="fa-solid fa-ellipsis-vertical text-lg"></i>
+            </button>
         </div>
 
         {{-- Isi --}}
@@ -257,7 +262,7 @@
                             <div class="flex items-center justify-between border border-gray-200 rounded-xl px-4 py-2 bg-gray-50">
                                 <span>Versi {{ $v->nomor_versi }}</span>
                                 <span class="text-xs text-gray-500">
-                                    {{ optional($v->created_at)->locale('id')->translatedFormat('d F Y') ?? '-' }}
+                                    {{ $v->created_at ? \Carbon\Carbon::parse($v->created_at)->locale('id')->translatedFormat('d F Y') : '-' }}
                                 </span>
                             </div>
                         @endforeach
