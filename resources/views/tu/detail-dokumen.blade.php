@@ -41,8 +41,15 @@
     <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
         
         {{-- HEADER BLUE --}}
-        <div class="bg-gradient-to-r from-[#050C9C] to-blue-700 px-5 py-2.5">
+        <div class="bg-gradient-to-r from-[#050C9C] to-blue-700 px-5 py-2.5 flex items-center justify-between">
             <h2 class="text-base font-bold text-white">Detail Dokumen</h2>
+
+            {{-- Tombol titik tiga / share --}}
+            <button type="button"
+                    onclick="openShareModal({{ $dokumen->dokumen_id }}, '{{ $dokumen->judul }}')"
+                    class="text-white/90 hover:text-white p-1.5 rounded-lg hover:bg-white/20 transition">
+                <i class="fa-solid fa-ellipsis-vertical text-lg"></i>
+            </button>
         </div>
 
         {{-- CONTENT 2 KOLOM --}}
@@ -146,6 +153,10 @@
     </div>
 
 </div>
+
+{{-- Include Share Modal Component --}}
+@include('components.share-modal')
+
 @endsection
 
 @push('styles')
@@ -154,4 +165,5 @@
 
 @push('scripts')
 <script src="{{ asset('js/tu/detail-dokumen.js') }}"></script>
+@vite('resources/js/share-link.js')
 @endpush

@@ -19,6 +19,8 @@ use App\Http\Controllers\Dosen\UploadDokumenDosenController;
 use App\Http\Controllers\Dosen\DashboardController as DosenDashboardController;
 use App\Http\Controllers\Dosen\DosenController;
 
+use App\Http\Controllers\ShareLinkController;
+
 use App\Models\Dokumen;
 use App\Models\Kategori;
 use App\Models\User;
@@ -45,6 +47,9 @@ Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+
+Route::get('/dokumen/{id}/share-link', [ShareLinkController::class, 'generate']);
+Route::get('/share/{hash}', [ShareLinkController::class, 'open']);
 
 
 /*
@@ -123,6 +128,9 @@ Route::prefix('dosen')
 
         Route::get('/dokumen/{id}/download', [DosenController::class, 'download'])
             ->name('dokumen.download'); // Hasil: dosen.dokumen.download
+        
+        Route::post('/dokumen/{id}/upload-versi', [DosenController::class, 'uploadVersi'])
+            ->name('upload-versi');
 
         Route::get('/portofolio', fn() => view('dosen.portofolio'))->name('portofolio');
         Route::get('/riwayat', fn() => view('dosen.riwayat'))->name('riwayat');
