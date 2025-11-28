@@ -41,21 +41,23 @@
             Document Link
         </label>
 
-        <div class="relative mb-6">
-            <input type="text"
-                   id="share-link-input"
-                   readonly
-                   class="w-full rounded-xl border-2 border-gray-200 px-4 py-3 pr-24 text-sm bg-gray-50 focus:outline-none focus:border-[#050C9C] transition-colors font-mono text-gray-700">
-            <button type="button"
-                    onclick="copyShareLink()"
-                    class="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 text-sm font-semibold rounded-lg bg-gradient-to-r from-[#050C9C] to-[#0A1D56] text-white hover:shadow-lg transition-all duration-200 hover:scale-105 active:scale-95">
-                <span class="flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                    </svg>
-                    Copy
-                </span>
-            </button>
+        <div class="mb-6">
+            <div class="flex items-stretch gap-2">
+                <input type="text"
+                       id="share-link-input"
+                       readonly
+                       class="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-sm bg-gray-50 focus:outline-none focus:border-[#050C9C] transition-colors font-mono text-gray-700 overflow-hidden text-ellipsis">
+                <button type="button"
+                        onclick="copyShareLink()"
+                        class="shrink-0 px-4 py-3 text-sm font-semibold rounded-lg bg-gradient-to-r from-[#050C9C] to-[#0A1D56] text-white hover:shadow-lg transition-all duration-200 hover:scale-105 active:scale-95">
+                    <span class="flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                        </svg>
+                        Copy
+                    </span>
+                </button>
+            </div>
         </div>
 
         <!-- Footer -->

@@ -1,10 +1,7 @@
 @php
-    $chunk = $chunk ?? 5; // maximum page buttons to show in the window (not counting first/last)
+    $chunk = $chunk ?? 5;
     $current = $paginator->currentPage();
     $total = $paginator->lastPage();
-
-    // If total pages small, show all
-    $showAllThreshold = $chunk + 2; // small extra for first+last
 
     // Helper to build url preserving query
     $purl = function ($p) {
@@ -13,80 +10,91 @@
 @endphp
 
 @if ($paginator->hasPages())
-    <nav class="flex items-center justify-between gap-3" role="navigation" aria-label="Pagination">
-        <div class="text-sm text-gray-500">
-            Menampilkan {{ $paginator->firstItem() }}–{{ $paginator->lastItem() }} dari {{ $paginator->total() }} hasil
-        </div>
-
-        <div class="flex items-center gap-2">
-            {{-- Prev arrow --}}
+    <nav class="flex items-center justify-end" role="navigation" aria-label="Pagination">
+        <div class="flex items-center gap-1.5">
+            {{-- Prev --}}
             @if ($current > 1)
-                <a href="{{ ($purl)($current - 1) }}" class="w-9 h-9 inline-flex items-center justify-center rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50" aria-label="Sebelumnya">&larr;</a>
+                <a href="{{ ($purl)($current - 1) }}"
+                   class="px-2.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-[#050C9C] hover:text-white hover:border-[#050C9C] transition-all duration-200 shadow-sm"
+                   aria-label="Sebelumnya">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </a>
             @else
-                <span class="w-9 h-9 inline-flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-default" aria-disabled="true">&larr;</span>
+                <span class="px-2.5 py-1.5 text-xs font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed"
+                      aria-disabled="true">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </span>
             @endif
 
-            {{-- If small total, render all pages --}}
-            @if ($total <= $showAllThreshold)
-                @for ($i = 1; $i <= $total; $i++)
-                    @if ($i == $current)
-                        <span class="w-9 h-9 inline-flex items-center justify-center rounded-lg bg-[#050C9C] text-white font-semibold">{{ $i }}</span>
-                    @else
-                        <a href="{{ ($purl)($i) }}" class="w-9 h-9 inline-flex items-center justify-center rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">{{ $i }}</a>
-                    @endif
-                @endfor
+            @php
+                // Determine sliding window excluding first/last
+                $half = (int) floor(($chunk - 2) / 2); // reserve slots for first/last
+                $windowStart = max(2, $current - $half);
+                $windowEnd = min($total - 1, $current + $half);
+                // widen window if it's short
+                while ($windowEnd - $windowStart + 1 < ($chunk - 2) && $windowStart > 2) {
+                    $windowStart--;
+                }
+                while ($windowEnd - $windowStart + 1 < ($chunk - 2) && $windowEnd < $total - 1) {
+                    $windowEnd++;
+                }
+            @endphp
 
+            {{-- First page --}}
+            @if (1 == $current)
+                <span class="px-3 py-1.5 text-xs font-bold text-white bg-[#050C9C] rounded-lg shadow-md">1</span>
             @else
-                {{-- Always show first page --}}
-                @if (1 == $current)
-                    <span class="w-9 h-9 inline-flex items-center justify-center rounded-lg bg-[#050C9C] text-white font-semibold">1</span>
+                <a href="{{ ($purl)(1) }}" class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-[#050C9C] hover:text-white hover:border-[#050C9C] transition-all duration-200 shadow-sm">1</a>
+            @endif
+
+            {{-- Left ellipsis --}}
+            @if ($windowStart > 2)
+                <span class="px-2 text-gray-400">...</span>
+            @endif
+
+            {{-- Middle window --}}
+            @for ($i = $windowStart; $i <= $windowEnd; $i++)
+                @if ($i == $current)
+                    <span class="px-3 py-1.5 text-xs font-bold text-white bg-[#050C9C] rounded-lg shadow-md">{{ $i }}</span>
                 @else
-                    <a href="{{ ($purl)(1) }}" class="w-9 h-9 inline-flex items-center justify-center rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">1</a>
+                    <a href="{{ ($purl)($i) }}" class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-[#050C9C] hover:text-white hover:border-[#050C9C] transition-all duration-200 shadow-sm">{{ $i }}</a>
                 @endif
+            @endfor
 
-                {{-- Calculate window around current --}}
-                @php
-                    $half = (int) floor($chunk / 2);
-                    $start = max(2, $current - $half);
-                    $end = min($total - 1, $start + $chunk - 1);
-                    if ($end - $start + 1 < $chunk) {
-                        $start = max(2, $end - $chunk + 1);
-                    }
-                @endphp
+            {{-- Right ellipsis --}}
+            @if ($windowEnd < $total - 1)
+                <span class="px-2 text-gray-400">...</span>
+            @endif
 
-                {{-- Left ellipsis if needed --}}
-                @if ($start > 2)
-                    <span class="px-2 text-gray-400">…</span>
-                @endif
-
-                {{-- Page buttons in window --}}
-                @for ($i = $start; $i <= $end; $i++)
-                    @if ($i == $current)
-                        <span class="w-9 h-9 inline-flex items-center justify-center rounded-lg bg-[#050C9C] text-white font-semibold">{{ $i }}</span>
-                    @else
-                        <a href="{{ ($purl)($i) }}" class="w-9 h-9 inline-flex items-center justify-center rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">{{ $i }}</a>
-                    @endif
-                @endfor
-
-                {{-- Right ellipsis if needed --}}
-                @if ($end < $total - 1)
-                    <span class="px-2 text-gray-400">…</span>
-                @endif
-
-                {{-- Last page --}}
+            {{-- Last page (only if more than one page) --}}
+            @if ($total > 1)
                 @if ($current == $total)
-                    <span class="w-9 h-9 inline-flex items-center justify-center rounded-lg bg-[#050C9C] text-white font-semibold">{{ $total }}</span>
+                    <span class="px-3 py-1.5 text-xs font-bold text-white bg-[#050C9C] rounded-lg shadow-md">{{ $total }}</span>
                 @else
-                    <a href="{{ ($purl)($total) }}" class="w-9 h-9 inline-flex items-center justify-center rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">{{ $total }}</a>
+                    <a href="{{ ($purl)($total) }}" class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-[#050C9C] hover:text-white hover:border-[#050C9C] transition-all duration-200 shadow-sm">{{ $total }}</a>
                 @endif
-
             @endif
 
-            {{-- Next arrow --}}
+            {{-- Next --}}
             @if ($current < $total)
-                <a href="{{ ($purl)($current + 1) }}" class="w-9 h-9 inline-flex items-center justify-center rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50" aria-label="Berikutnya">&rarr;</a>
+                <a href="{{ ($purl)($current + 1) }}"
+                   class="px-2.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-[#050C9C] hover:text-white hover:border-[#050C9C] transition-all duration-200 shadow-sm"
+                   aria-label="Berikutnya">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </a>
             @else
-                <span class="w-9 h-9 inline-flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-default" aria-disabled="true">&rarr;</span>
+                <span class="px-2.5 py-1.5 text-xs font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed"
+                      aria-disabled="true">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </span>
             @endif
         </div>
     </nav>
