@@ -38,4 +38,8 @@ class User extends Authenticatable
     {
         return $this->{$this->primaryKey};
     }
+    public function profilDosen()
+    {
+        return $this->hasOne(ProfilDosen::class, 'id_user', 'id_user');
+    }
 }
