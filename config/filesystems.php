@@ -26,7 +26,11 @@ return [
             'bucket' => env('MINIO_BUCKET'),
             'endpoint' => env('MINIO_ENDPOINT'),
             'use_path_style_endpoint' => env('MINIO_USE_PATH_STYLE_ENDPOINT', true),
-            'url' => env('MINIO_URL'),
+
+            // WAJIB GINI → url = endpoint, bukan MINIO_URL
+            'url' => env('MINIO_ENDPOINT'),
+
+            // OPTIONAL tapi direkomendasikan
             'visibility' => 'public',
         ],
 
