@@ -252,31 +252,22 @@ class MonitoringController extends Controller
 
     public function download($id)
     {
+        $dokumen = Dokumen::with(['versi'])->findOrFail($id);
 
-        $dokumen = Dokumen::findOrFail($id);
+        // Cari versi terbaru yang file-nya ada di minio
+        $latestVersion = $dokumen->versi
+            ->sortByDesc('nomor_versi')
+            ->firstWhere(fn($v) => $v->file_path && Storage::disk('minio')->exists($v->file_path));
 
-        if (!$dokumen->file_path) {
-            return back()->with('error', 'Path file tidak ditemukan di database.');
+        if (!$latestVersion) {
+            return back()->with('error', 'File dokumen tidak tersedia atau rusak di server.');
         }
 
-        try {
-            // Cek keberadaan file
-            if (!Storage::disk('minio')->exists($dokumen->file_path)) {
-                return back()->with('error', 'File fisik tidak ditemukan di server penyimpanan (MinIO).');
-            }
+        $extension = pathinfo($latestVersion->file_path, PATHINFO_EXTENSION);
+        $ext = $extension ? '.' . $extension : '';
+        $cleanTitle = preg_replace('/[^A-Za-z0-9\- ]/', '', $dokumen->judul);
+        $filename = "{$cleanTitle}_v{$latestVersion->nomor_versi}" . $ext;
 
-            $extension = pathinfo($dokumen->file_path, PATHINFO_EXTENSION);
-            $ext = $extension ? '.' . $extension : ''; 
-            
-            $cleanTitle = preg_replace('/[^A-Za-z0-9\- ]/', '', $dokumen->judul);
-            $downloadName = $cleanTitle . $ext;
-
-            return Storage::disk('minio')->download($dokumen->file_path, $downloadName);
-
-        } catch (\Exception $e) {
-            Log::error("Gagal download file ID {$id}: " . $e->getMessage());
-
-            return back()->with('error', 'Gagal menghubungi server penyimpanan. Pastikan MinIO aktif. Detail: ' . $e->getMessage());
-        }
+        return Storage::disk('minio')->download($latestVersion->file_path, $filename);
     }
 }
