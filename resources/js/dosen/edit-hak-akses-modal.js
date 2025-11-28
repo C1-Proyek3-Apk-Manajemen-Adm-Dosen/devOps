@@ -318,12 +318,23 @@ async function handleAddAccess() {
     const checked = Array.from(document.querySelectorAll('.hak-akses-checkbox:checked'));
     
     if (checked.length === 0) {
-        showAlert('Pilih pengguna terlebih dahulu!', 'error');
+        Swal.fire({
+            title: 'Peringatan!',
+            text: 'Pilih pengguna terlebih dahulu!',
+            icon: 'warning',
+            confirmButtonColor: '#f59e0b',
+            customClass: {
+                popup: 'rounded-2xl'
+            }
+        });
         return;
     }
     
     const permission = document.querySelector('input[name="permission"]:checked')?.value ?? 'READ';
     const btn = document.getElementById('addAccessBtn');
+    
+    const originalBtnHTML = btn.innerHTML;
+    
     btn.disabled = true;
     btn.innerHTML = `
         <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -334,6 +345,7 @@ async function handleAddAccess() {
     `;
     
     let successCount = 0;
+    let errorMessages = [];
     
     for (const checkbox of checked) {
         const userId = checkbox.value;
@@ -341,11 +353,18 @@ async function handleAddAccess() {
         const userName = item.querySelector('.text-sm.font-medium')?.textContent?.trim() || 'User';
         
         try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            
+            if (!csrfToken) {
+                throw new Error('CSRF token tidak ditemukan');
+            }
+            
             const res = await fetch(`/dosen/dokumen/${currentDokumenId}/hak-akses`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
                 },
                 body: JSON.stringify({
                     user_id: userId,
@@ -353,27 +372,55 @@ async function handleAddAccess() {
                 })
             });
             
+            if (!res.ok) {
+                const errorText = await res.text();
+                console.error('❌ Response error:', errorText);
+                throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            }
+            
             const data = await res.json();
             
             if (data.success) {
                 successCount++;
                 console.log(`✅ ${userName} - ${data.message}`);
             } else {
-                showAlert(`${userName}: ${data.message}`, 'error');
+                errorMessages.push(`${userName}: ${data.message}`);
             }
         } catch (err) {
             console.error('❌ Error:', err);
-            showAlert(`Gagal tambah akses untuk ${userName}`, 'error');
+            errorMessages.push(`${userName}: ${err.message}`);
         }
     }
     
+    btn.disabled = false;
+    btn.innerHTML = originalBtnHTML;
+    
     if (successCount > 0) {
-        showAlert(`${successCount} akses berhasil ditambahkan`, 'success');
+        Swal.fire({
+            title: 'Berhasil!',
+            html: `<strong>${successCount}</strong> akses berhasil ditambahkan`,
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false,
+            customClass: {
+                popup: 'rounded-2xl'
+            }
+        });
+        
         setTimeout(() => loadModalData(currentDokumenId), 500);
     }
     
-    btn.disabled = false;
-    btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg><span id="addBtnText">Tambah Akses</span>';
+    if (errorMessages.length > 0) {
+        Swal.fire({
+            title: 'Ada Error!',
+            html: errorMessages.join('<br>'),
+            icon: 'error',
+            confirmButtonColor: '#ef4444',
+            customClass: {
+                popup: 'rounded-2xl'
+            }
+        });
+    }
 }
 
 /**
@@ -476,31 +523,6 @@ function resetAddAccessForm() {
     document.getElementById('searchUser').value = '';
     document.querySelectorAll('.user-checkbox-item').forEach(item => item.classList.remove('hidden'));
     updateUIState();
-}
-
-/**
- * Show alert
- */
-function showAlert(message, type) {
-    const colors = {
-        'success': 'bg-green-500',
-        'error': 'bg-red-500',
-        'warning': 'bg-yellow-500',
-        'info': 'bg-blue-500'
-    };
-    
-    const alert = document.createElement('div');
-    alert.className = `fixed top-4 right-4 ${colors[type] || 'bg-blue-500'} text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 z-[60]`;
-    alert.innerHTML = `
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-        </svg>
-        <span class="font-medium">${escapeHtml(String(message))}</span>
-    `;
-    
-    document.body.appendChild(alert);
-    
-    setTimeout(() => alert.remove(), 3000);
 }
 
 /**
