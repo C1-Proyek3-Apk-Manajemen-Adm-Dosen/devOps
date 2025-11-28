@@ -116,13 +116,14 @@
 
                             <td class="py-3 px-4">
                                 <div class="flex items-center gap-2">
-                                    <a href="{{ route('tu.edit-hak-akses', $d->dokumen_id) }}" 
-                                       class="inline-flex items-center gap-1 px-3 py-1.5 bg-[#050C9C] text-white text-xs font-medium rounded-lg hover:bg-[#0818d4] transition-all duration-200 shadow-sm hover:shadow-md">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                                        </svg>
-                                        Hak Akses
-                                    </a>
+                                    <button type="button"
+                                        onclick="openEditHakAksesModal({{ $d->dokumen_id }}, '{{ $d->judul }}', '{{ $d->nomor_dokumen }}')"
+                                        class="inline-flex items-center gap-1 px-3 py-1.5 bg-[#050C9C] text-white text-xs font-medium rounded-lg hover:bg-[#0818d4] transition-all duration-200 shadow-sm hover:shadow-md">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                    </svg>
+                                    Hak Akses
+                                </button>
 
                                     <a href="{{ route('tu.detail-dokumen', $d->dokumen_id) }}"
                                        class="inline-flex items-center gap-1 px-3 py-1.5 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-100 hover:text-[#050C9C] transition-all duration-200">
@@ -250,12 +251,20 @@
 
     </div>
 </div>
+
+@include('tu.modal-edit-hak-akses')
 @endsection
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/tu/monitoring.css') }}">
 @endpush
 
 @push('scripts')
-<script src="{{ asset('js/tu/monitoring.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    @vite([
+        'resources/js/tu/monitoring.js',
+        'resources/js/tu/edit-hak-akses-modal.js',
+        'resources/css/tu/monitoring.css',
+        'resources/css/tu/edit-hak-akses-modal.css'
+    ])
 @endpush
