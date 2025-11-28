@@ -18,6 +18,7 @@ use App\Http\Controllers\TU\RiwayatController;
 use App\Http\Controllers\Dosen\UploadDokumenDosenController;
 use App\Http\Controllers\Dosen\DashboardController as DosenDashboardController;
 use App\Http\Controllers\Dosen\DosenController;
+use App\Http\Controllers\ShareLinkController;
 
 //Kaprodi Controller
 use App\Http\Controllers\Kaprodi\DashboardController as KaprodiDashboardController;
@@ -49,6 +50,8 @@ Route::get('auth/google', [AuthController::class, 'redirectToGoogle'])->name('go
 Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/dokumen/{id}/share-link', [ShareLinkController::class, 'generate']);
+Route::get('/share/{hash}', [ShareLinkController::class, 'open']);
 
 
 
