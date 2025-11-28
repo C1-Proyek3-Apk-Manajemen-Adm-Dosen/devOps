@@ -68,6 +68,7 @@
         'resources/js/modal.js',
         'resources/js/logoutModal.js',
         'resources/js/app.js',
+        'resources/js/share-link.js',
     ])
 
     {{-- ======================================================= --}}
@@ -101,6 +102,8 @@
 
     {{-- Modal Logout --}}
     @include('components.modals.logout-modal')
+    @include('components.share-modal')
+
 
 </body>
 </html>
