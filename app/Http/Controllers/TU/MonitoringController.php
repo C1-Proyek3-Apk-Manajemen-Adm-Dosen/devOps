@@ -18,7 +18,10 @@ class MonitoringController extends Controller
         $tab    = $request->get('tab', 'semua');
         $search = $request->get('search');
 
-        $query = Dokumen::with(['kategori', 'creator'])->forTU();
+        $query = Dokumen::with(['kategori', 'creator', 'versi' => function($q) {
+                $q->latest('nomor_versi'); 
+            }])
+            ->forTU();
 
         if ($search) {
             $query->whereRaw('LOWER(judul) LIKE ?', ['%' . strtolower($search) . '%']);
@@ -236,38 +239,121 @@ class MonitoringController extends Controller
 
     public function detailPage($id)
     {
-        $dokumen = Dokumen::with(['kategori', 'versi'])->findOrFail($id);
-        $fileExists = false;
-        if ($dokumen->file_path) {
+        $dokumen = Dokumen::with(['kategori', 'versi', 'creator'])->findOrFail($id);
+        
+        $allFilePaths = collect([$dokumen->file_path])
+            ->merge($dokumen->versi->pluck('file_path'))
+            ->filter()
+            ->unique()
+            ->values();
+        
+        $fileExistsMap = [];
+        foreach ($allFilePaths as $path) {
             try {
-                $fileExists = Storage::disk('minio')->exists($dokumen->file_path);
+                $fileExistsMap[$path] = Storage::disk('minio')->exists($path);
             } catch (\Exception $e) {
-                Log::warning("File check failed for dokumen ID {$id}: " . $e->getMessage());
-                $fileExists = false;
+                Log::warning("File check failed for {$path}: " . $e->getMessage());
+                $fileExistsMap[$path] = false;
             }
         }
+        
+        $fileExists = $fileExistsMap[$dokumen->file_path] ?? false;
 
-        return view('tu.detail-dokumen', compact('dokumen', 'fileExists'));
+        $latestAccess = AccessControl::where('document_id', $id)
+            ->whereHas('granteeUser', function($q) {
+                $q->where('role', 'koordinator'); 
+            })
+            ->latest('created_at')
+            ->first();
+        
+        $statusDokumen = $latestAccess ? $latestAccess->status : 'PENDING';
+
+        return view('tu.detail-dokumen', compact('dokumen', 'fileExists', 'fileExistsMap', 'statusDokumen'));
     }
 
-    public function download($id)
+    public function download($id, Request $request)
     {
         $dokumen = Dokumen::with(['versi'])->findOrFail($id);
+        
+        $versiNomor = $request->get('versi');
+        
+        if ($versiNomor) {
+            // Download versi spesifik
+            $versi = \App\Models\VersiDokumen::where('dokumen_id', $id)
+                ->where('nomor_versi', $versiNomor)
+                ->firstOrFail();
+            
+            $filePath = $versi->file_path;
+            $version = '_v' . $versiNomor;
+        } else {
+            // Download versi terakhir
+            $latestVersion = $dokumen->versi
+                ->sortByDesc('nomor_versi')
+                ->firstWhere(fn($v) => $v->file_path && Storage::disk('minio')->exists($v->file_path));
 
-        // Cari versi terbaru yang file-nya ada di minio
-        $latestVersion = $dokumen->versi
-            ->sortByDesc('nomor_versi')
-            ->firstWhere(fn($v) => $v->file_path && Storage::disk('minio')->exists($v->file_path));
-
-        if (!$latestVersion) {
-            return back()->with('error', 'File dokumen tidak tersedia atau rusak di server.');
+            if (!$latestVersion) {
+                return back()->with('error', 'File dokumen tidak tersedia atau rusak di server.');
+            }
+            
+            $filePath = $latestVersion->file_path;
+            $version = '_v' . $latestVersion->nomor_versi;
         }
 
-        $extension = pathinfo($latestVersion->file_path, PATHINFO_EXTENSION);
+        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
         $ext = $extension ? '.' . $extension : '';
         $cleanTitle = preg_replace('/[^A-Za-z0-9\- ]/', '', $dokumen->judul);
-        $filename = "{$cleanTitle}_v{$latestVersion->nomor_versi}" . $ext;
+        $filename = "{$cleanTitle}{$version}" . $ext;
 
-        return Storage::disk('minio')->download($latestVersion->file_path, $filename);
+        return Storage::disk('minio')->download($filePath, $filename);
+    }
+
+    /**
+     * Upload versi baru dokumen (untuk TU)
+     */
+    public function uploadVersi(Request $request, $id)
+    {
+        $request->validate([
+            'file' => 'required|file|max:20480', // 20MB
+            'catatan_perubahan' => 'nullable|string|max:500',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Cek dokumen 
+            $dokumen = Dokumen::findOrFail($id);
+
+            // Dapatkan versi terakhir
+            $versiTerakhir = $dokumen->versi()->latest('nomor_versi')->first();
+            $nomorVersiBaru = $versiTerakhir ? $versiTerakhir->nomor_versi + 1 : 1;
+
+            // Upload file baru ke MinIO
+            $file = $request->file('file');
+            $extension = $file->getClientOriginalExtension();
+            $filename = 'dokumen_' . $id . '_v' . $nomorVersiBaru . '_' . time() . '.' . $extension;
+            $filePath = $file->storeAs('dokumen', $filename, 'minio');
+
+            // Simpan ke versi_dokumen dengan catatan
+            \App\Models\VersiDokumen::create([
+                'dokumen_id' => $id,
+                'nomor_versi' => $nomorVersiBaru,
+                'file_path' => $filePath,
+                'catatan_perubahan' => $request->catatan_perubahan, 
+                'tanggal_dokumen' => now(),
+                'upload_by' => auth()->id(),
+            ]);
+
+            DB::commit();
+
+            return redirect()
+                ->route('tu.detail-dokumen', $id)
+                ->with('success', 'Versi baru (v' . $nomorVersiBaru . ') berhasil diupload!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Upload versi gagal (TU): " . $e->getMessage());
+            
+            return back()->with('error', 'Gagal upload versi baru: ' . $e->getMessage());
+        }
     }
 }

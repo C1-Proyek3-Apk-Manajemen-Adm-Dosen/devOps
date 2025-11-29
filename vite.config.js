@@ -16,6 +16,7 @@ export default defineConfig({
                 'resources/js/tu/riwayat.js',
                 'resources/js/tu/monitoring.js',
                 'resources/js/tu/edit-hak-akses-modal.js',
+                'resources/js/tu/detail-dokumen.js',
                 
                 'resources/js/dosen/dokumen-saya.js',
                 'resources/js/dosen/detail-dokumen.js',
@@ -24,9 +25,8 @@ export default defineConfig({
                 'resources/css/dosen/dokumen-saya.css',
                 'resources/css/dosen/edit-hak-akses.css',
                 'resources/css/dosen/detail-dokumen.css',
-
+                'resources/css/tu/detail-dokumen.css',
                 'resources/css/tu/edit-hak-akses-modal.css',
-
                 'resources/css/tu/monitoring.css',
             ],
             refresh: true,

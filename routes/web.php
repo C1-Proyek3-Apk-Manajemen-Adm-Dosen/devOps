@@ -83,6 +83,8 @@ Route::prefix('tu')
 
         Route::post('/dokumen/{id}/hak-akses', [MonitoringController::class, 'updateHakAkses'])->name('tu.update-hak-akses');
         Route::delete('/dokumen/{id}/hak-akses', [MonitoringController::class, 'removeHakAkses'])->name('tu.hak-akses.remove');
+        Route::post('/dokumen/{id}/upload-versi', [MonitoringController::class, 'uploadVersi'])
+            ->name('tu.upload-versi');
 
         // Upload Dokumen (GET form)
         Route::get('/upload-dokumen', function () {

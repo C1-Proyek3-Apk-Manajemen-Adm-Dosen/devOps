@@ -78,9 +78,19 @@
                                         </svg>
                                     </div>
                                     <div>
-                                        <p class="font-semibold text-sm text-gray-800 group-hover:text-[#050C9C] transition-colors">
-                                            {{ $d->judul ?? '-' }}
-                                        </p>
+                                        <div class="flex items-center gap-2">
+                                            <p class="font-semibold text-sm text-gray-800 group-hover:text-[#050C9C] transition-colors">
+                                                {{ $d->judul ?? '-' }}
+                                            </p>
+                                            @php
+                                                $versiTerbaru = $d->versi->first(); 
+                                            @endphp
+                                            @if($versiTerbaru)
+                                                <span class="px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[9px] font-bold">
+                                                    v{{ $versiTerbaru->nomor_versi }}
+                                                </span>
+                                            @endif
+                                        </div>
                                         <p class="text-[10px] text-gray-500">{{ $d->nomor_dokumen ?? 'No. Dokumen' }}</p>
                                     </div>
                                 </div>
