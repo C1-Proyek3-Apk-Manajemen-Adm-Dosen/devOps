@@ -166,51 +166,47 @@
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1.5">Riwayat Versi</label>
                     <div class="bg-gray-50 rounded-xl p-3 border border-gray-200 max-h-[200px] overflow-y-auto">
-                        @forelse($dokumen->versi()->orderByDesc('nomor_versi')->get() as $versi)
-                            <div class="py-2 border-b border-gray-200 last:border-0">
-                                <div class="flex items-center justify-between mb-1">
-                                    <div class="flex items-center gap-2">
-                                        <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">
-                                            v{{ $versi->nomor_versi }}
-                                        </span>
-                                        <span class="text-xs text-gray-600">
-                                            {{ \Carbon\Carbon::parse($versi->tanggal_dokumen)->format('d M Y') }}
-                                        </span>
-                                    </div>
-                                    
-                                    @php
-                                        try {
-                                            $versiFileExists = Storage::disk('minio')->exists($versi->file_path);
-                                        } catch (\Exception $e) {
-                                            $versiFileExists = false;
-                                        }
-                                    @endphp
-                                    
-                                    @if($versiFileExists)
-                                        <a href="{{ route('dosen.dokumen.download', ['id' => $dokumen->dokumen_id, 'versi' => $versi->nomor_versi]) }}" 
-                                        class="text-blue-600 hover:text-blue-800 transition-colors">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                            </svg>
-                                        </a>
-                                    @else
-                                        <button disabled class="text-gray-300 cursor-not-allowed">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                            </svg>
-                                        </button>
-                                    @endif
+                    @forelse($dokumen->versi()->orderByDesc('nomor_versi')->get() as $versi)
+                        <div class="py-2 border-b border-gray-200 last:border-0">
+                            <div class="flex items-center justify-between mb-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">
+                                        v{{ $versi->nomor_versi }}
+                                    </span>
+                                    <span class="text-xs text-gray-600">
+                                        {{ \Carbon\Carbon::parse($versi->tanggal_dokumen)->format('d M Y') }}
+                                    </span>
                                 </div>
                                 
-                                @if($versi->catatan_perubahan)
-                                    <p class="text-xs text-gray-600 italic mt-1 pl-2 border-l-2 border-blue-300">
-                                        "{{ $versi->catatan_perubahan }}"
-                                    </p>
+                                @php
+                                    $versiFileExists = $fileExistsMap[$versi->file_path] ?? false;
+                                @endphp
+                                
+                                @if($versiFileExists)
+                                    <a href="{{ route('dosen.dokumen.download', ['id' => $dokumen->dokumen_id, 'versi' => $versi->nomor_versi]) }}" 
+                                    class="text-blue-600 hover:text-blue-800 transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                        </svg>
+                                    </a>
+                                @else
+                                    <button disabled class="text-gray-300 cursor-not-allowed">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                        </svg>
+                                    </button>
                                 @endif
                             </div>
-                        @empty
-                            <p class="text-xs text-gray-500 text-center py-2">Belum ada versi</p>
-                        @endforelse
+                            
+                            @if($versi->catatan_perubahan)
+                                <p class="text-xs text-gray-600 italic mt-1 pl-2 border-l-2 border-blue-300">
+                                    "{{ $versi->catatan_perubahan }}"
+                                </p>
+                            @endif
+                        </div>
+                    @empty
+                        <p class="text-xs text-gray-500 text-center py-2">Belum ada versi</p>
+                    @endforelse
                     </div>
                 </div>
             </div>

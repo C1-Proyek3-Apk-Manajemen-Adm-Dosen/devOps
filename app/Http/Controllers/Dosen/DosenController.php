@@ -75,18 +75,24 @@ class DosenController extends Controller
             ->where('created_by', Auth::id())
             ->findOrFail($id);
         
-        // Cek file exists
-        $fileExists = false;
-        if ($dokumen->file_path) {
+        $allFilePaths = collect([$dokumen->file_path])
+            ->merge($dokumen->versi->pluck('file_path'))
+            ->filter()
+            ->unique()
+            ->values();
+        
+        $fileExistsMap = [];
+        foreach ($allFilePaths as $path) {
             try {
-                $fileExists = Storage::disk('minio')->exists($dokumen->file_path);
+                $fileExistsMap[$path] = Storage::disk('minio')->exists($path);
             } catch (\Exception $e) {
-                Log::warning("File check failed for dokumen ID {$id}: " . $e->getMessage());
-                $fileExists = false;
+                Log::warning("File check failed for {$path}: " . $e->getMessage());
+                $fileExistsMap[$path] = false;
             }
         }
         
-
+        $fileExists = $fileExistsMap[$dokumen->file_path] ?? false;
+        
         $latestAccess = AccessControl::where('document_id', $id)
             ->whereHas('granteeUser', function($q) {
                 $q->where('role', 'koordinator'); 
@@ -96,7 +102,7 @@ class DosenController extends Controller
         
         $statusDokumen = $latestAccess ? $latestAccess->status : 'PENDING';
 
-        return view('dosen.detail-dokumen', compact('dokumen', 'fileExists', 'statusDokumen'));
+        return view('dosen.detail-dokumen', compact('dokumen', 'fileExists', 'statusDokumen', 'fileExistsMap'));
     }
 
     /**
