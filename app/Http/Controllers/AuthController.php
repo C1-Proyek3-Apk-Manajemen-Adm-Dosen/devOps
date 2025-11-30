@@ -100,6 +100,8 @@ class AuthController extends Controller
     private function redirectByRole($user)
     {
         switch ($user->role) {
+            case 'administrator':
+                return redirect()->route('admin.dashboard');
             case 'tu':
                 return redirect()->route('tu.dashboard');
             case 'koordinator':
