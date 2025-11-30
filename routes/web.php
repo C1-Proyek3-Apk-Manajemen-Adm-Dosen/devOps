@@ -211,7 +211,24 @@ Route::prefix('kaprodi')
                 
     });
 
+// ==================== ADMINISTRATOR ====================
+Route::prefix('admin')->middleware(['auth', 'checkRole:administrator'])->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])
+        ->name('admin.dashboard');
 
+    Route::get('/users', [\App\Http\Controllers\Admin\UserManagementController::class, 'index'])
+        ->name('admin.users.index');
+    Route::get('/users/create', [\App\Http\Controllers\Admin\UserManagementController::class, 'create'])
+        ->name('admin.users.create');
+    Route::post('/users', [\App\Http\Controllers\Admin\UserManagementController::class, 'store'])
+        ->name('admin.users.store');
+    Route::get('/users/{id}/edit', [\App\Http\Controllers\Admin\UserManagementController::class, 'edit'])
+        ->name('admin.users.edit');
+    Route::put('/users/{id}', [\App\Http\Controllers\Admin\UserManagementController::class, 'update'])
+        ->name('admin.users.update');
+    Route::delete('/users/{id}', [\App\Http\Controllers\Admin\UserManagementController::class, 'destroy'])
+        ->name('admin.users.destroy');
+});
 
 
 /*
