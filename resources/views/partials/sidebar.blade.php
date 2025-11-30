@@ -27,21 +27,21 @@ $current = request()->path(); // untuk cek halaman aktif
 
         {{-- Dashboard Admin --}}
         <a href="{{ route('admin.dashboard') }}"
-            class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition {{ request()->routeIs('admin.dashboard') ? 'bg-white text-[#050C9C] shadow-lg' : 'bg-[#050C9C] text-white hover:bg-white/10 hover:text-[#050C9C]' }}">
+            class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition {{ request()->routeIs('admin.dashboard') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
             <i class="fa-solid fa-gauge-high text-xl w-6 text-center"></i>
             <span class="font-semibold">Dashboard</span>
         </a>
 
         {{-- Manajemen Pengguna --}}
         <a href="{{ route('admin.users.index') }}"
-            class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition {{ request()->routeIs('admin.users.*') ? 'bg-white text-[#050C9C] shadow-lg' : 'bg-[#050C9C] text-white hover:bg-white/10 hover:text-[#050C9C]' }}">
+            class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition {{ request()->routeIs('admin.users.*') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
             <i class="fa-solid fa-users-cog text-xl w-6 text-center"></i>
             <span class="font-semibold">Kelola Pengguna</span>
         </a>
 
         {{-- Tambah Pengguna (Quick Access) --}}
         <a href="{{ route('admin.users.create') }}"
-            class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition {{ request()->routeIs('admin.users.create') ? 'bg-white text-[#050C9C] shadow-lg' : 'bg-[#050C9C] text-white hover:bg-white/10 hover:text-[#050C9C]' }}">
+            class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition {{ request()->routeIs('admin.users.create') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
             <i class="fa-solid fa-user-plus text-xl w-6 text-center"></i>
             <span class="font-semibold">Tambah Pengguna</span>
         </a>
