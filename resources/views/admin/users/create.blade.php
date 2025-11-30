@@ -1,7 +1,4 @@
 @extends('layouts.app')
-@push('styles')
-<link rel="stylesheet" href="{{ asset('css/override.css') }}">
-@endpush
 
 @section('title', 'Tambah Pengguna')
 

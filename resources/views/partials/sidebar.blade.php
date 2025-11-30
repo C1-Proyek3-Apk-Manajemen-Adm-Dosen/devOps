@@ -28,105 +28,105 @@ $current = request()->path(); // untuk cek halaman aktif
         {{-- Dashboard Admin --}}
         <a href="{{ route('admin.dashboard') }}"
             class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition {{ request()->routeIs('admin.dashboard') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
-            <i class="fa-solid fa-gauge-high text-xl w-6 text-center"></i>
+            <i class="fa-solid fa-users-cog text-xl w-6 text-center"></i>
             <span class="font-semibold">Dashboard</span>
         </a>
 
         {{-- Manajemen Pengguna --}}
         <a href="{{ route('admin.users.index') }}"
-            class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition {{ request()->routeIs('admin.users.*') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
-            <i class="fa-solid fa-users-cog text-xl w-6 text-center"></i>
-            <span class="font-semibold">Kelola Pengguna</span>
-        </a>
+                + class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition {{ request()->routeIs('admin.users.index') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
+                <i class="fa-solid fa-users-cog text-xl w-6 text-center"></i>
+                <span class="font-semibold">Kelola Pengguna</span>
+            </a>
 
-        {{-- Tambah Pengguna (Quick Access) --}}
-        <a href="{{ route('admin.users.create') }}"
-            class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition {{ request()->routeIs('admin.users.create') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
-            <i class="fa-solid fa-user-plus text-xl w-6 text-center"></i>
-            <span class="font-semibold">Tambah Pengguna</span>
-        </a>
+            {{-- Tambah Pengguna (Quick Access) --}}
+            <a href="{{ route('admin.users.create') }}"
+                class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition {{ request()->routeIs('admin.users.create') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
+                <i class="fa-solid fa-users-cog text-xl w-6 text-center"></i>
+                <span class="font-semibold">Tambah Pengguna</span>
+            </a>
 
-        {{-- Divider --}}
-        <div class="border-t border-white/20 my-2"></div>
-        @endif
-        {{-- ==================== DOSEN ==================== --}}
-        @if ($role === 'dosen')
-        <a href="{{ url('/dosen/dashboard') }}"
-            class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition
+            {{-- Divider --}}
+            <div class="border-t border-white/20 my-2"></div>
+            @endif
+            {{-- ==================== DOSEN ==================== --}}
+            @if ($role === 'dosen')
+            <a href="{{ url('/dosen/dashboard') }}"
+                class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition
                 {{ request()->is('dosen/dashboard') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
-            <i class="fas fa-home"></i> Dashboard
-        </a>
+                <i class="fas fa-home"></i> Dashboard
+            </a>
 
-        <a href="{{ url('/dosen/dokumen') }}"
-            class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition
+            <a href="{{ url('/dosen/dokumen') }}"
+                class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition
                 {{ request()->is('dosen/dokumen') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
-            <i class="fas fa-file-alt"></i> Dokumen Saya
-        </a>
+                <i class="fas fa-file-alt"></i> Dokumen Saya
+            </a>
 
-        <a href="{{ url('/dosen/upload') }}"
-            class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition
+            <a href="{{ url('/dosen/upload') }}"
+                class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition
                 {{ request()->is('dosen/upload') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
-            <i class="fas fa-upload"></i> Upload Dokumen
-        </a>
+                <i class="fas fa-upload"></i> Upload Dokumen
+            </a>
 
-        <a href="{{ url('/dosen/portofolio') }}"
-            class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold transition
+            <a href="{{ url('/dosen/portofolio') }}"
+                class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold transition
                 {{ request()->is('dosen/portofolio') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
-            <i class="fas fa-folder-open"></i> Portofolio
-        </a>
+                <i class="fas fa-folder-open"></i> Portofolio
+            </a>
 
-        <a href="{{ url('/dosen/riwayat') }}"
-            class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold transition
+            <a href="{{ url('/dosen/riwayat') }}"
+                class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold transition
                 {{ request()->is('dosen/riwayat') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
-            <i class="fas fa-history"></i> Riwayat Upload
-        </a>
+                <i class="fas fa-history"></i> Riwayat Upload
+            </a>
 
 
-        {{-- ==================== KAPRODI ==================== --}}
-        @elseif ($role === 'kaprodi')
-        <a href="{{ url('/kaprodi/dashboard') }}"
-            class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition
+            {{-- ==================== KAPRODI ==================== --}}
+            @elseif ($role === 'kaprodi')
+            <a href="{{ url('/kaprodi/dashboard') }}"
+                class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition
                 {{ request()->is('kaprodi/dashboard') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
-            <i class="fas fa-home"></i> Dashboard
-        </a>
+                <i class="fas fa-home"></i> Dashboard
+            </a>
 
-        <a href="{{ url('/kaprodi/daftar') }}"
-            class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition
+            <a href="{{ url('/kaprodi/daftar') }}"
+                class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition
                 {{ request()->is('kaprodi/daftar') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
-            <i class="fas fa-table"></i> Daftar Dokumen
-        </a>
+                <i class="fas fa-table"></i> Daftar Dokumen
+            </a>
 
-        {{-- ==================== TU ==================== --}}
-        @elseif ($role === 'tu')
-        <a href="{{ url('/tu/dashboard') }}"
-            class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition
+            {{-- ==================== TU ==================== --}}
+            @elseif ($role === 'tu')
+            <a href="{{ url('/tu/dashboard') }}"
+                class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition
                 {{ request()->is('tu/dashboard') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
-            <i class="fas fa-home"></i> Dashboard
-        </a>
-        <a href="{{ url('/tu/monitoring') }}"
-            class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="{{ url('/tu/monitoring') }}"
+                class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition
                 {{ request()->is('tu/monitoring') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
-            <i class="fas fa-users-cog"></i> Monitoring Dokumen
-        </a>
-        <a href="{{ url('/tu/upload-dokumen') }}"
-            class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition
+                <i class="fas fa-users-cog"></i> Monitoring Dokumen
+            </a>
+            <a href="{{ url('/tu/upload-dokumen') }}"
+                class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition
                 {{ request()->is('tu/upload-dokumen') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
-            <i class="fas fa-file-alt"></i> Upload Dokumen
-        </a>
-        <a href="{{ url('/tu/riwayat-upload') }}"
-            class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold transition
+                <i class="fas fa-file-alt"></i> Upload Dokumen
+            </a>
+            <a href="{{ url('/tu/riwayat-upload') }}"
+                class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold transition
                 {{ request()->is('tu/riwayat-upload') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
-            <i class="fas fa-file-alt"></i> Riwayat Upload
-        </a>
-        @endif
-        <!-- Tombol Logout -->
-        <div class="mt-auto mb-6 px-4">
-            <button id="openLogoutModal"
-                class="w-full flex items-center gap-3 justify-center border border-gray-300 hover:bg-red-100 text-red-500 font-semibold py-3 rounded-full transition duration-200">
-                <i class="fas fa-sign-out-alt"></i>
-                Logout
-            </button>
-        </div>
+                <i class="fas fa-file-alt"></i> Riwayat Upload
+            </a>
+            @endif
+            <!-- Tombol Logout -->
+            <div class="mt-auto mb-6 px-4">
+                <button id="openLogoutModal"
+                    class="w-full flex items-center gap-3 justify-center border border-gray-300 hover:bg-red-100 text-red-500 font-semibold py-3 rounded-full transition duration-200">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
 
     </nav>
 </aside>
