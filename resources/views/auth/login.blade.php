@@ -31,20 +31,23 @@
         <!-- Right Side (Card Login) -->
         <div class="w-full md:w-1/2 bg-white rounded-3xl shadow-lg p-10 md:p-14 flex flex-col justify-center">
             <h2 class="text-2xl md:text-3xl font-bold mb-6 text-gray-900 text-center md:text-left">Log in</h2>
-            <form id="loginForm" action="#" method="POST" class="space-y-5">
+            <form id="loginForm" action="{{ route('login.post') }}" method="POST" class="space-y-5">
                 @csrf
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input type="email" id="email" name="email" placeholder="Masukkan email"
-                        class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-100 focus:bg-white focus:ring-2 focus:ring-[#050C9C] focus:outline-none transition">
+                    <input type="text" id="email" name="email" placeholder="Masukkan email" value="{{ old('email') }}" inputmode="email" autocomplete="email"
+                        class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-100 focus:bg-white focus:ring-2 focus:ring-[#050C9C] focus:outline-none transition @error('email') border-red-500 @enderror">
                     <p id="emailError" class="text-red-500 text-xs mt-1 hidden"></p>
+                    @error('email')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                     <div class="relative">
                         <input type="password" id="password" name="password" placeholder="Masukkan password"
-                            class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-100 focus:bg-white focus:ring-2 focus:ring-[#050C9C] focus:outline-none transition">
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-100 focus:bg-white focus:ring-2 focus:ring-[#050C9C] focus:outline-none transition @error('password') border-red-500 @enderror">
                         <button type="button" id="togglePassword"
                             class="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
                             <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
@@ -57,12 +60,18 @@
                         </button>
                     </div>
                     <p id="passwordError" class="text-red-500 text-xs mt-1 hidden"></p>
+                    @error('password')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <button type="submit"
                     class="w-full bg-[#050C9C] hover:bg-[#3572EF] text-white font-semibold py-3 rounded-xl transition duration-200">
                     Log In
                 </button>
+                @if(session('error'))
+                    <p class="text-center text-red-600 text-sm mt-2">{{ session('error') }}</p>
+                @endif
                 <div class="text-center">
                     <a href="{{ route('google.login') }}"
                         class="block w-full text-center mt-3 border border-gray-300 py-3 rounded-xl hover:bg-gray-100 transition">

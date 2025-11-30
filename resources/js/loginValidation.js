@@ -15,8 +15,19 @@ document.addEventListener("DOMContentLoaded", () => {
         emailInput.classList.remove("border-red-500");
         passwordInput.classList.remove("border-red-500");
 
+        const originalEmail = emailInput.value;
+
+        // Deteksi spasi boundary tanpa mengubah nilai (biarkan user melihat kesalahan)
+        if (originalEmail !== originalEmail.trim()) {
+            emailError.textContent = "Email tidak boleh diawali atau diakhiri spasi.";
+            emailError.classList.remove("hidden");
+            emailInput.classList.add("border-red-500");
+            e.preventDefault();
+            return;
+        }
+
         // Validasi email
-        if (emailInput.value.trim() === "") {
+        if (emailInput.value === "") {
             emailError.textContent = "Email wajib diisi.";
             emailError.classList.remove("hidden");
             emailInput.classList.add("border-red-500");
@@ -26,11 +37,21 @@ document.addEventListener("DOMContentLoaded", () => {
             emailError.classList.remove("hidden");
             emailInput.classList.add("border-red-500");
             isValid = false;
+        } else if (emailInput.value.length > 200) {
+            emailError.textContent = "Email tidak valid / terlalu panjang.";
+            emailError.classList.remove("hidden");
+            emailInput.classList.add("border-red-500");
+            isValid = false;
         }
 
         // Validasi password
         if (passwordInput.value.trim() === "") {
             passwordError.textContent = "Password tidak boleh kosong.";
+            passwordError.classList.remove("hidden");
+            passwordInput.classList.add("border-red-500");
+            isValid = false;
+        } else if (passwordInput.value.length < 6) {
+            passwordError.textContent = "Password terlalu pendek (min 6 karakter).";
             passwordError.classList.remove("hidden");
             passwordInput.classList.add("border-red-500");
             isValid = false;

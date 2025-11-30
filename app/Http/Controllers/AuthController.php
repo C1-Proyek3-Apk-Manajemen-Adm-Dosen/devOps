@@ -25,15 +25,32 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
+        $originalEmail = $request->input('email', '');
+
+        // Tolak jika email mengandung spasi di awal atau akhir (jangan auto-trim diam-diam)
+        if ($originalEmail !== trim($originalEmail)) {
+            return back()->withErrors(['email' => 'Email tidak boleh diawali atau diakhiri spasi.'])->withInput();
+        }
+
+        // Setelah lolos, merge versi trimmed untuk memastikan konsistensi pencarian
+        $request->merge(['email' => trim($originalEmail)]);
+
         $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+            'email' => 'required|email|max:200',
+            'password' => 'required|min:6',
+        ], [
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.max' => 'Email tidak valid / terlalu panjang.',
+            'password.required' => 'Password tidak boleh kosong.',
+            'password.min' => 'Password terlalu pendek (min 6 karakter).',
         ]);
 
-        $user = User::where('email', $credentials['email'])->first();
+        $email = $credentials['email'];
+        $user = User::where('email', $email)->first();
 
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
-            return back()->withErrors(['email' => 'Email atau password salah.']);
+            return back()->withErrors(['email' => 'Email atau password salah.'])->withInput();
         }
 
         Auth::login($user);
