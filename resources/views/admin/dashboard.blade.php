@@ -1,16 +1,20 @@
 @extends('layouts.app')
-
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/override.css') }}">
+@endpush
 @section('title', 'Dashboard Administrator - SiDoRa')
 
 @section('content')
 <div class="space-y-6">
+    {{-- Header --}}
     <div>
         <h1 class="text-2xl font-bold text-[#050C9C]">Dashboard Administrator</h1>
         <p class="text-gray-500">Selamat datang, {{ Auth::user()->nama_lengkap }} 👋</p>
     </div>
 
-    {{-- Statistik --}}
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    {{-- Statistik Cards --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {{-- Total Pengguna --}}
         <div class="bg-white/40 backdrop-blur-lg p-6 rounded-2xl shadow border border-white/30">
             <div class="flex justify-between items-center">
                 <div>
@@ -23,6 +27,7 @@
             </div>
         </div>
 
+        {{-- Total TU --}}
         <div class="bg-white/40 backdrop-blur-lg p-6 rounded-2xl shadow border border-white/30">
             <div class="flex justify-between items-center">
                 <div>
@@ -35,6 +40,7 @@
             </div>
         </div>
 
+        {{-- Total Dosen --}}
         <div class="bg-white/40 backdrop-blur-lg p-6 rounded-2xl shadow border border-white/30">
             <div class="flex justify-between items-center">
                 <div>
@@ -47,6 +53,7 @@
             </div>
         </div>
 
+        {{-- Total Koordinator --}}
         <div class="bg-white/40 backdrop-blur-lg p-6 rounded-2xl shadow border border-white/30">
             <div class="flex justify-between items-center">
                 <div>
@@ -60,10 +67,10 @@
         </div>
     </div>
 
-    {{-- Chart --}}
+    {{-- Chart Section --}}
     <div class="bg-white/40 backdrop-blur-lg p-6 rounded-2xl shadow border border-white/30">
         <h3 class="text-lg font-semibold text-[#050C9C] mb-4">Aktivitas Pembuatan Akun (30 Hari Terakhir)</h3>
-        <canvas id="userChart" height="100" data-tanggal='@json($tanggal)' data-jumlah='@json($jumlah)'></canvas>
+        <canvas id="userChart" height="100"></canvas>
     </div>
 
     {{-- Quick Actions --}}
@@ -77,6 +84,87 @@
     </div>
 </div>
 
+{{-- Chart.js Script --}}
+@push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-@vite(['resources/js/tu/dashboard-chart.js'])
+<script>
+    const chartLabels = @json($chartLabels);
+    const chartData = @json($chartData);
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('userChart');
+
+        if (ctx) {
+            // Data dari controller
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Akun Dibuat',
+                        data: chartData,
+                        borderColor: '#050C9C',
+                        backgroundColor: 'rgba(5, 12, 156, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#050C9C',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            cornerRadius: 8,
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 13
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0,
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 11
+                                },
+                                maxRotation: 45,
+                                minRotation: 45
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+@endpush
 @endsection
