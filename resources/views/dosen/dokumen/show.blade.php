@@ -218,12 +218,12 @@
                                       bg-gradient-to-r from-[#050C9C] to-[#1E40FF] text-white
                                       shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition">
                                 <i class="fa-solid fa-download text-xs"></i>
-                                Unduh File
+                                Unduh Dokumen
                             </a>
                         @else
                             <div class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium bg-gray-200 text-gray-600">
                                 <i class="fa-solid fa-download text-xs opacity-70"></i>
-                                File belum tersedia
+                                Dokumen belum tersedia
                             </div>
                         @endif
                     </div>

@@ -151,14 +151,14 @@
                                           bg-gradient-to-r from-[#050C9C] to-blue-600 text-white font-semibold
                                           shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition">
                                     <i class="fa-solid fa-download mr-2"></i>
-                                    Download Dokumen
+                                    Unduh Dokumen
                                 </a>
                             @else
                                 <button disabled
                                     class="inline-flex items-center justify-center w-full px-6 py-3 rounded-xl
                                            bg-slate-300 text-slate-600 font-semibold cursor-not-allowed">
                                     <i class="fa-solid fa-download mr-2"></i>
-                                    File belum tersedia
+                                    Dokumen belum tersedia
                                 </button>
                             @endif
                         </div>
