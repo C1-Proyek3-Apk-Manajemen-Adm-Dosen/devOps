@@ -208,8 +208,11 @@ Route::prefix('kaprodi')
             ->whereNumber('dokumen_id')
             ->name('dokumen.show');
 
-                
+        Route::get('/dokumen/{id}/download', [DaftarDokumenController::class, 'download'])
+            ->name('dokumen.download');
+
     });
+
 
 // ==================== ADMINISTRATOR ====================
 Route::prefix('admin')->middleware(['auth', 'checkRole:administrator'])->group(function () {

@@ -88,6 +88,19 @@
         </h1>
     </div>
 
+    {{-- Alert Error & Success --}}
+    @if (session('error'))
+        <div class="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-semibold">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if (session('success'))
+        <div class="mb-4 p-3 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm font-semibold">
+            {{ session('success') }}
+        </div>
+    @endif
+
     {{-- Card utama --}}
     <div class="bg-white rounded-3xl shadow-md overflow-hidden">
 
@@ -228,7 +241,7 @@
                         {{-- Tombol Download --}}
                         <div class="pt-1">
                             @if($latest && !empty($latest->file_path))
-                                <a href="{{ $latest->file_path }}"
+                                <a href="{{ route('kaprodi.dokumen.download', ['id' => $dokumen->dokumen_id, 'versi' => $latest->nomor_versi]) }}"
                                    class="inline-flex items-center justify-center w-full gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium
                                           bg-gradient-to-r from-[#050C9C] to-[#1E40FF] text-white
                                           shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition">
@@ -246,26 +259,6 @@
 
                 </div>
             </div>
-
-            {{-- riwayat versi --}}
-            @if($versi->count() > 1)
-                <div class="mt-6">
-                    <h3 class="text-sm font-semibold text-gray-700 mb-2">
-                        Riwayat Versi Dokumen
-                    </h3>
-                    <div class="space-y-2 text-sm">
-                        @foreach($versi as $v)
-                            <div class="flex items-center justify-between border border-gray-200 rounded-xl px-4 py-2 bg-gray-50">
-                                <span>Versi {{ $v->nomor_versi }}</span>
-                                <span class="text-xs text-gray-500">
-                                    {{ $v->created_at ? \Carbon\Carbon::parse($v->created_at)->locale('id')->translatedFormat('d F Y') : '-' }}
-                                </span>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-
         </div>
     </div>
 </div>

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Kaprodi;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;   // ⬅️ tambah
+use Illuminate\Support\Facades\Log;       // ⬅️ tambah
 use App\Models\Dokumen;
 use App\Models\Kategori;
 use App\Models\User;
@@ -148,5 +150,62 @@ class DaftarDokumenController extends Controller
         $latest = $versi->first();
 
         return view('kaprodi.dokumen.show', compact('dokumen', 'versi', 'latest'));
+    }
+
+    /**
+     * Download dokumen (untuk Kaprodi)
+     */
+    public function download($id, Request $request)
+    {
+        // Ambil dokumen + relasi versi
+        $dokumen = Dokumen::with('versi')->findOrFail($id);
+
+        $versiNomor = $request->get('versi');
+
+        if ($versiNomor) {
+            // Kalau minta versi spesifik (?versi=2)
+            $versi = VersiDokumen::where('dokumen_id', $id)
+                ->where('nomor_versi', $versiNomor)
+                ->firstOrFail();
+
+            $filePath      = $versi->file_path;
+            $versionSuffix = '_v' . $versiNomor;
+        } else {
+            // Kalau nggak ada parameter versi → ambil versi terakhir yang filenya bener-bener ada
+            $latestVersion = $dokumen->versi
+                ->sortByDesc('nomor_versi')
+                ->firstWhere(function ($v) {
+                    return $v->file_path && Storage::disk('minio')->exists($v->file_path);
+                });
+
+            if (!$latestVersion) {
+                return back()->with('error', 'File dokumen tidak tersedia atau rusak di server.');
+            }
+
+            $filePath      = $latestVersion->file_path;
+            $versionSuffix = '_v' . $latestVersion->nomor_versi;
+        }
+
+        if (!$filePath) {
+            return back()->with('error', 'Path file tidak ditemukan.');
+        }
+
+        try {
+            if (!Storage::disk('minio')->exists($filePath)) {
+                return back()->with('error', 'File tidak ditemukan di server.');
+            }
+
+            // Susun nama file yang rapi
+            $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+            $ext       = $extension ? '.' . $extension : '';
+            $cleanTitle = preg_replace('/[^A-Za-z0-9\- ]/', '', $dokumen->judul);
+            $downloadName = $cleanTitle . $versionSuffix . $ext;
+
+            return Storage::disk('minio')->download($filePath, $downloadName);
+
+        } catch (\Exception $e) {
+            Log::error("Download gagal (kaprodi): " . $e->getMessage());
+            return back()->with('error', 'Gagal download file.');
+        }
     }
 }

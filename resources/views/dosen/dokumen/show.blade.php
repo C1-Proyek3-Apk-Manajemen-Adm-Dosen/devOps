@@ -64,6 +64,19 @@
         </h1>
     </div>
 
+    {{-- Alert Error & Success --}}
+    @if (session('error'))
+        <div class="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-semibold">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if (session('success'))
+        <div class="mb-4 p-3 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm font-semibold">
+            {{ session('success') }}
+        </div>
+    @endif
+
     {{-- Card utama --}}
     <div class="bg-white rounded-3xl shadow-md overflow-hidden">
 
@@ -198,9 +211,9 @@
                             </div>
                         @endif
 
-                        {{-- Tombol file --}}
+                        {{-- Tombol file (PAKAI ROUTE DOSEN) --}}
                         @if($latest && !empty($latest->file_path))
-                            <a href="{{ $latest->file_path }}"
+                            <a href="{{ route('dosen.dokumen.download', ['id' => $dokumen->dokumen_id, 'versi' => $latest->nomor_versi]) }}"
                                class="inline-flex items-center justify-center w-full gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium
                                       bg-gradient-to-r from-[#050C9C] to-[#1E40FF] text-white
                                       shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition">
