@@ -46,7 +46,20 @@ document.addEventListener('DOMContentLoaded', function() {
             const file = e.target.files[0];
 
             if (file) {
-                fileLabel.textContent = file.name;
+
+                // ========== PERBAIKAN NAMA FILE PANJANG ==========
+                const maxLength = 40; // batas karakter yang ditampilkan
+                let displayName = file.name;
+
+                if (file.name.length > maxLength) {
+                    const ext = file.name.split('.').pop(); // ambil ekstensi
+                    const base = file.name.substring(0, maxLength - ext.length - 5);
+                    displayName = base + "... ." + ext;
+                }
+
+                fileLabel.textContent = displayName;
+                // =================================================
+
                 fileUploadArea.classList.add('file-selected', 'border-[#050C9C]', 'bg-blue-50');
             } else {
                 fileLabel.textContent = 'Klik untuk pilih file';
@@ -54,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Trigger file input saat klik area (tapi bukan tombol)
+        // Trigger file input saat klik area
         fileUploadArea.addEventListener('click', function(e) {
             if (e.target.tagName !== 'BUTTON') {
                 fileInput.click();

@@ -77,6 +77,14 @@ class UploadValidatorTU {
             });
         }
 
+        // Validate Judul max 50 chars
+        if (judul && judul.length > 50) {
+            errors.push({
+                field: 'Judul Dokumen',
+                message: 'Judul tidak boleh lebih dari 50 karakter'
+            });
+        }
+
         // Validate Tanggal Terbit
         const tanggalTerbit = this.form.querySelector('[name="tanggal_terbit"]')?.value.trim();
         if (!tanggalTerbit) {

@@ -21,10 +21,24 @@ if (fileUploadArea && fileInput) {
         const file = e.target.files[0];
 
         if (file) {
-            // Update label dengan nama file
-            fileLabel.textContent = file.name;
+
+            // ========== FIX: POTONG NAMA FILE PANJANG ==========
+            const maxLength = 40;  // batas karakter tampil
+            let displayName = file.name;
+
+            if (file.name.length > maxLength) {
+                const ext = file.name.split('.').pop();        // ambil ekstensi
+                const base = file.name.substring(0, maxLength - ext.length - 5);
+                displayName = base + "... ." + ext;            // contoh: "dokumen_sangat_panjang... .pdf"
+            }
+
+            fileLabel.textContent = displayName;
+            // ===================================================
+
             fileUploadArea.classList.add('file-selected', 'border-[#050C9C]', 'bg-blue-50');
+
         } else {
+
             // Reset label
             fileLabel.textContent = 'Klik untuk pilih file';
             fileUploadArea.classList.remove('file-selected', 'border-[#050C9C]', 'bg-blue-50');
