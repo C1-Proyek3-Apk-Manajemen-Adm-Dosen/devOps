@@ -28,7 +28,7 @@ $current = request()->path(); // untuk cek halaman aktif
         {{-- Dashboard Admin --}}
         <a href="{{ route('admin.dashboard') }}"
             class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition {{ request()->routeIs('admin.dashboard') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
-            <i class="fa-solid fa-users-cog text-xl w-6 text-center"></i>
+            <i class="fa-solid fa-house text-xl w-6 text-center"></i>
             <span class="font-semibold">Dashboard</span>
         </a>
 
@@ -42,7 +42,7 @@ $current = request()->path(); // untuk cek halaman aktif
             {{-- Tambah Pengguna (Quick Access) --}}
             <a href="{{ route('admin.users.create') }}"
                 class="flex items-center gap-3 px-6 py-3 rounded-full mx-2 font-semibold  transition {{ request()->routeIs('admin.users.create') ? 'bg-[#050C9C] text-white' : 'text-black hover:text-[#050C9C]' }}">
-                <i class="fa-solid fa-users-cog text-xl w-6 text-center"></i>
+                <i class="fa-solid fa-user-plus text-xl w-6 text-center"></i>
                 <span class="font-semibold">Tambah Pengguna</span>
             </a>
 
