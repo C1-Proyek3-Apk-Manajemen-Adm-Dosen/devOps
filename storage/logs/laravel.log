@@ -3825,3 +3825,31 @@ LINE 1: select * from \"profil_dosen\" where \"profil_dosen\".\"id_user\" ...
 [2025-12-01 14:49:36] local.WARNING: File check failed for dokumen-uploads/20251201094628-GVSVeE-c1-dokumen-proyek-3-d3.pdf: Unable to check existence for: dokumen-uploads/20251201094628-GVSVeE-c1-dokumen-proyek-3-d3.pdf  
 [2025-12-01 14:49:48] local.WARNING: File check failed for dokumen/dokumen_120_v2_1764558362.pdf: Unable to check existence for: dokumen/dokumen_120_v2_1764558362.pdf  
 [2025-12-01 14:50:01] local.WARNING: File check failed for dokumen/dokumen_120_v3_1764575155.pdf: Unable to check existence for: dokumen/dokumen_120_v3_1764575155.pdf  
+[2025-12-06 10:12:12] local.ERROR: Maximum execution time of 30 seconds exceeded {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Maximum execution time of 30 seconds exceeded at D:\\SEMESTER 3 TEKNIK INFORMATIKA\\PROYEK-3-PBO\\APK-MANAJEMEN-DOSEN\\devOps\\devOps\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php:67)
+[stacktrace]
+#0 {main}
+"} 
+[2025-12-06 10:13:02] local.ERROR: Maximum execution time of 30 seconds exceeded {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Maximum execution time of 30 seconds exceeded at D:\\SEMESTER 3 TEKNIK INFORMATIKA\\PROYEK-3-PBO\\APK-MANAJEMEN-DOSEN\\devOps\\devOps\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php:67)
+[stacktrace]
+#0 {main}
+"} 
+[2025-12-06 10:13:58] local.ERROR: Maximum execution time of 30 seconds exceeded {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Maximum execution time of 30 seconds exceeded at D:\\SEMESTER 3 TEKNIK INFORMATIKA\\PROYEK-3-PBO\\APK-MANAJEMEN-DOSEN\\devOps\\devOps\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php:67)
+[stacktrace]
+#0 {main}
+"} 
+[2025-12-06 10:14:43] local.ERROR: Maximum execution time of 30 seconds exceeded {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Maximum execution time of 30 seconds exceeded at D:\\SEMESTER 3 TEKNIK INFORMATIKA\\PROYEK-3-PBO\\APK-MANAJEMEN-DOSEN\\devOps\\devOps\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php:67)
+[stacktrace]
+#0 {main}
+"} 
+[2025-12-06 10:15:27] local.ERROR: Maximum execution time of 30 seconds exceeded {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Maximum execution time of 30 seconds exceeded at D:\\SEMESTER 3 TEKNIK INFORMATIKA\\PROYEK-3-PBO\\APK-MANAJEMEN-DOSEN\\devOps\\devOps\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php:67)
+[stacktrace]
+#0 {main}
+"} 
+[2025-12-06 10:16:11] local.ERROR: Maximum execution time of 30 seconds exceeded {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Maximum execution time of 30 seconds exceeded at D:\\SEMESTER 3 TEKNIK INFORMATIKA\\PROYEK-3-PBO\\APK-MANAJEMEN-DOSEN\\devOps\\devOps\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php:67)
+[stacktrace]
+#0 {main}
+"} 
+[2025-12-06 10:17:46] local.ERROR: Maximum execution time of 30 seconds exceeded {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Maximum execution time of 30 seconds exceeded at D:\\SEMESTER 3 TEKNIK INFORMATIKA\\PROYEK-3-PBO\\APK-MANAJEMEN-DOSEN\\devOps\\devOps\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php:67)
+[stacktrace]
+#0 {main}
+"} 
