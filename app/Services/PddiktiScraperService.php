@@ -16,18 +16,22 @@ class PddiktiScraperService
 
     public function __construct()
     {
+        $timeout = config('pddikti.timeout', 30);
+        $userAgent = config('pddikti.user_agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+
         $this->client = new Client([
-            'timeout' => 30,
+            'timeout' => $timeout,
             'verify' => false,
             'headers' => [
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'User-Agent' => $userAgent,
                 'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 'Accept-Language' => 'id-ID,id;q=0.9,en;q=0.8',
             ]
         ]);
 
-        $this->baseUrl = 'https://pddikti.kemdiktisaintek.go.id';
-        $this->apiSearchUrl = 'https://api-pddikti.kemdiktisaintek.go.id/pencarian/enc/all/';
+        $this->baseUrl = config('pddikti.base_url', 'https://pddikti.kemdiktisaintek.go.id');
+        $this->apiSearchUrl = config('pddikti.api_search_url', 'https://api-pddikti.kemdiktisaintek.go.id/pencarian/enc/all/');
+        $this->cacheTime = config('pddikti.cache_ttl', 3600);
     }
 
     /**
@@ -95,7 +99,6 @@ class PddiktiScraperService
                 }
 
                 return $results;
-
             } catch (\Exception $e) {
                 Log::error('PDDikti Search Error: ' . $e->getMessage());
                 return [];
@@ -247,7 +250,6 @@ class PddiktiScraperService
             }
 
             return $biodata;
-
         } catch (\Exception $e) {
             Log::error('Extract biodata error: ' . $e->getMessage());
             return null;
@@ -262,14 +264,14 @@ class PddiktiScraperService
         $data = [];
         try {
             $selector = sprintf('#tabs-portofolio div[role="tabpanel"][data-value="%s"] table tbody tr', $tabValue);
-            
+
             $crawler->filter($selector)->each(function ($tr) use (&$data) {
                 try {
                     $tds = $tr->filter('td');
                     if ($tds->count() < 2) return;
 
                     $item = [];
-                    
+
                     // Biasanya kolom: No | Judul | Jenis | Tahun
                     // Ambil kolom kedua sebagai judul
                     if ($tds->count() >= 2) {

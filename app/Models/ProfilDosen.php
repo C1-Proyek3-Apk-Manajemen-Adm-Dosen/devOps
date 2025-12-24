@@ -21,10 +21,16 @@ class ProfilDosen extends Model
         'jabatan_fungsional',
         'pangkat_golongan',
         'status_dosen',
+        'status_aktivitas',
         'perguruan_tinggi',
         'fakultas',
         'program_studi',
+        'pendidikan_terakhir',
         'riwayat_pendidikan',
+        'penelitian',
+        'pengabdian',
+        'publikasi',
+        'hki',
         'jumlah_penelitian',
         'jumlah_publikasi',
         'jumlah_pengabdian',
@@ -43,8 +49,13 @@ class ProfilDosen extends Model
     protected $casts = [
         'tanggal_lahir' => 'date',
         'riwayat_pendidikan' => 'array',
+        'penelitian' => 'array',
+        'pengabdian' => 'array',
+        'publikasi' => 'array',
+        'hki' => 'array',
         'last_scraped_at' => 'datetime',
         'is_verified' => 'boolean',
+        'sertifikat_pendidik' => 'boolean',
         'jumlah_penelitian' => 'integer',
         'jumlah_publikasi' => 'integer',
         'jumlah_pengabdian' => 'integer',
@@ -64,7 +75,19 @@ class ProfilDosen extends Model
     public function getPendidikanTerakhirAttribute(): ?string
     {
         $pendidikan = $this->riwayat_pendidikan;
-        return !empty($pendidikan) ? $pendidikan[0] : null;
+        if (!empty($pendidikan) && is_array($pendidikan)) {
+            $latest = $pendidikan[0];
+            return $latest['jenjang'] ?? null;
+        }
+        return $this->attributes['pendidikan_terakhir'] ?? null;
+    }
+
+    /**
+     * Accessor: Total karya ilmiah
+     */
+    public function getTotalKaryaAttribute(): int
+    {
+        return $this->jumlah_penelitian + $this->jumlah_publikasi + $this->jumlah_pengabdian;
     }
 
     /**
@@ -84,5 +107,15 @@ class ProfilDosen extends Model
     public function scopeVerified($query)
     {
         return $query->where('is_verified', true);
+    }
+
+    /**
+     * Scope: dengan portofolio lengkap
+     */
+    public function scopeWithPortofolio($query)
+    {
+        return $query->whereNotNull('penelitian')
+                     ->orWhereNotNull('publikasi')
+                     ->orWhereNotNull('pengabdian');
     }
 }
