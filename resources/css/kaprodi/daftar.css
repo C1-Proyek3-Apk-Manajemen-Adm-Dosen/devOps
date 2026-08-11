@@ -1,0 +1,442 @@
+/* ==========================================================
+   📄 Daftar Dokumen Kaprodi
+   Warna & gaya disamakan dengan halaman riwayat (biru)
+   ========================================================== */
+
+   :root {
+    --kp-primary: #050C9C;
+    --kp-primary-soft: #eef2ff;
+    --kp-bg-soft: #f3f4f6;
+    --kp-radius: 14px;
+    --kp-shadow-sm: 0 1px 3px rgba(15,23,42,.06), 0 1px 2px rgba(15,23,42,.04);
+    --kp-shadow-md: 0 8px 20px rgba(15,23,42,.10);
+  }
+  
+  /* ===== Wrapper tabel ===== */
+  
+  .kp-wrapper {
+    background: #ffffff;
+    border-radius: 1rem;
+    box-shadow: var(--kp-shadow-sm);
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+  }
+  
+  /* Header & row gunakan grid yang sama
+     Kolom: NO | NAMA | KATEGORI | TANGGAL | DOSEN | AKSI */
+  .kp-header,
+  .kp-row {
+    display: grid;
+    grid-template-columns: 60px minmax(0, 3fr) 160px 170px 170px 80px;
+    column-gap: 1rem;
+    align-items: center;
+  }
+  
+  /* ===== Header ===== */
+  
+  .kp-header {
+    background: #f8fafc;
+    padding: 0.9rem 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #475569;
+  }
+  
+  .kp-header > div:nth-child(1),
+  .kp-header > div:nth-child(6) {
+    text-align: center;
+  }
+  
+  /* ===== Body list baris ===== */
+  
+  .kp-body {
+    padding: 0.75rem 1rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  
+  .kp-row {
+    background: #ffffff;
+    border-radius: var(--kp-radius);
+    padding: 0.9rem 0.75rem;
+    box-shadow: var(--kp-shadow-sm);
+    transition: box-shadow .2s ease, background-color .15s ease;
+  }
+  
+  .kp-row:hover {
+    box-shadow: var(--kp-shadow-md);
+    background: #f9fafb;
+  }
+  
+  /* NO */
+  .kp-row > div:nth-child(1) {
+    text-align: center;
+    font-weight: 600;
+    color: #1f2937;
+  }
+  
+  /* Aksi */
+  .kp-row > div:nth-child(6) {
+    text-align: center;
+  }
+  
+  /* ===== Icon Dokumen (outline) ===== */
+  
+  .kp-doc-icon {
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 0.9rem;
+    background: linear-gradient(135deg, #050C9C, #0818d4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 10px 15px -3px rgba(15,23,42,.25);
+  }
+  
+  .kp-doc-icon i {
+    font-size: 1.05rem;
+    color: #ffffff !important;
+  }
+  
+  /* Judul + nomor dokumen */
+  
+  .kp-doc-main {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .kp-doc-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0f172a;
+  }
+  
+  .kp-doc-sub {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.15rem;
+  }
+  
+  /* ===== Chip kategori ===== */
+  
+  .kp-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .375rem;
+    padding: .30rem .9rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: .75rem;
+    border: 1px solid transparent;
+    line-height: 1;
+  }
+  
+  .kp-chip::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: currentColor;
+  }
+  
+  /* warna kategori – sama dengan riwayat dosen */
+  .kp-chip-default { color:#4338ca; background:#eef2ff; border-color:#e0e7ff; }
+  .kp-chip-bkd     { color:#6d28d9; background:#ede9fe; border-color:#ddd6fe; }
+  .kp-chip-rps     { color:#ea580c; background:#ffedd5; border-color:#fed7aa; }
+  .kp-chip-st      { color:#2563eb; background:#e0f2ff; border-color:#bfdbfe; }
+  .kp-chip-sk      { color:#c026d3; background:#fce7ff; border-color:#f9c5ff; }
+  
+  /* ===== Link detail ===== */
+  
+  .kp-link-detail {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #050C9C;
+  }
+  
+  .kp-link-detail:hover {
+    text-decoration: underline;
+  }
+  
+  /* ==========================================================
+     🔍 Filter bar + Search
+     ========================================================== */
+  
+  .kp-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+  }
+  
+  /* wrapper select + arrow custom */
+  .kp-select-wrap {
+    position: relative;
+    display: inline-block;
+  }
+  
+  /* disamakan dengan riwayat TU */
+  .kp-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+    padding: 0.5rem 2.3rem 0.5rem 0.9rem;
+    font-size: 0.82rem;
+    color: #374151;
+    cursor: pointer;
+    outline: none;
+  }
+  
+  .kp-select:focus {
+    border-color: #c7d2fe;
+    box-shadow: 0 0 0 2px rgba(59,130,246,.15);
+  }
+  
+  .kp-select-arrow {
+    position: absolute;
+    right: 0.7rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 0.9rem;
+    color: #6b7280;
+  }
+  
+  /* Search bar abu + rounded kotak */
+  .kp-search-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 320px;
+    margin-left: auto;
+  }
+  
+  .kp-search-input {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+    background: #edf1f7;
+    padding: 0.55rem 0.9rem 0.55rem 2.1rem;
+    font-size: 0.85rem;
+    color: #111827;
+    outline: none;
+  }
+  
+  .kp-search-input::placeholder {
+    color: #9ca3af;
+  }
+  
+  .kp-search-input:focus {
+    border-color: #c7d2fe;
+    box-shadow: 0 0 0 2px rgba(59,130,246,.10);
+  }
+  
+  .kp-search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.8rem;
+    color: #9ca3af;
+  }
+  
+  /* Tombol Terapkan – biru solid kotak */
+  .kp-btn-apply {
+    padding: 0.55rem 1.4rem;
+    border-radius: 0.75rem;
+    background: #050C9C;
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: none;
+    box-shadow: 0 8px 18px rgba(5,12,156,.35);
+    cursor: pointer;
+    transition: transform .1s ease, box-shadow .1s ease, background .1s ease;
+  }
+  
+  .kp-btn-apply:hover {
+    background: #001070;
+    transform: translateY(-1px);
+  }
+  
+  /* ==========================================================
+     📄 Footer pagination custom
+     ========================================================== */
+  
+  .kp-border-top-soft {
+    border-top: 1px solid #e5e7eb;
+  }
+  
+  .kp-footer {
+    padding: 0.75rem 1.5rem;
+    background: #f9fafb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.875rem;
+  }
+  
+  .kp-footer-total {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  
+  .kp-footer-total-icon {
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eef2ff;
+    color: #1d4ed8;
+    font-size: 0.8rem;
+  }
+  
+  .kp-footer-pageinfo {
+    font-size: 0.8rem;
+    color: #4b5563;
+  }
+  
+  .kp-footer-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .kp-pagination {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  
+  .kp-page,
+  .kp-arrow {
+    min-width: 2.25rem;
+    height: 2.25rem;
+    padding: 0 0.55rem;
+    border-radius: 0.55rem;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #4b5563;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition:
+      background-color .15s ease,
+      border-color .15s ease,
+      color .15s ease,
+      box-shadow .15s ease;
+  }
+  
+  .kp-page:hover,
+  .kp-arrow:hover {
+    border-color: #b0b8ff;
+    color: #050C9C;
+  }
+  
+  .kp-page.is-active {
+    background: #050C9C;
+    color: #ffffff;
+    border-color: #050C9C;
+    box-shadow: 0 6px 14px rgba(5,12,156,.35);
+  }
+  
+  .kp-arrow.disabled,
+  .kp-arrow.disabled:hover {
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+    color: #9ca3af;
+    cursor: default;
+    box-shadow: none;
+  }
+  
+  /* ===== Responsif basic ===== */
+  /* Layar <= 1024px: tabel jadi card, filter & tombol full width */
+  
+  @media (max-width: 1024px) {
+    /* header tabel disembunyikan */
+    .kp-header {
+      display: none;
+    }
+  
+    .kp-body {
+      padding: 0.75rem;
+    }
+  
+    /* baris jadi card 1 kolom */
+    .kp-row {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: 0.5rem;
+    }
+  
+    /* NO pindah ke atas kiri, kecil */
+    .kp-row > div:nth-child(1) {
+      order: 1;
+      text-align: left;
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+  
+    /* Nama dokumen di urutan 2 */
+    .kp-row > div:nth-child(2) {
+      order: 2;
+    }
+  
+    /* Kategori, tanggal, dosen, aksi di bawah */
+    .kp-row > div:nth-child(3),
+    .kp-row > div:nth-child(4),
+    .kp-row > div:nth-child(5),
+    .kp-row > div:nth-child(6) {
+      order: 3;
+      font-size: 0.8rem;
+    }
+  
+    .kp-row > div:nth-child(6) {
+      text-align: right;
+    }
+  
+    /* Filter bar disusun kolom */
+    .kp-filter-bar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .kp-select-wrap {
+      width: 100%;
+    }
+  
+    .kp-select {
+      width: 100%;
+    }
+  
+    .kp-btn-apply {
+      width: 100%;
+      text-align: center;
+      display: inline-flex;
+      justify-content: center;
+    }
+  
+    .kp-search-wrap {
+      max-width: 100%;
+      margin-left: 0;
+    }
+  
+    /* Footer ditumpuk */
+    .kp-footer {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+  }
+  
