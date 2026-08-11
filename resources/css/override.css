@@ -1,0 +1,18 @@
+@media (max-width: 768px) {
+    .max-w-3xl {
+        max-width: 100% !important;
+    }
+
+    main {
+        margin: 0 !important;
+        border-radius: 0 !important;
+        padding: 1rem !important;
+    }
+}
+
+@media (max-width: 768px) {
+    aside#sidebar {
+        position: fixed !important;
+        transform: translateX(-100%) !important;
+    }
+}
